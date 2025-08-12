@@ -362,7 +362,7 @@ export default function Settings() {
 
                 <div className="flex gap-3 pt-4">
                   <button
-                    onClick={() => saveSettings('email')}
+                    onClick={() => saveSettings('sendgrid')}
                     disabled={loading}
                     className="btn-primary"
                   >
