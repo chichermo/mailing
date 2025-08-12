@@ -76,18 +76,18 @@ export async function POST(request: NextRequest) {
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
     // Prepare emails
-    const emails = contacts.map(contact => {
+    const emails = contacts.map((contact: any) => {
       let personalizedContent = content
       let personalizedSubject = subject
 
       // Replace dynamic variables
       const variables = {
-        '{{firstName}}': contact.first_name || '',
-        '{{lastName}}': contact.last_name || '',
+        '{{firstName}}': contact.firstName || '',
+        '{{lastName}}': contact.lastName || '',
         '{{email}}': contact.email || '',
         '{{company}}': contact.company || '',
         '{{phone}}': contact.phone || '',
-        '{{listName}}': contact.list_name || ''
+        '{{listName}}': contact.listName || ''
       }
 
       Object.entries(variables).forEach(([key, value]) => {
