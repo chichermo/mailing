@@ -13,6 +13,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard')
 
   // Initialize database when component mounts
+  // Force redeploy to recognize MONGODB_URI environment variable
   useEffect(() => {
     const initDatabase = async () => {
       try {
