@@ -1,0 +1,42 @@
+'use client'
+
+import { useState } from 'react'
+import Sidebar from '../components/Sidebar'
+import Dashboard from '../components/Dashboard'
+import ContactList from '../components/ContactList'
+import EmailTemplates from '../components/EmailTemplates'
+import SendEmails from '../components/SendEmails'
+import EmailHistory from '../components/EmailHistory'
+import Settings from '../components/Settings'
+
+export default function Home() {
+  const [activeTab, setActiveTab] = useState('dashboard')
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard onTabChange={setActiveTab} />
+      case 'contacts':
+        return <ContactList />
+      case 'templates':
+        return <EmailTemplates />
+      case 'send-emails':
+        return <SendEmails />
+      case 'history':
+        return <EmailHistory />
+      case 'settings':
+        return <Settings />
+      default:
+        return <Dashboard onTabChange={setActiveTab} />
+    }
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <main className="flex-1 overflow-y-auto p-6">
+        {renderContent()}
+      </main>
+    </div>
+  )
+}
