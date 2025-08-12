@@ -8,7 +8,7 @@ export async function initializeDatabase() {
     
     // Create collections if they don't exist
     const collections = await db.listCollections().toArray()
-    const collectionNames = collections.map(col => col.name)
+    const collectionNames = collections.map((col: any) => col.name as string)
     
     // Initialize contacts collection
     if (!collectionNames.includes(dbConfig.collections.contacts)) {
