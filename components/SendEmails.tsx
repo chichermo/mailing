@@ -68,10 +68,17 @@ export default function SendEmails() {
       const contactsData = await contactsRes.json()
       const campaignsData = await campaignsRes.json()
 
+      console.log('📊 Data loaded:', {
+        templates: templatesData,
+        contacts: contactsData,
+        campaigns: campaignsData
+      })
+
       if (templatesData.success) setTemplates(templatesData.data)
       if (contactsData.success) setContacts(contactsData.data)
       if (campaignsData.success) setCampaigns(campaignsData.data)
     } catch (error) {
+      console.error('❌ Error loading data:', error)
       toast.error('Error loading data')
     } finally {
       setLoading(false)
@@ -219,6 +226,15 @@ export default function SendEmails() {
       </div>
     )
   }
+
+  // Debug info
+  console.log('🔍 Component state:', {
+    templates: templates.length,
+    contacts: contacts.length,
+    campaigns: campaigns.length,
+    selectedTemplate,
+    selectedList
+  })
 
   const stats = getStats()
   const selectedContacts = getSelectedContacts()
