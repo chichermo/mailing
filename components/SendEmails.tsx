@@ -85,8 +85,16 @@ export default function SendEmails() {
   // Send emails
   const handleSendEmails = async () => {
     if (!selectedTemplate && (!customSubject || !customContent)) {
-      toast.error('Select a template or enter custom content')
+      toast.error('Select a template or enter custom subject and content')
       return
+    }
+
+    if (selectedTemplate && (!customSubject && !customContent)) {
+      // If template is selected, we need at least custom subject or content
+      if (!customSubject && !customContent) {
+        toast.error('Enter custom subject or content when using a template')
+        return
+      }
     }
 
     if (testMode && contacts.filter(c => c.list_name === selectedList || selectedList === 'all').length > 5) {
@@ -112,7 +120,7 @@ export default function SendEmails() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          templateId: selectedTemplate,
+          templateId: selectedTemplate || undefined,
           listName: selectedList,
           customSubject: customSubject || undefined,
           customContent: customContent || undefined,
