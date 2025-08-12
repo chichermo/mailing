@@ -239,10 +239,10 @@ export default function ContactList() {
   // Filter contacts
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = 
-      contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.company.toLowerCase().includes(searchTerm.toLowerCase())
+      (contact.first_name && contact.first_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.last_name && contact.last_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.email && contact.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()))
     
     const matchesList = filterList === 'all' || contact.list_name === filterList
 

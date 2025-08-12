@@ -135,8 +135,8 @@ export default function EmailHistory() {
   const getFilteredCampaigns = () => {
     return campaigns.filter(campaign => {
       const matchesSearch = 
-        campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        campaign.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (campaign.name && campaign.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (campaign.subject && campaign.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (campaign.template_name && campaign.template_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (campaign.list_name && campaign.list_name.toLowerCase().includes(searchTerm.toLowerCase()))
 
