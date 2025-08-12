@@ -10,7 +10,7 @@ export async function GET() {
 
     // Get template names for each campaign
     const campaignsWithTemplateNames = await Promise.all(
-      campaigns.map(async (campaign) => {
+      campaigns.map(async (campaign: any) => {
         if (campaign.templateId) {
           const templatesCollection = await getCollection('templates')
           const template = await templatesCollection.findOne({ _id: new ObjectId(campaign.templateId) })
