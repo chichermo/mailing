@@ -7,7 +7,7 @@
     }
   ],
   "env": {
-         "MONGODB_URI": "mongodb+srv://heliopsis:dkp5vzSTzGwAnx8d@heliopsis.ybqndvo.mongodb.net/heliopsis?retryWrites=true&w=majority&tls=true&tlsVersion=TLS1_2",
+         "MONGODB_URI": "mongodb+srv://heliopsis:dkp5vzSTzGwAnx8d@heliopsis.ybqndvo.mongodb.net/heliopsis?retryWrites=true&w=majority&tls=true&ssl=true",
     "SENDGRID_API_KEY": "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",
     "SENDGRID_FROM_EMAIL": "heliopsis@outlook.be",
     "SENDGRID_FROM_NAME": "Boardenoutlook19781978@@",
