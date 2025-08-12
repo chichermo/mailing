@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
 import Dashboard from '../components/Dashboard'
 import ContactList from '../components/ContactList'
@@ -11,6 +11,27 @@ import Settings from '../components/Settings'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard')
+
+  // Initialize database when component mounts
+  useEffect(() => {
+    const initDatabase = async () => {
+      try {
+        console.log('🔄 Initializing database...')
+        const response = await fetch('/api/init-db')
+        const result = await response.json()
+        
+        if (result.success) {
+          console.log('✅ Database initialized successfully')
+        } else {
+          console.error('❌ Failed to initialize database:', result.error)
+        }
+      } catch (error) {
+        console.error('❌ Error initializing database:', error)
+      }
+    }
+
+    initDatabase()
+  }, [])
 
   const renderContent = () => {
     switch (activeTab) {
