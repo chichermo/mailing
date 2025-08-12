@@ -8,6 +8,24 @@ export async function GET() {
     console.log('- NODE_ENV:', process.env.NODE_ENV)
     console.log('- MONGODB_URI exists:', !!process.env.MONGODB_URI)
     console.log('- MONGODB_URI length:', process.env.MONGODB_URI?.length || 0)
+    console.log('- MONGODB_URI preview:', process.env.MONGODB_URI?.substring(0, 50) + '...')
+    console.log('- All env vars:', Object.keys(process.env).filter(key => key.includes('MONGODB')))
+    
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ MONGODB_URI is not set!')
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'MONGODB_URI environment variable is not configured',
+          envCheck: {
+            NODE_ENV: process.env.NODE_ENV,
+            hasMongoUri: !!process.env.MONGODB_URI,
+            envVars: Object.keys(process.env).filter(key => key.includes('MONGODB'))
+          }
+        },
+        { status: 500 }
+      )
+    }
     
     const success = await initializeDatabase()
     
@@ -27,7 +45,11 @@ export async function GET() {
   } catch (error) {
     console.error('❌ Error during database initialization:', error)
     return NextResponse.json(
-      { success: false, error: String(error) },
+      { 
+        success: false, 
+        error: String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
