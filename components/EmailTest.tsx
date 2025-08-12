@@ -92,7 +92,7 @@ export default function EmailTest() {
       setTestResults({
         success: false,
         message: 'Error during email test',
-        details: error.message
+        details: error instanceof Error ? error.message : String(error)
       })
       toast.error('Error during email test')
     } finally {
