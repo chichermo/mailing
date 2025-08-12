@@ -354,7 +354,7 @@ export default function EmailTemplates() {
                   </p>
                   <ul className="text-xs text-gray-500 space-y-1 ml-4">
                     <li>• Use HTML tags like &lt;h1&gt;, &lt;p&gt;, &lt;strong&gt; for formatting</li>
-                    <li>• Insert variables like {{firstName}} for personalization</li>
+                    <li>• Insert variables like {'{{firstName}}'} for personalization</li>
                     <li>• Keep content engaging and mobile-friendly</li>
                     <li>• Test your template before sending to all contacts</li>
                   </ul>
