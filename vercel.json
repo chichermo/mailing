@@ -7,11 +7,11 @@
     }
   ],
   "env": {
-    "SENDGRID_API_KEY": "@sendgrid_api_key",
-    "SENDGRID_FROM_EMAIL": "@sendgrid_from_email",
-    "SENDGRID_FROM_NAME": "@sendgrid_from_name",
-    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
-    "TWILIO_AUTH_TOKEN": "@twilio_auth_token",
-    "TWILIO_RECOVERY_CODE": "@twilio_recovery_code"
+    "SENDGRID_API_KEY": "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",
+    "SENDGRID_FROM_EMAIL": "heliopsis@outlook.be",
+    "SENDGRID_FROM_NAME": "Boardenoutlook19781978@@",
+    "TWILIO_ACCOUNT_SID": "AC4c0f2b60a8cbb3462ae38287d7536e08",
+    "TWILIO_AUTH_TOKEN": "2d4e31a8cd590268dc49eceb15f78521",
+    "TWILIO_RECOVERY_CODE": "KUJ92L3RQVUWUP14NU7ZGKKF"
   }
 }
