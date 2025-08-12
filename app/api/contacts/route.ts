@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
-import path from 'path'
-
-const dbPath = path.join(process.cwd(), 'email_contacts.db')
+import { getCollection } from '@/lib/db'
+import { ObjectId } from 'mongodb'
 
 // GET - Obtener lista de contactos
 export async function GET() {
   try {
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
-    const contacts = await db.all('SELECT * FROM contacts ORDER BY created_at DESC')
-    await db.close()
+    const contactsCollection = await getCollection('contacts')
+    const contacts = await contactsCollection.find({}).sort({ createdAt: -1 }).toArray()
 
     return NextResponse.json({ success: true, data: contacts })
   } catch (error) {
@@ -38,31 +30,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
+    const contactsCollection = await getCollection('contacts')
 
     // Verificar si el email ya existe
-    const existing = await db.get('SELECT id FROM contacts WHERE email = ?', [email])
+    const existing = await contactsCollection.findOne({ email })
     if (existing) {
-      await db.close()
       return NextResponse.json(
         { success: false, error: 'El email ya existe' },
         { status: 400 }
       )
     }
 
-    const result = await db.run(
-      'INSERT INTO contacts (first_name, last_name, email, company, phone, list_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [firstName, lastName, email, company || '', phone || '', listName || 'General', new Date().toISOString()]
-    )
+    const newContact = {
+      firstName,
+      lastName,
+      email,
+      company: company || '',
+      phone: phone || '',
+      listName: listName || 'General',
+      createdAt: new Date()
+    }
 
-    await db.close()
+    const result = await contactsCollection.insertOne(newContact)
 
     return NextResponse.json({
       success: true,
-      data: { id: result.lastID, firstName, lastName, email, company, phone, listName }
+      data: { _id: result.insertedId, ...newContact }
     })
   } catch (error) {
     console.error('Error creating contact:', error)
@@ -85,27 +78,30 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
+    const contactsCollection = await getCollection('contacts')
 
     // Verificar si el email ya existe en otro contacto
-    const existing = await db.get('SELECT id FROM contacts WHERE email = ? AND id != ?', [email, id])
+    const existing = await contactsCollection.findOne({ email, _id: { $ne: new ObjectId(id) } })
     if (existing) {
-      await db.close()
       return NextResponse.json(
         { success: false, error: 'El email ya existe en otro contacto' },
         { status: 400 }
       )
     }
 
-    await db.run(
-      'UPDATE contacts SET first_name = ?, last_name = ?, email = ?, company = ?, phone = ?, list_name = ? WHERE id = ?',
-      [firstName, lastName, email, company || '', phone || '', listName || 'General', id]
+    await contactsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          firstName,
+          lastName,
+          email,
+          company: company || '',
+          phone: phone || '',
+          listName: listName || 'General'
+        }
+      }
     )
-
-    await db.close()
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -130,13 +126,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
-    await db.run('DELETE FROM contacts WHERE id = ?', [id])
-    await db.close()
+    const contactsCollection = await getCollection('contacts')
+    await contactsCollection.deleteOne({ _id: new ObjectId(id) })
 
     return NextResponse.json({ success: true })
   } catch (error) {
