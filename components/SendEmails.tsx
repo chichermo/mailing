@@ -91,17 +91,23 @@ export default function SendEmails() {
 
   // Send emails
   const handleSendEmails = async () => {
+    console.log('🚀 Starting email send process:', {
+      selectedTemplate,
+      customSubject,
+      customContent,
+      selectedList
+    })
+
+    // Validate that we have either a template OR custom content
     if (!selectedTemplate && (!customSubject || !customContent)) {
       toast.error('Select a template or enter custom subject and content')
       return
     }
 
+    // If template is selected, we need at least custom subject or content
     if (selectedTemplate && (!customSubject && !customContent)) {
-      // If template is selected, we need at least custom subject or content
-      if (!customSubject && !customContent) {
-        toast.error('Enter custom subject or content when using a template')
-        return
-      }
+      toast.error('Enter custom subject or content when using a template')
+      return
     }
 
     if (testMode && contacts.filter(c => c.list_name === selectedList || selectedList === 'all').length > 5) {
@@ -123,16 +129,20 @@ export default function SendEmails() {
         testMode
       })
 
+      const requestBody = {
+        templateId: selectedTemplate || undefined,
+        listName: selectedList,
+        customSubject: customSubject || undefined,
+        customContent: customContent || undefined,
+        testMode
+      }
+
+      console.log('📤 Sending request body:', requestBody)
+
       const response = await fetch('/api/send-emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          templateId: selectedTemplate || undefined,
-          listName: selectedList,
-          customSubject: customSubject || undefined,
-          customContent: customContent || undefined,
-          testMode
-        })
+        body: JSON.stringify(requestBody)
       })
 
       console.log('Response status:', response.status)
@@ -183,8 +193,17 @@ export default function SendEmails() {
 
   // Get selected contacts
   const getSelectedContacts = () => {
-    if (selectedList === 'all') return contacts
-    return contacts.filter(c => c.list_name === selectedList)
+    console.log('👥 Getting selected contacts:', { selectedList, contactsCount: contacts.length })
+    
+    if (selectedList === 'all') {
+      const allContacts = contacts
+      console.log('📋 All contacts selected:', allContacts.length)
+      return allContacts
+    }
+    
+    const filteredContacts = contacts.filter(c => c.list_name === selectedList)
+    console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
+    return filteredContacts
   }
 
   // Get stats
@@ -382,7 +401,11 @@ export default function SendEmails() {
                 </label>
                 <select
                   value={selectedTemplate || ''}
-                  onChange={(e) => setSelectedTemplate(e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    console.log('🔄 Template selection changed:', { value, type: typeof value })
+                    setSelectedTemplate(value ? Number(value) : null)
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">-- No template (custom content) --</option>
