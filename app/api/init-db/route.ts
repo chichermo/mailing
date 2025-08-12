@@ -4,6 +4,11 @@ import { initializeDatabase } from '@/lib/init-db'
 export async function GET() {
   try {
     console.log('🔄 Initializing database via API route...')
+    console.log('📊 Environment check:')
+    console.log('- NODE_ENV:', process.env.NODE_ENV)
+    console.log('- MONGODB_URI exists:', !!process.env.MONGODB_URI)
+    console.log('- MONGODB_URI length:', process.env.MONGODB_URI?.length || 0)
+    
     const success = await initializeDatabase()
     
     if (success) {
@@ -22,7 +27,7 @@ export async function GET() {
   } catch (error) {
     console.error('❌ Error during database initialization:', error)
     return NextResponse.json(
-      { success: false, error: 'Error initializing database' },
+      { success: false, error: String(error) },
       { status: 500 }
     )
   }
