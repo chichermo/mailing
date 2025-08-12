@@ -1,30 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
-import path from 'path'
-
-const dbPath = path.join(process.cwd(), 'email_contacts.db')
+import { getCollection } from '@/lib/db'
+import { ObjectId } from 'mongodb'
 
 // GET - Obtener historial de emails
 export async function GET() {
   try {
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
+    const campaignsCollection = await getCollection('campaigns')
+    const campaigns = await campaignsCollection.find({}).sort({ createdAt: -1 }).toArray()
 
-    const campaigns = await db.all(`
-      SELECT 
-        ec.*,
-        et.name as template_name
-      FROM email_campaigns ec
-      LEFT JOIN email_templates et ON ec.template_id = et.id
-      ORDER BY ec.created_at DESC
-    `)
+    // Get template names for each campaign
+    const campaignsWithTemplateNames = await Promise.all(
+      campaigns.map(async (campaign) => {
+        if (campaign.templateId) {
+          const templatesCollection = await getCollection('templates')
+          const template = await templatesCollection.findOne({ _id: new ObjectId(campaign.templateId) })
+          return {
+            ...campaign,
+            template_name: template?.name || 'Unknown Template'
+          }
+        }
+        return {
+          ...campaign,
+          template_name: 'Custom Campaign'
+        }
+      })
+    )
 
-    await db.close()
-
-    return NextResponse.json({ success: true, data: campaigns })
+    return NextResponse.json({ success: true, data: campaignsWithTemplateNames })
   } catch (error) {
     console.error('Error getting email history:', error)
     return NextResponse.json(
@@ -47,13 +49,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
-    await db.run('DELETE FROM email_campaigns WHERE id = ?', [id])
-    await db.close()
+    const campaignsCollection = await getCollection('campaigns')
+    await campaignsCollection.deleteOne({ _id: new ObjectId(id) })
 
     return NextResponse.json({ success: true })
   } catch (error) {

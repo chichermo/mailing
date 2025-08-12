@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
-import path from 'path'
-
-const dbPath = path.join(process.cwd(), 'email_contacts.db')
+import { getCollection } from '@/lib/db'
+import { ObjectId } from 'mongodb'
 
 // GET - Obtener plantillas
 export async function GET() {
   try {
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
-    const templates = await db.all('SELECT * FROM email_templates ORDER BY created_at DESC')
-    await db.close()
+    const templatesCollection = await getCollection('templates')
+    const templates = await templatesCollection.find({}).sort({ createdAt: -1 }).toArray()
 
     return NextResponse.json({ success: true, data: templates })
   } catch (error) {
@@ -38,21 +30,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
+    const templatesCollection = await getCollection('templates')
 
-    const result = await db.run(
-      'INSERT INTO email_templates (name, subject, content, variables, created_at) VALUES (?, ?, ?, ?, ?)',
-      [name, subject, content, JSON.stringify(variables || []), new Date().toISOString()]
-    )
+    const newTemplate = {
+      name,
+      subject,
+      content,
+      variables: variables || [],
+      createdAt: new Date()
+    }
 
-    await db.close()
+    const result = await templatesCollection.insertOne(newTemplate)
 
     return NextResponse.json({
       success: true,
-      data: { id: result.lastID, name, subject, content, variables }
+      data: { _id: result.insertedId, ...newTemplate }
     })
   } catch (error) {
     console.error('Error creating template:', error)
@@ -75,17 +67,19 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
+    const templatesCollection = await getCollection('templates')
 
-    await db.run(
-      'UPDATE email_templates SET name = ?, subject = ?, content = ?, variables = ? WHERE id = ?',
-      [name, subject, content, JSON.stringify(variables || []), id]
+    await templatesCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          name,
+          subject,
+          content,
+          variables: variables || []
+        }
+      }
     )
-
-    await db.close()
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -110,13 +104,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
-    await db.run('DELETE FROM email_templates WHERE id = ?', [id])
-    await db.close()
+    const templatesCollection = await getCollection('templates')
+    await templatesCollection.deleteOne({ _id: new ObjectId(id) })
 
     return NextResponse.json({ success: true })
   } catch (error) {

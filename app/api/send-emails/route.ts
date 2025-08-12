@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import sgMail from '@sendgrid/mail'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
-import path from 'path'
+import { getCollection } from '@/lib/db'
+import { ObjectId } from 'mongodb'
 import { config } from '../../../lib/config'
-
-const dbPath = path.join(process.cwd(), 'email_contacts.db')
 
 // Configure SendGrid
 sgMail.setApiKey(config.sendgrid.apiKey)
@@ -33,18 +30,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    })
-
     // Get template if specified
     let template = null
     if (templateId) {
-      template = await db.get('SELECT * FROM email_templates WHERE id = ?', [templateId])
+      const templatesCollection = await getCollection('templates')
+      template = await templatesCollection.findOne({ _id: new ObjectId(templateId) })
       console.log('📝 Template found:', template ? 'YES' : 'NO')
       if (!template) {
-        await db.close()
         return NextResponse.json(
           { success: false, error: 'Template not found' },
           { status: 404 }
@@ -53,14 +45,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Get contacts from the specified list
-    const contacts = await db.all(
-      'SELECT * FROM contacts WHERE list_name = ? OR ? = "all"',
-      [listName || 'General', listName]
-    )
+    const contactsCollection = await getCollection('contacts')
+    const contacts = await contactsCollection.find({
+      $or: [
+        { listName: listName || 'General' },
+        { listName: 'all' }
+      ]
+    }).toArray()
     console.log('👥 Contacts found:', contacts.length)
 
     if (contacts.length === 0) {
-      await db.close()
       return NextResponse.json(
         { success: false, error: 'No contacts found in the specified list' },
         { status: 400 }
@@ -70,7 +64,6 @@ export async function POST(request: NextRequest) {
     // Limit the number of emails to prevent spam
     const maxEmails = testMode ? 5 : 200
     if (contacts.length > maxEmails) {
-      await db.close()
       return NextResponse.json(
         { success: false, error: `Maximum ${maxEmails} emails allowed per campaign` },
         { status: 400 }
@@ -142,21 +135,17 @@ export async function POST(request: NextRequest) {
     // Save sending history
     const campaignData = {
       name: `Campaign ${new Date().toLocaleDateString()}`,
-      template_id: templateId,
-      list_name: listName,
+      templateId: templateId,
+      listName: listName,
       subject: subject,
-      total_sent: emails.length,
-      success_count: successCount,
-      error_count: errorCount,
-      created_at: new Date().toISOString()
+      totalSent: emails.length,
+      successCount: successCount,
+      errorCount: errorCount,
+      createdAt: new Date()
     }
 
-    await db.run(
-      'INSERT INTO email_campaigns (name, template_id, list_name, subject, total_sent, success_count, error_count, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [campaignData.name, campaignData.template_id, campaignData.list_name, campaignData.subject, campaignData.total_sent, campaignData.success_count, campaignData.error_count, campaignData.created_at]
-    )
-
-    await db.close()
+    const campaignsCollection = await getCollection('campaigns')
+    await campaignsCollection.insertOne(campaignData)
 
     console.log('🎉 Campaign completed successfully')
 
