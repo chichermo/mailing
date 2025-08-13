@@ -5,14 +5,5 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ],
-  "env": {
-         "MONGODB_URI": "mongodb+srv://heliopsis:dkp5vzSTzGwAnx8d@heliopsis.ybqndvo.mongodb.net/heliopsis?retryWrites=true&w=majority",
-    "SENDGRID_API_KEY": "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",
-    "SENDGRID_FROM_EMAIL": "heliopsis@outlook.be",
-    "SENDGRID_FROM_NAME": "Boardenoutlook19781978@@",
-    "TWILIO_ACCOUNT_SID": "AC4c0f2b60a8cbb3462ae38287d7536e08",
-    "TWILIO_AUTH_TOKEN": "2d4e31a8cd590268dc49eceb15f78521",
-    "TWILIO_RECOVERY_CODE": "KUJ92L3RQVUWUP14NU7ZGKKF"
-  }
+  ]
 }
