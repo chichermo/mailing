@@ -21,11 +21,11 @@ interface EmailTemplate {
 
 interface Contact {
   id: number
-  first_name: string
-  last_name: string
+  firstName: string
+  lastName: string
   email: string
   company: string
-  list_name: string
+  listName: string
 }
 
 interface Campaign {
@@ -129,7 +129,7 @@ export default function SendEmails() {
       return
     }
 
-    if (testMode && contacts.filter(c => c.list_name === selectedList || selectedList === 'all').length > 5) {
+         if (testMode && contacts.filter(c => c.listName === selectedList || selectedList === 'all').length > 5) {
       toast.error('Test mode only allows maximum 5 emails')
       return
     }
@@ -220,7 +220,7 @@ export default function SendEmails() {
       return allContacts
     }
     
-    const filteredContacts = contacts.filter(c => c.list_name === selectedList)
+         const filteredContacts = contacts.filter(c => c.listName === selectedList)
     console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
     return filteredContacts
   }
@@ -357,9 +357,9 @@ export default function SendEmails() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                        {campaign.list_name || 'All'}
-                      </span>
+                                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                       {campaign.listName || 'All'}
+                     </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(campaign.status || 'draft')}
@@ -460,9 +460,9 @@ export default function SendEmails() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="all">All lists ({contacts.length} contacts)</option>
-                  {Array.from(new Set(contacts.map(c => c.list_name).filter(Boolean))).map(list => {
-                    const count = contacts.filter(c => c.list_name === list).length
+                                     <option value="all">All lists ({contacts.length} contacts)</option>
+                   {Array.from(new Set(contacts.map(c => c.listName).filter(Boolean))).map(list => {
+                     const count = contacts.filter(c => c.listName === list).length
                     console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
