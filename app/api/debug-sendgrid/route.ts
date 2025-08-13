@@ -1,53 +1,42 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import sgMail from '@sendgrid/mail'
-import { config } from '../../../lib/config'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Detailed SendGrid debugging...')
     
-    // Test 1: Check configuration
-    const configCheck = {
-      apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-      apiKeyLength: config.sendgrid.apiKey?.length || 0,
-      apiKeyPreview: config.sendgrid.apiKey ? config.sendgrid.apiKey.substring(0, 10) + '...' : 'NOT SET',
-      fromEmail: config.sendgrid.fromEmail,
-      fromName: config.sendgrid.fromName
-    }
-    
-    console.log('🔍 Configuration check:', configCheck)
+    // Check configuration
+    console.log('🔍 Configuration check:', {
+      apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
+      apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
+      apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
+      fromEmail: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      fromName: process.env.SENDGRID_FROM_NAME || 'Heliopsis Mail'
+    })
 
-    // Test 2: Check API key format
-    const apiKeyFormat = {
-      startsWithSG: config.sendgrid.apiKey?.startsWith('SG.') || false,
-      hasValidLength: (config.sendgrid.apiKey?.length || 0) >= 60,
-      containsSpecialChars: /[^a-zA-Z0-9._-]/.test(config.sendgrid.apiKey || ''),
-      isValidFormat: /^SG\.[a-zA-Z0-9._-]+$/.test(config.sendgrid.apiKey || '')
-    }
-    
-    console.log('🔍 API Key format check:', apiKeyFormat)
+    // Check API key format
+    console.log('🔍 API Key format check:', {
+      startsWithSG: process.env.SENDGRID_API_KEY?.startsWith('SG.') || false,
+      hasValidLength: (process.env.SENDGRID_API_KEY?.length || 0) >= 60,
+      containsSpecialChars: /[^a-zA-Z0-9._-]/.test(process.env.SENDGRID_API_KEY || ''),
+      isValidFormat: /^SG\.[a-zA-Z0-9._-]+$/.test(process.env.SENDGRID_API_KEY || '')
+    })
 
-    // Test 3: Set API key
-    try {
-      sgMail.setApiKey(config.sendgrid.apiKey)
-      console.log('✅ API key set successfully')
-    } catch (setKeyError: any) {
-      console.error('❌ Error setting API key:', setKeyError)
-      return NextResponse.json({
-        success: false,
-        message: 'Failed to set API key',
-        error: setKeyError.message,
-        config: configCheck,
-        apiKeyFormat
-      }, { status: 500 })
+    // Set API key
+    if (process.env.SENDGRID_API_KEY) {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+      console.log('✅ API key set')
+    } else {
+      console.log('❌ No API key found')
+      return NextResponse.json({ error: 'No API key found' }, { status: 400 })
     }
 
-    // Test 4: Try to send a minimal test email
+    // Try to send a test email
     const testEmail = {
       to: 'guillermoromerog@gmail.com',
-      from: config.sendgrid.fromEmail,
-      subject: 'SendGrid Debug Test - ' + new Date().toISOString(),
-      text: 'This is a minimal test email to debug SendGrid issues.'
+      from: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      subject: `SendGrid Debug Test - ${new Date().toISOString()}`,
+      html: '<p>This is a test email to verify SendGrid configuration.</p>'
     }
 
     console.log('📤 Attempting to send minimal test email:', {
@@ -59,50 +48,24 @@ export async function GET() {
     try {
       const result = await sgMail.send(testEmail)
       console.log('✅ Test email sent successfully!', result)
-      
-      return NextResponse.json({
-        success: true,
-        message: 'SendGrid debug successful - email sent!',
-        config: configCheck,
-        apiKeyFormat,
-        result
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Test email sent successfully',
+        result: result
       })
     } catch (sendError: any) {
-      console.error('❌ SendGrid send error:', sendError)
-      
-      // Extract detailed error information
-      const errorDetails = {
-        message: sendError.message,
-        code: sendError.code,
-        statusCode: sendError.code,
-        response: {
-          body: sendError.response?.body || 'No response body',
-          status: sendError.response?.status || 'No status',
-          headers: sendError.response?.headers || 'No headers'
-        }
-      }
-      
-      console.log('🔍 Detailed error info:', errorDetails)
-      
-      return NextResponse.json({
-        success: false,
-        message: 'SendGrid send failed',
-        error: errorDetails,
-        config: configCheck,
-        apiKeyFormat
+      console.error('❌ Error sending test email:', sendError)
+      return NextResponse.json({ 
+        error: 'Failed to send test email', 
+        details: sendError.message 
       }, { status: 500 })
     }
 
   } catch (error: any) {
-    console.error('💥 Fatal error in SendGrid debug:', error)
-    
-    return NextResponse.json({
-      success: false,
-      message: 'Fatal error in SendGrid debug',
-      error: {
-        message: error.message,
-        stack: error.stack
-      }
+    console.error('💥 Fatal error in debug:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message 
     }, { status: 500 })
   }
 }

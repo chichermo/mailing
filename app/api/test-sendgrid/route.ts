@@ -1,29 +1,34 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import sgMail from '@sendgrid/mail'
-import { config } from '../../../lib/config'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('🧪 Testing SendGrid configuration...')
     
-    // Test 1: Check configuration
+    // Check configuration
     console.log('🔍 Configuration check:', {
-      apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-      apiKeyLength: config.sendgrid.apiKey?.length || 0,
-      fromEmail: config.sendgrid.fromEmail,
-      fromName: config.sendgrid.fromName
+      apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
+      apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
+      apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
+      fromEmail: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      fromName: process.env.SENDGRID_FROM_NAME || 'Heliopsis Mail'
     })
 
-    // Test 2: Set API key
-    sgMail.setApiKey(config.sendgrid.apiKey)
-    console.log('✅ API key set')
+    // Set API key
+    if (process.env.SENDGRID_API_KEY) {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+      console.log('✅ API key set')
+    } else {
+      console.log('❌ No API key found')
+      return NextResponse.json({ error: 'No API key found' }, { status: 400 })
+    }
 
-    // Test 3: Try to send a test email
+    // Try to send a test email
     const testEmail = {
       to: 'guillermoromerog@gmail.com',
-      from: config.sendgrid.fromEmail,
-      subject: 'SendGrid Test - ' + new Date().toISOString(),
-      html: '<h1>Test Email</h1><p>This is a test email to verify SendGrid configuration.</p>'
+      from: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      subject: `SendGrid Test - ${new Date().toISOString()}`,
+      html: '<p>This is a test email to verify SendGrid configuration.</p>'
     }
 
     console.log('📤 Attempting to send test email:', {
@@ -33,49 +38,26 @@ export async function GET() {
     })
 
     try {
-      await sgMail.send(testEmail)
+      const result = await sgMail.send(testEmail)
       console.log('✅ Test email sent successfully!')
-      
-      return NextResponse.json({
-        success: true,
-        message: 'SendGrid test successful - email sent!',
-        config: {
-          apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-          apiKeyLength: config.sendgrid.apiKey?.length || 0,
-          fromEmail: config.sendgrid.fromEmail,
-          fromName: config.sendgrid.fromName
-        }
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Test email sent successfully',
+        result: result
       })
     } catch (sendError: any) {
-      console.error('❌ SendGrid send error:', sendError)
-      
-      return NextResponse.json({
-        success: false,
-        message: 'SendGrid send failed',
-        error: {
-          message: sendError.message,
-          code: sendError.code,
-          response: sendError.response?.body || 'No response body'
-        },
-        config: {
-          apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-          apiKeyLength: config.sendgrid.apiKey?.length || 0,
-          fromEmail: config.sendgrid.fromEmail,
-          fromName: config.sendgrid.fromName
-        }
+      console.error('❌ Error sending test email:', sendError)
+      return NextResponse.json({ 
+        error: 'Failed to send test email', 
+        details: sendError.message 
       }, { status: 500 })
     }
 
   } catch (error: any) {
-    console.error('💥 Fatal error in SendGrid test:', error)
-    
-    return NextResponse.json({
-      success: false,
-      message: 'Fatal error in SendGrid test',
-      error: {
-        message: error.message,
-        stack: error.stack
-      }
+    console.error('💥 Fatal error in test:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message 
     }, { status: 500 })
   }
 }
