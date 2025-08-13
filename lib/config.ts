@@ -2,7 +2,7 @@
 export const config = {
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY || '',
-    fromEmail: 'guillermoromerog@gmail.com', // Use verified email directly
+    fromEmail: 'heliopsis@outlook.be', // Use company email as sender
     fromName: process.env.SENDGRID_FROM_NAME || process.env.FROM_NAME || 'Heliopsis Mail'
   },
   twilio: {
