@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import sgMail from '@sendgrid/mail'
 import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
-import { config } from '../../../lib/config'
 
 // Configure SendGrid - will be set in the POST function
 console.log('✅ SendGrid module loaded')
@@ -17,8 +16,8 @@ export async function POST(request: NextRequest) {
       apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
       apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
       apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
-      fromEmail: config.sendgrid.fromEmail,
-      fromName: config.sendgrid.fromName,
+      fromEmail: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      fromName: process.env.SENDGRID_FROM_NAME || 'Heliopsis Mail',
       NODE_ENV: process.env.NODE_ENV
     })
 
@@ -121,7 +120,7 @@ export async function POST(request: NextRequest) {
 
       return {
         to: contact.email,
-        from: config.sendgrid.fromEmail,
+        from: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
         subject: personalizedSubject,
         html: personalizedContent,
         trackingSettings: {
