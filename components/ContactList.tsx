@@ -12,14 +12,14 @@ import {
 import toast from 'react-hot-toast'
 
 interface Contact {
-  id: number
-  first_name: string
-  last_name: string
+  _id: string
+  firstName: string
+  lastName: string
   email: string
   company: string
   phone: string
-  list_name: string
-  created_at: string
+  listName: string
+  createdAt: string
 }
 
 interface ContactFormData {
@@ -85,7 +85,7 @@ export default function ContactList() {
       const url = '/api/contacts'
       const method = editingContact ? 'PUT' : 'POST'
       const body = editingContact 
-        ? { ...formData, id: editingContact.id }
+        ? { ...formData, id: editingContact._id }
         : formData
 
       console.log('Sending request:', { method, url, body })
@@ -175,7 +175,7 @@ export default function ContactList() {
   }
 
   // Delete contact
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this contact?')) return
 
     try {
@@ -200,12 +200,12 @@ export default function ContactList() {
   const handleEdit = (contact: Contact) => {
     setEditingContact(contact)
     setFormData({
-      firstName: contact.first_name,
-      lastName: contact.last_name || '',
+      firstName: contact.firstName,
+      lastName: contact.lastName || '',
       email: contact.email,
       company: contact.company || '',
       phone: contact.phone || '',
-      listName: contact.list_name || 'General'
+      listName: contact.listName || 'General'
     })
     setShowModal(true)
   }
@@ -239,18 +239,18 @@ export default function ContactList() {
   // Filter contacts
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = 
-      (contact.first_name && contact.first_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (contact.last_name && contact.last_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.firstName && contact.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.lastName && contact.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (contact.email && contact.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesList = filterList === 'all' || contact.list_name === filterList
+    const matchesList = filterList === 'all' || contact.listName === filterList
 
     return matchesSearch && matchesList
   })
 
   // Get unique lists
-  const uniqueLists = ['all', ...Array.from(new Set(contacts.map(c => c.list_name)))]
+  const uniqueLists = ['all', ...Array.from(new Set(contacts.map(c => c.listName)))]
 
   if (loading) {
     return (
@@ -342,11 +342,11 @@ export default function ContactList() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredContacts.map((contact) => (
-                <tr key={contact.id} className="hover:bg-gray-50">
+                <tr key={contact._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {contact.first_name} {contact.last_name}
+                        {contact.firstName} {contact.lastName}
                       </div>
                       {contact.phone && (
                         <div className="text-sm text-gray-500">{contact.phone}</div>
@@ -361,11 +361,11 @@ export default function ContactList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                      {contact.list_name}
+                      {contact.listName}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(contact.created_at).toLocaleDateString()}
+                    {new Date(contact.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -375,7 +375,7 @@ export default function ContactList() {
                       <PencilIcon className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(contact.id)}
+                      onClick={() => handleDelete(contact._id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       <TrashIcon className="w-4 h-4" />
