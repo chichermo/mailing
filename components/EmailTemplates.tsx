@@ -12,7 +12,7 @@ import {
 import toast from 'react-hot-toast'
 
 interface EmailTemplate {
-  id: number
+  _id: string
   name: string
   subject: string
   content: string
@@ -74,7 +74,7 @@ export default function EmailTemplates() {
       const url = '/api/templates'
       const method = editingTemplate ? 'PUT' : 'POST'
       const body = editingTemplate 
-        ? { ...formData, id: editingTemplate.id }
+        ? { ...formData, id: editingTemplate._id }
         : formData
 
       console.log('Sending template request:', { method, url, body })
@@ -105,7 +105,7 @@ export default function EmailTemplates() {
   }
 
   // Delete template
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this template?')) return
 
     try {
@@ -221,7 +221,7 @@ export default function EmailTemplates() {
       {/* Templates grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
-          <div key={template.id} className="card hover:shadow-lg transition-shadow duration-200">
+          <div key={template._id} className="card hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-start justify-between mb-3">
               <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
               <div className="flex space-x-2">
@@ -240,7 +240,7 @@ export default function EmailTemplates() {
                   <PencilIcon className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(template.id)}
+                  onClick={() => handleDelete(template._id)}
                   className="text-red-600 hover:text-red-900"
                   title="Delete"
                 >
