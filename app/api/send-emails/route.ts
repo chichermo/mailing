@@ -135,13 +135,14 @@ export async function POST(request: NextRequest) {
     // Save sending history
     const campaignData = {
       name: `Campaign ${new Date().toLocaleDateString()}`,
-      templateId: templateId,
+      template_id: templateId,
       listName: listName,
       subject: subject,
-      totalSent: emails.length,
-      successCount: successCount,
-      errorCount: errorCount,
-      createdAt: new Date()
+      total_sent: emails.length,
+      success_count: successCount,
+      error_count: errorCount,
+      status: 'sent',
+      created_at: new Date()
     }
 
     const campaignsCollection = await getCollection('campaigns')
