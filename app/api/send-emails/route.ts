@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
     
     // 🔍 DEBUG: Check configuration BEFORE setting API key
     console.log('🔍 Configuration BEFORE setting API key:', {
-      apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-      apiKeyLength: config.sendgrid.apiKey?.length || 0,
-      apiKeyPreview: config.sendgrid.apiKey ? config.sendgrid.apiKey.substring(0, 10) + '...' : 'NOT SET',
+      apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
+      apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
+      apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
       fromEmail: config.sendgrid.fromEmail,
       fromName: config.sendgrid.fromName,
       NODE_ENV: process.env.NODE_ENV
@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
 
     // Configure SendGrid at runtime
     try {
-      sgMail.setApiKey(config.sendgrid.apiKey)
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY || '')
       console.log('✅ SendGrid API key set successfully')
       
       // 🔍 DEBUG: Verify API key was set
       console.log('🔍 API key verification:', {
-        apiKeySet: !!sgMail.setApiKey,
-        currentApiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING'
+        apiKeySet: !!process.env.SENDGRID_API_KEY,
+        currentApiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING'
       })
     } catch (setKeyError: any) {
       console.error('❌ Error setting SendGrid API key:', setKeyError)
