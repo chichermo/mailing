@@ -229,9 +229,9 @@ export default function SendEmails() {
     const totalContacts = contacts.length
     const totalTemplates = templates.length
     const totalCampaigns = campaigns.length
-    const totalSent = campaigns.reduce((sum, c) => sum + c.total_sent, 0)
-    const totalSuccess = campaigns.reduce((sum, c) => sum + c.success_count, 0)
-    const totalErrors = campaigns.reduce((sum, c) => sum + c.error_count, 0)
+    const totalSent = campaigns.reduce((sum, c) => sum + (c.total_sent || 0), 0)
+    const totalSuccess = campaigns.reduce((sum, c) => sum + (c.success_count || 0), 0)
+    const totalErrors = campaigns.reduce((sum, c) => sum + (c.error_count || 0), 0)
 
     return { totalContacts, totalTemplates, totalCampaigns, totalSent, totalSuccess, totalErrors }
   }
@@ -365,19 +365,19 @@ export default function SendEmails() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="flex items-center space-x-2">
-                        <span className="text-green-600">{campaign.success_count}</span>
+                        <span className="text-green-600">{campaign.success_count || 0}</span>
                         <span className="text-gray-400">/</span>
-                        <span>{campaign.total_sent}</span>
-                        {campaign.error_count > 0 && (
+                        <span>{campaign.total_sent || 0}</span>
+                        {(campaign.error_count || 0) > 0 && (
                           <>
                             <span className="text-gray-400">/</span>
-                            <span className="text-red-600">{campaign.error_count}</span>
+                            <span className="text-red-600">{campaign.error_count || 0}</span>
                           </>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(campaign.created_at).toLocaleDateString()}
+                      {campaign.created_at ? new Date(campaign.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
                 ))}
