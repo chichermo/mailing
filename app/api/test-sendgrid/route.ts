@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
       apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
       apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
       apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
-      fromEmail: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
-      fromName: process.env.SENDGRID_FROM_NAME || 'Heliopsis Mail'
+      fromEmail: 'noreply@vercel.app',
+      fromName: 'Heliopsis Mail'
     })
 
     // Set API key
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Try to send a test email
     const testEmail = {
       to: 'guillermoromerog@gmail.com',
-      from: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+      from: 'noreply@vercel.app',
       subject: `SendGrid Test - ${new Date().toISOString()}`,
       html: '<p>This is a test email to verify SendGrid configuration.</p>'
     }

@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
       apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
       apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
       apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
-      fromEmail: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
-      fromName: process.env.SENDGRID_FROM_NAME || 'Heliopsis Mail',
+      fromEmail: 'noreply@vercel.app',
+      fromName: 'Heliopsis Mail',
       NODE_ENV: process.env.NODE_ENV
     })
 
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
       return {
         to: contact.email,
-        from: process.env.SENDGRID_FROM_EMAIL || 'heliopsis@outlook.be',
+        from: 'noreply@vercel.app',
         subject: personalizedSubject,
         html: personalizedContent,
         trackingSettings: {
