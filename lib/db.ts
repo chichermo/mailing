@@ -6,7 +6,7 @@ export async function getDb() {
   return client.db(dbConfig.database)
 }
 
-export async function getCollection(collectionName) {
+export async function getCollection(collectionName: string) {
   const db = await getDb()
   return db.collection(collectionName)
 }
