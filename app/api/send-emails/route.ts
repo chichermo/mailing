@@ -1,44 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sgMail from '@sendgrid/mail'
+import { Resend } from 'resend'
 import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
 
-// Configure SendGrid - will be set in the POST function
-console.log('✅ SendGrid module loaded')
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Configure Resend - will be set in the POST function
+console.log('✅ Resend module loaded')
 
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 Starting email send process...')
+    console.log('🚀 Starting email send process with Resend...')
     
-    // 🔍 DEBUG: Check configuration BEFORE setting API key
-    console.log('🔍 Configuration BEFORE setting API key:', {
-      apiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING',
-      apiKeyLength: process.env.SENDGRID_API_KEY?.length || 0,
-      apiKeyPreview: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : 'NOT SET',
-      fromEmail: 'noreply@vercel.app',
-      fromName: 'Heliopsis Mail',
-      NODE_ENV: process.env.NODE_ENV
-    })
-
-    // Configure SendGrid at runtime
-    try {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY || '')
-      console.log('✅ SendGrid API key set successfully')
-      
-      // 🔍 DEBUG: Verify API key was set
-      console.log('🔍 API key verification:', {
-        apiKeySet: !!process.env.SENDGRID_API_KEY,
-        currentApiKey: process.env.SENDGRID_API_KEY ? 'SET' : 'MISSING'
-      })
-    } catch (setKeyError: any) {
-      console.error('❌ Error setting SendGrid API key:', setKeyError)
-      console.error('❌ SetKey error details:', {
-        message: setKeyError.message,
-        code: setKeyError.code,
-        stack: setKeyError.stack
-      })
-      throw setKeyError
+    // Check API key
+    if (!process.env.RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY is required')
+      return NextResponse.json(
+        { success: false, error: 'RESEND_API_KEY is required' },
+        { status: 400 }
+      )
     }
 
     const { templateId, listName, customSubject, customContent, testMode } = await request.json()
@@ -120,13 +102,9 @@ export async function POST(request: NextRequest) {
 
       return {
         to: contact.email,
-        from: 'noreply@vercel.app',
+        from: 'onboarding@resend.dev',
         subject: personalizedSubject,
-        html: personalizedContent,
-        trackingSettings: {
-          clickTracking: { enable: true, enableText: true },
-          openTracking: { enable: true }
-        }
+        html: personalizedContent
       }
     })
 
@@ -154,10 +132,10 @@ export async function POST(request: NextRequest) {
         console.log('📤 Email data:', { to: email.to, from: email.from, subject: email.subject })
         
         // 🔍 DEBUG: Show exact email object being sent
-        console.log('🔍 Exact email object for SendGrid:', JSON.stringify(email, null, 2))
+        console.log('🔍 Exact email object for Resend:', JSON.stringify(email, null, 2))
         
-        const sendResult = await sgMail.send(email)
-        console.log('✅ SendGrid response:', sendResult)
+        const sendResult = await resend.emails.send(email)
+        console.log('✅ Resend response:', sendResult)
         
         successCount++
         results.push({ email: email.to, status: 'success' })
