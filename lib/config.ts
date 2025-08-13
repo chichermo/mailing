@@ -2,8 +2,8 @@
 export const config = {
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY || '',
-    fromEmail: process.env.FROM_EMAIL || 'heliopsis@outlook.be',
-    fromName: process.env.FROM_NAME || 'Heliopsis Mail'
+    fromEmail: process.env.SENDGRID_FROM_EMAIL || process.env.FROM_EMAIL || 'heliopsis@outlook.be',
+    fromName: process.env.SENDGRID_FROM_NAME || process.env.FROM_NAME || 'Heliopsis Mail'
   },
   twilio: {
     recoveryCode: process.env.TWILIO_RECOVERY_CODE || 'KUJ92L3RQVUWUP14NU7ZGKKF'
