@@ -4,16 +4,19 @@ import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
 import { config } from '../../../lib/config'
 
-// Configure SendGrid
-sgMail.setApiKey(config.sendgrid.apiKey)
-console.log('✅ SendGrid configured with API key from config')
+// Configure SendGrid - will be set in the POST function
+console.log('✅ SendGrid module loaded')
 
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
   try {
+    // Configure SendGrid at runtime
+    sgMail.setApiKey(config.sendgrid.apiKey)
+    console.log('✅ SendGrid configured with API key:', config.sendgrid.apiKey ? 'SET' : 'MISSING')
+    
     console.log('🚀 Starting email send process...')
     console.log('🔍 Configuration check:', {
-      SENDGRID_API_KEY: 'CONFIGURED',
+      SENDGRID_API_KEY: config.sendgrid.apiKey ? 'SET' : 'MISSING',
       FROM_EMAIL: config.sendgrid.fromEmail,
       NODE_ENV: process.env.NODE_ENV
     })
