@@ -32,7 +32,7 @@ interface Campaign {
   id: number
   name: string
   template_id: number
-  list_name: string
+  listName: string
   subject: string
   total_sent: number
   success_count: number
@@ -87,10 +87,9 @@ export default function SendEmails() {
           firstName: c.firstName,
           lastName: c.lastName,
           email: c.email,
-          listName: c.listName,
-          list_name: c.list_name
+          listName: c.listName
         })))
-        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.list_name || c.listName).filter(Boolean))))
+        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.listName).filter(Boolean))))
       }
       if (campaignsData.success) {
         setCampaigns(campaignsData.data)
