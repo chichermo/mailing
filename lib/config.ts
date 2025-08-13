@@ -1,4 +1,5 @@
 // Configuration file for environment variables
+// TEMPORARY COMMENT TO FORCE REDEPLOYMENT WITH CLEAN ENV VARS
 export const config = {
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY || '',
