@@ -77,11 +77,20 @@ export default function SendEmails() {
       if (templatesData.success) {
         setTemplates(templatesData.data)
         console.log('📋 Templates set:', templatesData.data)
+        console.log('🔍 Template details:', templatesData.data.map(t => ({ id: t.id, name: t.name, idType: typeof t.id })))
       }
       if (contactsData.success) {
         setContacts(contactsData.data)
         console.log('👥 Contacts set:', contactsData.data)
-        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.list_name))))
+        console.log('🔍 Contact details:', contactsData.data.map(c => ({ 
+          id: c.id, 
+          firstName: c.firstName, 
+          lastName: c.lastName, 
+          email: c.email, 
+          listName: c.listName,
+          list_name: c.list_name 
+        })))
+        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.list_name || c.listName).filter(Boolean))))
       }
       if (campaignsData.success) {
         setCampaigns(campaignsData.data)
@@ -414,7 +423,18 @@ export default function SendEmails() {
                   onChange={(e) => {
                     const value = e.target.value
                     console.log('🔄 Template selection changed:', { value, type: typeof value })
-                    setSelectedTemplate(value ? Number(value) : null)
+                    if (value && value !== '') {
+                      const numValue = Number(value)
+                      console.log('🔄 Converting to number:', { value, numValue, isNaN: isNaN(numValue) })
+                      if (!isNaN(numValue)) {
+                        setSelectedTemplate(numValue)
+                      } else {
+                        console.error('❌ Invalid template ID:', value)
+                        setSelectedTemplate(null)
+                      }
+                    } else {
+                      setSelectedTemplate(null)
+                    }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
@@ -441,8 +461,9 @@ export default function SendEmails() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="all">All lists ({contacts.length} contacts)</option>
-                  {Array.from(new Set(contacts.map(c => c.list_name))).map(list => {
+                  {Array.from(new Set(contacts.map(c => c.list_name).filter(Boolean))).map(list => {
                     const count = contacts.filter(c => c.list_name === list).length
+                    console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
                         {list} ({count} contacts)
