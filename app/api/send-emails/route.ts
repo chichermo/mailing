@@ -10,16 +10,37 @@ console.log('✅ SendGrid module loaded')
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
   try {
-    // Configure SendGrid at runtime
-    sgMail.setApiKey(config.sendgrid.apiKey)
-    console.log('✅ SendGrid configured with API key:', config.sendgrid.apiKey ? 'SET' : 'MISSING')
-    
     console.log('🚀 Starting email send process...')
-    console.log('🔍 Configuration check:', {
-      SENDGRID_API_KEY: config.sendgrid.apiKey ? 'SET' : 'MISSING',
-      FROM_EMAIL: config.sendgrid.fromEmail,
+    
+    // 🔍 DEBUG: Check configuration BEFORE setting API key
+    console.log('🔍 Configuration BEFORE setting API key:', {
+      apiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING',
+      apiKeyLength: config.sendgrid.apiKey?.length || 0,
+      apiKeyPreview: config.sendgrid.apiKey ? config.sendgrid.apiKey.substring(0, 10) + '...' : 'NOT SET',
+      fromEmail: config.sendgrid.fromEmail,
+      fromName: config.sendgrid.fromName,
       NODE_ENV: process.env.NODE_ENV
     })
+
+    // Configure SendGrid at runtime
+    try {
+      sgMail.setApiKey(config.sendgrid.apiKey)
+      console.log('✅ SendGrid API key set successfully')
+      
+      // 🔍 DEBUG: Verify API key was set
+      console.log('🔍 API key verification:', {
+        apiKeySet: !!sgMail.setApiKey,
+        currentApiKey: config.sendgrid.apiKey ? 'SET' : 'MISSING'
+      })
+    } catch (setKeyError: any) {
+      console.error('❌ Error setting SendGrid API key:', setKeyError)
+      console.error('❌ SetKey error details:', {
+        message: setKeyError.message,
+        code: setKeyError.code,
+        stack: setKeyError.stack
+      })
+      throw setKeyError
+    }
 
     const { templateId, listName, customSubject, customContent, testMode } = await request.json()
     console.log('📨 Request data:', { templateId, listName, customSubject, customContent, testMode })
@@ -112,6 +133,17 @@ export async function POST(request: NextRequest) {
 
     console.log('📨 Prepared emails:', emails.length)
 
+    // 🔍 DEBUG: Show first email structure
+    if (emails.length > 0) {
+      console.log('🔍 First email structure:', {
+        to: emails[0].to,
+        from: emails[0].from,
+        subject: emails[0].subject,
+        hasHtml: !!emails[0].html,
+        htmlLength: emails[0].html?.length || 0
+      })
+    }
+
     // Send emails
     const results = []
     let successCount = 0
@@ -122,13 +154,29 @@ export async function POST(request: NextRequest) {
         console.log('📤 Sending email to:', email.to)
         console.log('📤 Email data:', { to: email.to, from: email.from, subject: email.subject })
         
-        await sgMail.send(email)
+        // 🔍 DEBUG: Show exact email object being sent
+        console.log('🔍 Exact email object for SendGrid:', JSON.stringify(email, null, 2))
+        
+        const sendResult = await sgMail.send(email)
+        console.log('✅ SendGrid response:', sendResult)
+        
         successCount++
         results.push({ email: email.to, status: 'success' })
         console.log('✅ Email sent successfully to:', email.to)
       } catch (error: any) {
         errorCount++
-        console.error('❌ Error sending email to:', email.to, error)
+        console.error('❌ Error sending email to:', email.to)
+        console.error('❌ Error details:', {
+          message: error.message,
+          code: error.code,
+          statusCode: error.code,
+          response: {
+            body: error.response?.body || 'No response body',
+            status: error.response?.status || 'No status',
+            headers: error.response?.headers || 'No headers'
+          }
+        })
+        console.error('❌ Full error object:', error)
         results.push({ email: email.to, status: 'error', error: error.message })
       }
     }
