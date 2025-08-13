@@ -77,7 +77,7 @@ export default function SendEmails() {
       if (templatesData.success) {
         setTemplates(templatesData.data)
         console.log('📋 Templates set:', templatesData.data)
-        console.log('🔍 Template details:', templatesData.data.map(t => ({ id: t.id, name: t.name, idType: typeof t.id })))
+        console.log('🔍 Template details:', templatesData.data.map((t: any) => ({ id: t.id, name: t.name, idType: typeof t.id })))
       }
       if (contactsData.success) {
         setContacts(contactsData.data)
