@@ -122,9 +122,9 @@ export default function SendEmails() {
       return
     }
 
-    // If template is selected, we need at least custom subject or content
-    if (selectedTemplate && (!customSubject && !customContent)) {
-      toast.error('Enter custom subject or content when using a template')
+    // If no template is selected, we need both custom subject and content
+    if (!selectedTemplate && (!customSubject || !customContent)) {
+      toast.error('Enter both subject and content when not using a template')
       return
     }
 
