@@ -81,7 +81,7 @@ export default function SendEmails() {
       if (contactsData.success) {
         setContacts(contactsData.data)
         console.log('👥 Contacts set:', contactsData.data)
-        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map(c => c.list_name)))
+        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.list_name))))
       }
       if (campaignsData.success) {
         setCampaigns(campaignsData.data)
@@ -432,24 +432,24 @@ export default function SendEmails() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contact List
                 </label>
-                                 <select
-                   value={selectedList}
-                   onChange={(e) => {
-                     console.log('🔄 List selection changed:', { value: e.target.value, type: typeof e.target.value })
-                     setSelectedList(e.target.value)
-                   }}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                 >
-                   <option value="all">All lists ({contacts.length} contacts)</option>
-                   {Array.from(new Set(contacts.map(c => c.list_name))).map(list => {
-                     const count = contacts.filter(c => c.list_name === list).length
-                     return (
-                       <option key={list} value={list}>
-                         {list} ({count} contacts)
-                       </option>
-                     )
-                   })}
-                 </select>
+                <select
+                  value={selectedList}
+                  onChange={(e) => {
+                    console.log('🔄 List selection changed:', { value: e.target.value, type: typeof e.target.value })
+                    setSelectedList(e.target.value)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="all">All lists ({contacts.length} contacts)</option>
+                  {Array.from(new Set(contacts.map(c => c.list_name))).map(list => {
+                    const count = contacts.filter(c => c.list_name === list).length
+                    return (
+                      <option key={list} value={list}>
+                        {list} ({count} contacts)
+                      </option>
+                    )
+                  })}
+                </select>
               </div>
 
               {/* Template preview */}
