@@ -12,7 +12,7 @@ import {
 import toast from 'react-hot-toast'
 
 interface EmailTemplate {
-  id: number
+  _id: string
   name: string
   subject: string
   content: string
@@ -20,7 +20,7 @@ interface EmailTemplate {
 }
 
 interface Contact {
-  id: number
+  _id: string
   firstName: string
   lastName: string
   email: string
@@ -29,9 +29,9 @@ interface Contact {
 }
 
 interface Campaign {
-  id: number
+  _id: string
   name: string
-  template_id: number
+  template_id: string
   listName: string
   subject: string
   total_sent: number
@@ -48,7 +48,7 @@ export default function SendEmails() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null)
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   const [selectedList, setSelectedList] = useState<string>('all')
   const [customSubject, setCustomSubject] = useState('')
   const [customContent, setCustomContent] = useState('')
@@ -77,13 +77,13 @@ export default function SendEmails() {
       if (templatesData.success) {
         setTemplates(templatesData.data)
         console.log('📋 Templates set:', templatesData.data)
-        console.log('🔍 Template details:', templatesData.data.map((t: any) => ({ id: t.id, name: t.name, idType: typeof t.id })))
+        console.log('🔍 Template details:', templatesData.data.map((t: any) => ({ id: t._id, name: t.name, idType: typeof t._id })))
       }
       if (contactsData.success) {
         setContacts(contactsData.data)
         console.log('👥 Contacts set:', contactsData.data)
                 console.log('🔍 Contact details:', contactsData.data.map((c: any) => ({
-          id: c.id,
+          id: c._id,
           firstName: c.firstName,
           lastName: c.lastName,
           email: c.email,
@@ -206,7 +206,7 @@ export default function SendEmails() {
 
   // Get selected template
   const getSelectedTemplate = () => {
-    return templates.find(t => t.id === selectedTemplate)
+    return templates.find(t => t._id === selectedTemplate)
   }
 
   // Get selected contacts
@@ -423,14 +423,7 @@ export default function SendEmails() {
                     const value = e.target.value
                     console.log('🔄 Template selection changed:', { value, type: typeof value })
                     if (value && value !== '') {
-                      const numValue = Number(value)
-                      console.log('🔄 Converting to number:', { value, numValue, isNaN: isNaN(numValue) })
-                      if (!isNaN(numValue)) {
-                        setSelectedTemplate(numValue)
-                      } else {
-                        console.error('❌ Invalid template ID:', value)
-                        setSelectedTemplate(null)
-                      }
+                      setSelectedTemplate(value)
                     } else {
                       setSelectedTemplate(null)
                     }
@@ -439,7 +432,7 @@ export default function SendEmails() {
                 >
                   <option value="">-- No template (custom content) --</option>
                   {templates.map(template => (
-                    <option key={template.id} value={template.id}>
+                    <option key={template._id} value={template._id}>
                       {template.name}
                     </option>
                   ))}
