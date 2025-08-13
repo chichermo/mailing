@@ -348,7 +348,7 @@ export default function SendEmails() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {campaigns.slice(0, 5).map((campaign) => (
-                  <tr key={campaign.id} className="hover:bg-gray-50">
+                  <tr key={campaign._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
