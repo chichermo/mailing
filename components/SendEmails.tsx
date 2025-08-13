@@ -82,13 +82,13 @@ export default function SendEmails() {
       if (contactsData.success) {
         setContacts(contactsData.data)
         console.log('👥 Contacts set:', contactsData.data)
-        console.log('🔍 Contact details:', contactsData.data.map(c => ({ 
-          id: c.id, 
-          firstName: c.firstName, 
-          lastName: c.lastName, 
-          email: c.email, 
+                console.log('🔍 Contact details:', contactsData.data.map((c: any) => ({
+          id: c.id,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          email: c.email,
           listName: c.listName,
-          list_name: c.list_name 
+          list_name: c.list_name
         })))
         console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.list_name || c.listName).filter(Boolean))))
       }
