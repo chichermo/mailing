@@ -403,7 +403,7 @@ export async function POST() {
             const newContact = {
               firstName: contactData.firstName,
               lastName: contactData.lastName,
-              email: contactData.email,
+              email: `${contactData.email}_${list.name.replace(/\s+/g, '_')}`, // Email único por lista
               company: '',
               phone: '',
               listNames: [list.name], // SOLO esta lista
@@ -412,7 +412,7 @@ export async function POST() {
 
             await contactsCollection.insertOne(newContact)
             totalContactsCreated++
-            console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
+            console.log(`🆕 Creado: ${newContact.email} en ${list.name}`)
           } catch (error) {
             const errorMsg = `Error procesando ${contactData.email}: ${error}`
             console.error(errorMsg)
