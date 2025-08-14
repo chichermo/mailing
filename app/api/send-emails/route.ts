@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import sgMail from '@sendgrid/mail'
 import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '')
 
-// Configure Resend - will be set in the POST function
-console.log('✅ Resend module loaded')
+// Configure SendGrid
+console.log('✅ SendGrid module loaded')
 
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 === EMAIL SEND FUNCTION STARTED ===')
-    console.log('🚀 Starting email send process with Resend...')
+    console.log('🚀 Starting email send process with SendGrid...')
     console.log('🚀 Request method:', request.method)
     console.log('🚀 Request URL:', request.url)
     console.log('🚀 Request headers:', Object.fromEntries(request.headers.entries()))
     
     // Check API key
-    if (!process.env.RESEND_API_KEY) {
-      console.error('❌ RESEND_API_KEY is required')
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error('❌ SENDGRID_API_KEY is required')
       return NextResponse.json(
-        { success: false, error: 'RESEND_API_KEY is required' },
+        { success: false, error: 'SENDGRID_API_KEY is required' },
         { status: 400 }
       )
     }
@@ -136,10 +136,10 @@ export async function POST(request: NextRequest) {
         console.log('📤 Email data:', { to: email.to, from: email.from, subject: email.subject })
         
         // 🔍 DEBUG: Show exact email object being sent
-        console.log('🔍 Exact email object for Resend:', JSON.stringify(email, null, 2))
+        console.log('🔍 Exact email object for SendGrid:', JSON.stringify(email, null, 2))
         
-        const sendResult = await resend.emails.send(email)
-        console.log('✅ Resend response:', sendResult)
+        const sendResult = await sgMail.send(email)
+        console.log('✅ SendGrid response:', sendResult)
         
         successCount++
         results.push({ email: email.to, status: 'success' })
