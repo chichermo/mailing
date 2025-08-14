@@ -49,19 +49,32 @@ export default function DanceListStats() {
   }
 
   const calculateListStats = (contactsData: Contact[]) => {
+    console.log('🔍 DEBUG: calculateListStats called with:', contactsData.length, 'contacts')
+    
     const listMap = new Map<string, Contact[]>()
     
     // Agrupar contactos por lista
-    contactsData.forEach(contact => {
-      if (contact.listNames) {
+    contactsData.forEach((contact, index) => {
+      console.log(`🔍 Contact ${index + 1}:`, {
+        email: contact.email,
+        listNames: contact.listNames,
+        hasListNames: !!contact.listNames,
+        isArray: Array.isArray(contact.listNames)
+      })
+      
+      if (contact.listNames && Array.isArray(contact.listNames)) {
         contact.listNames.forEach(listName => {
           if (!listMap.has(listName)) {
             listMap.set(listName, [])
           }
           listMap.get(listName)!.push(contact)
         })
+      } else {
+        console.log(`⚠️ Contact ${contact.email} has no listNames or is not array:`, contact.listNames)
       }
     })
+
+    console.log('🔍 DEBUG: listMap entries:', Array.from(listMap.entries()))
 
     // Convertir a array y ordenar por cantidad de contactos
     const stats = Array.from(listMap.entries())
@@ -72,6 +85,7 @@ export default function DanceListStats() {
       }))
       .sort((a, b) => b.count - a.count)
 
+    console.log('🔍 DEBUG: Final stats:', stats)
     setListStats(stats)
   }
 
@@ -82,6 +96,24 @@ export default function DanceListStats() {
 
   const getTotalLists = () => {
     return listStats.length
+  }
+
+  // Función para debug
+  const handleDebug = async () => {
+    try {
+      const response = await fetch('/api/debug-lists')
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('🔍 DEBUG API Response:', result)
+        alert(`Debug Info:\nTotal Contacts: ${result.summary.totalContacts}\nTotal Lists: ${result.summary.totalLists}\nCheck console for details`)
+      } else {
+        alert('Error getting debug info')
+      }
+    } catch (error) {
+      console.error('Error in debug:', error)
+      alert('Error getting debug info')
+    }
   }
 
   if (loading) {
@@ -142,11 +174,17 @@ export default function DanceListStats() {
 
       {/* Estadísticas por lista */}
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900 flex items-center">
             <ChartBarIcon className="w-5 h-5 mr-2" />
             Estadísticas por Lista
           </h3>
+          <button
+            onClick={handleDebug}
+            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+          >
+            🔍 Debug
+          </button>
         </div>
         
         <div className="overflow-x-auto">
