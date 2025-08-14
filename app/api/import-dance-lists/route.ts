@@ -404,22 +404,23 @@ export async function POST() {
         // Procesar contactos de esta lista
         for (const contactData of list.contacts) {
           try {
-            // Crear un contacto NUEVO para cada lista con email único
-            const uniqueEmail = `${contactData.email.split('@')[0]}_${list.name.replace(/\s+/g, '_')}@${contactData.email.split('@')[1]}`
+            // Crear un contacto NUEVO para cada lista con ID único pero email original
+            const uniqueId = `${contactData.firstName}_${contactData.lastName}_${list.name.replace(/\s+/g, '_')}`
             
             const newContact = {
               firstName: contactData.firstName,
               lastName: contactData.lastName,
-              email: uniqueEmail,
+              email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
               company: '',
               phone: '',
               listNames: [list.name], // SOLO esta lista
+              uniqueId: uniqueId, // ID único para evitar duplicados
               createdAt: new Date()
             }
 
             await contactsCollection.insertOne(newContact)
             totalContactsCreated++
-            console.log(`🆕 Creado: ${uniqueEmail} en ${list.name}`)
+            console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
           } catch (error) {
             const errorMsg = `Error procesando ${contactData.email}: ${error}`
             console.error(errorMsg)
