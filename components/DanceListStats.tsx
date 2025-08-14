@@ -50,6 +50,7 @@ export default function DanceListStats() {
 
   const calculateListStats = (contactsData: Contact[]) => {
     console.log('🔍 DEBUG: calculateListStats called with:', contactsData.length, 'contacts')
+    console.log('🔍 DEBUG: First few contacts:', contactsData.slice(0, 3))
     
     const listMap = new Map<string, Contact[]>()
     
@@ -59,11 +60,13 @@ export default function DanceListStats() {
         email: contact.email,
         listNames: contact.listNames,
         hasListNames: !!contact.listNames,
-        isArray: Array.isArray(contact.listNames)
+        isArray: Array.isArray(contact.listNames),
+        listNamesLength: contact.listNames ? contact.listNames.length : 'N/A'
       })
       
       if (contact.listNames && Array.isArray(contact.listNames)) {
         contact.listNames.forEach(listName => {
+          console.log(`  ➕ Adding to list: ${listName}`)
           if (!listMap.has(listName)) {
             listMap.set(listName, [])
           }
@@ -75,6 +78,7 @@ export default function DanceListStats() {
     })
 
     console.log('🔍 DEBUG: listMap entries:', Array.from(listMap.entries()))
+    console.log('🔍 DEBUG: listMap size:', listMap.size)
 
     // Convertir a array y ordenar por cantidad de contactos
     const stats = Array.from(listMap.entries())
@@ -86,6 +90,7 @@ export default function DanceListStats() {
       .sort((a, b) => b.count - a.count)
 
     console.log('🔍 DEBUG: Final stats:', stats)
+    console.log('🔍 DEBUG: Stats length:', stats.length)
     setListStats(stats)
   }
 
