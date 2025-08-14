@@ -107,8 +107,15 @@ export async function POST(request: NextRequest) {
       return {
         to: contact.email,
         from: 'heliopsis@outlook.be',
+        replyTo: 'heliopsis@outlook.be',
         subject: personalizedSubject,
-        html: personalizedContent
+        html: personalizedContent,
+        // Headers anti-spam
+        headers: {
+          'X-Mailer': 'Heliopsis Mailer',
+          'X-Priority': '3',
+          'X-MSMail-Priority': 'Normal'
+        }
       }
     })
 
