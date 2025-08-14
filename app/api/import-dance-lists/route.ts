@@ -391,6 +391,9 @@ export async function POST() {
       }
     ]
 
+    console.log(`📊 Total de listas a procesar: ${danceLists.length}`)
+    console.log(`📋 Nombres de las listas:`, danceLists.map(l => l.name))
+
     let totalContactsCreated = 0
     const errors: string[] = []
     const processedLists: string[] = []
