@@ -21,7 +21,7 @@ export async function GET() {
 // POST - Crear nuevo contacto
 export async function POST(request: NextRequest) {
   try {
-    const { firstName, lastName, email, company, phone, listName } = await request.json()
+    const { firstName, lastName, email, company, phone, listNames } = await request.json()
 
     if (!email || !firstName) {
       return NextResponse.json(
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       email,
       company: company || '',
       phone: phone || '',
-      listName: listName || 'General',
+      listNames: Array.isArray(listNames) ? listNames : [listNames || 'General'], // Convertir a array
       createdAt: new Date()
     }
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 // PUT - Actualizar contacto
 export async function PUT(request: NextRequest) {
   try {
-    const { id, firstName, lastName, email, company, phone, listName } = await request.json()
+    const { id, firstName, lastName, email, company, phone, listNames } = await request.json()
 
     if (!id || !email || !firstName) {
       return NextResponse.json(
@@ -98,7 +98,7 @@ export async function PUT(request: NextRequest) {
           email,
           company: company || '',
           phone: phone || '',
-          listName: listName || 'General'
+          listNames: Array.isArray(listNames) ? listNames : [listNames || 'General'] // Convertir a array
         }
       }
     )

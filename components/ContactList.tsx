@@ -18,7 +18,7 @@ interface Contact {
   email: string
   company: string
   phone: string
-  listName: string
+  listNames: string[] // Cambiado de listName a listNames (array)
   createdAt: string
 }
 
@@ -28,7 +28,7 @@ interface ContactFormData {
   email: string
   company: string
   phone: string
-  listName: string
+  listNames: string[] // Cambiado de listName a listNames (array)
 }
 
 export default function ContactList() {
@@ -36,17 +36,24 @@ export default function ContactList() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [showBulkImport, setShowBulkImport] = useState(false)
+  const [showListManager, setShowListManager] = useState(false) // Nuevo modal para gestión de listas
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterList, setFilterList] = useState('all')
   const [bulkContacts, setBulkContacts] = useState('')
+  
+  // Estados para selección múltiple
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set())
+  const [selectAll, setSelectAll] = useState(false)
+  const [availableLists, setAvailableLists] = useState<string[]>([])
+  
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
     email: '',
     company: '',
     phone: '',
-    listName: 'General'
+    listNames: ['General'] // Cambiado a array
   })
 
   // Load contacts
@@ -58,6 +65,9 @@ export default function ContactList() {
       
       if (result.success) {
         setContacts(result.data)
+        // Extraer listas únicas disponibles
+        const allLists = result.data.flatMap((c: Contact) => c.listNames || [])
+        setAvailableLists(Array.from(new Set(allLists)))
       } else {
         toast.error('Error loading contacts')
       }
@@ -136,7 +146,7 @@ export default function ContactList() {
               email: parts[2] || '',
               company: parts[3] || '',
               phone: parts[4] || '',
-              listName: 'General'
+              listNames: ['General'] // Default to General for bulk import
             })
           }
         }
@@ -205,7 +215,7 @@ export default function ContactList() {
       email: contact.email,
       company: contact.company || '',
       phone: contact.phone || '',
-      listName: contact.listName || 'General'
+      listNames: contact.listNames || ['General']
     })
     setShowModal(true)
   }
@@ -218,7 +228,7 @@ export default function ContactList() {
       email: '',
       company: '',
       phone: '',
-      listName: 'General'
+      listNames: ['General']
     })
   }
 
@@ -244,13 +254,154 @@ export default function ContactList() {
       (contact.email && contact.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesList = filterList === 'all' || contact.listName === filterList
+    const matchesList = filterList === 'all' || contact.listNames.includes(filterList)
 
     return matchesSearch && matchesList
   })
 
   // Get unique lists
-  const uniqueLists = ['all', ...Array.from(new Set(contacts.map(c => c.listName)))]
+  const uniqueLists = ['all', ...Array.from(new Set(contacts.flatMap(c => c.listNames)))]
+
+  // Funciones para selección múltiple
+  const handleSelectContact = (contactId: string) => {
+    const newSelected = new Set(selectedContacts)
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId)
+    } else {
+      newSelected.add(contactId)
+    }
+    setSelectedContacts(newSelected)
+    setSelectAll(newSelected.size === contacts.length)
+  }
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedContacts(new Set())
+      setSelectAll(false)
+    } else {
+      setSelectedContacts(new Set(contacts.map(c => c._id)))
+      setSelectAll(true)
+    }
+  }
+
+  const handleMoveToList = async (targetList: string) => {
+    if (targetList === '__new__') {
+      setShowListManager(true)
+      return
+    }
+
+    if (selectedContacts.size === 0) {
+      toast.error('No contacts selected')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/contacts/move-to-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactIds: Array.from(selectedContacts),
+          targetList
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success(`Moved ${selectedContacts.size} contacts to ${targetList}`)
+        setSelectedContacts(new Set())
+        setSelectAll(false)
+        loadContacts()
+      } else {
+        toast.error(result.error || 'Error moving contacts')
+      }
+    } catch (error) {
+      toast.error('Connection error')
+    }
+  }
+
+  const handleRemoveFromList = async (targetList: string) => {
+    if (selectedContacts.size === 0) {
+      toast.error('No contacts selected')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/contacts/remove-from-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactIds: Array.from(selectedContacts),
+          targetList
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success(`Removed ${selectedContacts.size} contacts from ${targetList}`)
+        setSelectedContacts(new Set())
+        setSelectAll(false)
+        loadContacts()
+      } else {
+        toast.error(result.error || 'Error removing contacts from list')
+      }
+    } catch (error) {
+      toast.error('Connection error')
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    if (selectedContacts.size === 0) {
+      toast.error('No contacts selected')
+      return
+    }
+
+    if (!confirm(`Are you sure you want to delete ${selectedContacts.size} contacts?`)) return
+
+    try {
+      const response = await fetch('/api/contacts/delete-multiple', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactIds: Array.from(selectedContacts)
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success(`Deleted ${selectedContacts.size} contacts`)
+        setSelectedContacts(new Set())
+        setSelectAll(false)
+        loadContacts()
+      } else {
+        toast.error(result.error || 'Error deleting contacts')
+      }
+    } catch (error) {
+      toast.error('Connection error')
+    }
+  }
+
+  // Función para migrar contactos existentes
+  const handleMigrateContacts = async () => {
+    try {
+      const response = await fetch('/api/migrate-contacts', {
+        method: 'POST'
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success(result.message)
+        loadContacts() // Recargar contactos después de la migración
+      } else {
+        toast.error(result.error || 'Error during migration')
+      }
+    } catch (error) {
+      toast.error('Connection error')
+    }
+  }
 
   if (loading) {
     return (
@@ -287,16 +438,40 @@ export default function ContactList() {
       </div>
 
       {/* Filters and search */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search contacts..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <div className="relative">
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search contacts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <PlusIcon className="w-5 h-5" />
+            Add Contact
+          </button>
+          <button
+            onClick={() => setShowBulkImport(true)}
+            className="btn-secondary flex items-center gap-2"
+          >
+            <ClipboardDocumentIcon className="w-5 h-5" />
+            Bulk Import
+          </button>
+          <button
+            onClick={handleMigrateContacts}
+            className="btn-secondary flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700"
+          >
+            🔄 Migrate
+          </button>
         </div>
         <div className="relative">
           <FunnelIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -316,10 +491,68 @@ export default function ContactList() {
 
       {/* Contact table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
+        {/* Barra de acciones en lote */}
+        {selectedContacts.size > 0 && (
+          <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-blue-900">
+                <span className="font-medium">{selectedContacts.size}</span> contact{selectedContacts.size !== 1 ? 's' : ''} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleMoveToList(e.target.value)
+                    }
+                  }}
+                  className="px-3 py-1 text-sm border border-blue-300 rounded-md bg-white text-blue-900"
+                  defaultValue=""
+                >
+                  <option value="">Move to list...</option>
+                  {availableLists.map(list => (
+                    <option key={list} value={list}>{list}</option>
+                  ))}
+                  <option value="__new__">+ Create new list</option>
+                </select>
+                
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleRemoveFromList(e.target.value)
+                    }
+                  }}
+                  className="px-3 py-1 text-sm border border-orange-300 rounded-md bg-white text-orange-900"
+                  defaultValue=""
+                >
+                  <option value="">Remove from list...</option>
+                  {availableLists.map(list => (
+                    <option key={list} value={list}>{list}</option>
+                  ))}
+                </select>
+                
+                <button
+                  onClick={handleDeleteSelected}
+                  className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
@@ -330,7 +563,7 @@ export default function ContactList() {
                   Company
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  List
+                  Lists
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
@@ -343,6 +576,14 @@ export default function ContactList() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredContacts.map((contact) => (
                 <tr key={contact._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.has(contact._id)}
+                      onChange={() => handleSelectContact(contact._id)}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
@@ -360,9 +601,20 @@ export default function ContactList() {
                     <div className="text-sm text-gray-900">{contact.company || '-'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                      {contact.listName}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {contact.listNames && contact.listNames.length > 0 ? (
+                        contact.listNames.map((list, index) => (
+                          <span 
+                            key={index}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                          >
+                            {list}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-xs">No lists</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(contact.createdAt).toLocaleDateString()}
@@ -472,15 +724,29 @@ export default function ContactList() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  List
+                  Lists
                 </label>
-                <input
-                  type="text"
-                  value={formData.listName}
-                  onChange={(e) => setFormData({...formData, listName: e.target.value})}
-                  placeholder="General"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
+                <div className="flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                  {uniqueLists.map(list => (
+                    <label key={list} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.listNames.includes(list)}
+                        onChange={(e) => {
+                          const newListNames = [...formData.listNames];
+                          if (e.target.checked) {
+                            newListNames.push(list);
+                          } else {
+                            newListNames.splice(newListNames.indexOf(list), 1);
+                          }
+                          setFormData({ ...formData, listNames: newListNames });
+                        }}
+                        className="mr-1"
+                      />
+                      {list === 'all' ? 'All Lists' : list}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
@@ -543,6 +809,52 @@ export default function ContactList() {
                 </button>
                 <button
                   onClick={() => setShowBulkImport(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para crear nueva lista */}
+      {showListManager && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h2 className="text-xl font-bold mb-4">Create New List</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  List Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., VIP Clients, Madrid Office, Marketing Team"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  id="newListName"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    const listName = (document.getElementById('newListName') as HTMLInputElement)?.value?.trim()
+                    if (listName) {
+                      handleMoveToList(listName)
+                      setShowListManager(false)
+                    } else {
+                      toast.error('Please enter a list name')
+                    }
+                  }}
+                  className="flex-1 btn-primary"
+                >
+                  Create List
+                </button>
+                <button
+                  onClick={() => setShowListManager(false)}
                   className="flex-1 btn-secondary"
                 >
                   Cancel

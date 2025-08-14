@@ -25,20 +25,25 @@ interface Contact {
   lastName: string
   email: string
   company: string
-  listName: string
+  phone: string
+  listNames: string[] // Cambiado de listName a listNames
+  createdAt: string
 }
 
 interface Campaign {
   _id: string
-  name: string
-  template_id: string
-  listName: string
-  subject: string
+  templateId: string
+  templateName: string
+  listNames: string[] // Cambiado de listName a listNames
+  customSubject: string
+  customContent: string
   total_sent: number
   success_count: number
   error_count: number
-  status: 'draft' | 'sending' | 'sent' | 'failed'
+  cc_recipients: number
+  bcc_recipients: number
   created_at: string
+  status: string
 }
 
 export default function SendEmails() {
@@ -94,9 +99,9 @@ export default function SendEmails() {
           firstName: c.firstName,
           lastName: c.lastName,
           email: c.email,
-          listName: c.listName
+          listNames: c.listNames
         })))
-        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.listName).filter(Boolean))))
+        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.listNames).filter(Boolean))))
       }
       if (campaignsData.success) {
         setCampaigns(campaignsData.data)
@@ -129,7 +134,7 @@ export default function SendEmails() {
       return
     }
 
-         if (testMode && contacts.filter(c => c.listName === selectedList || selectedList === 'all').length > 5) {
+         if (testMode && contacts.filter(c => c.listNames.includes(selectedList) || selectedList === 'all').length > 5) {
       toast.error('Test mode only allows maximum 5 emails')
       return
     }
@@ -229,7 +234,7 @@ export default function SendEmails() {
       return allContacts
     }
     
-         const filteredContacts = contacts.filter(c => c.listName === selectedList)
+         const filteredContacts = contacts.filter(c => c.listNames.includes(selectedList))
     console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
     return filteredContacts
   }
@@ -274,7 +279,7 @@ export default function SendEmails() {
     
     // Add emails from selected list
     if (ccList && ccList !== '') {
-      const listContacts = contacts.filter(c => c.listName === ccList)
+      const listContacts = contacts.filter(c => c.listNames.includes(ccList))
       allEmails.push(...listContacts.map(c => c.email))
     }
     
@@ -290,7 +295,7 @@ export default function SendEmails() {
     
     // Add emails from selected list
     if (bccList && bccList !== '') {
-      const listContacts = contacts.filter(c => c.listName === bccList)
+      const listContacts = contacts.filter(c => c.listNames.includes(bccList))
       allEmails.push(...listContacts.map(c => c.email))
     }
     
@@ -415,13 +420,13 @@ export default function SendEmails() {
                   <tr key={campaign._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
-                        <div className="text-sm text-gray-500">{campaign.subject}</div>
+                        <div className="text-sm font-medium text-gray-900">{campaign.templateName}</div>
+                        <div className="text-sm text-gray-500">{campaign.customSubject}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                       {campaign.listName || 'All'}
+                       {campaign.listNames.length > 0 ? campaign.listNames.join(', ') : 'All'}
                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -517,8 +522,8 @@ export default function SendEmails() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                                      <option value="all">All lists ({contacts.length} contacts)</option>
-                   {Array.from(new Set(contacts.map(c => c.listName).filter(Boolean))).map(list => {
-                     const count = contacts.filter(c => c.listName === list).length
+                   {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
+                     const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
                     console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
@@ -561,11 +566,11 @@ export default function SendEmails() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                         >
                           <option value="">-- Sin lista --</option>
-                          {Array.from(new Set(contacts.map(c => c.listName).filter(Boolean))).map(list => {
-                            const count = contacts.filter(c => c.listName === list).length
+                          {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
+                            const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
                             return (
                               <option key={list} value={list}>
-                                {list} ({count} contactos)
+                                {list} ({count} contacts)
                               </option>
                             )
                           })}
@@ -623,11 +628,11 @@ export default function SendEmails() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                         >
                           <option value="">-- Sin lista --</option>
-                          {Array.from(new Set(contacts.map(c => c.listName).filter(Boolean))).map(list => {
-                            const count = contacts.filter(c => c.listName === list).length
+                          {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
+                            const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
                             return (
                               <option key={list} value={list}>
-                                {list} ({count} contactos)
+                                {list} ({count} contacts)
                               </option>
                             )
                           })}

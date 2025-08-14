@@ -53,14 +53,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get contacts from the specified list
+    // Obtener contactos de la lista especificada
     const contactsCollection = await getCollection('contacts')
-    const contacts = await contactsCollection.find({
-      $or: [
-        { listName: listName || 'General' },
-        { listName: 'all' }
-      ]
-    }).toArray()
+    let contacts
+    if (listName === 'all') {
+      contacts = await contactsCollection.find({}).toArray()
+    } else {
+      contacts = await contactsCollection.find({ 
+        listNames: { $in: [listName] } // Buscar en el array listNames
+      }).toArray()
+    }
     console.log('👥 Contacts found:', contacts.length)
 
     if (contacts.length === 0) {
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
         '{{email}}': contact.email || '',
         '{{company}}': contact.company || '',
         '{{phone}}': contact.phone || '',
-        '{{listName}}': contact.listName || ''
+        '{{listName}}': contact.listNames ? contact.listNames.join(', ') : '' // Unir múltiples listas
       }
 
       Object.entries(variables).forEach(([key, value]) => {
@@ -191,19 +193,20 @@ export async function POST(request: NextRequest) {
 
     console.log('📊 Send results:', { successCount, errorCount, total: emails.length })
 
-    // Save sending history
+    // Guardar datos de la campaña
     const campaignData = {
-      name: `Campaign ${new Date().toLocaleDateString()}`,
-      template_id: templateId,
-      listName: listName,
-      subject: subject,
-      total_sent: emails.length,
+      templateId,
+      templateName: template?.name || 'N/A',
+      listNames: listName === 'all' ? ['all'] : [listName], // Guardar como array
+      customSubject: customSubject || '',
+      customContent: customContent || '',
+      total_sent: contacts.length,
       success_count: successCount,
       error_count: errorCount,
-      status: 'sent',
-      cc_recipients: ccEmails?.length || 0,
-      bcc_recipients: bccEmails?.length || 0,
-      created_at: new Date()
+      cc_recipients: ccEmails ? ccEmails.length : 0,
+      bcc_recipients: bccEmails ? bccEmails.length : 0,
+      created_at: new Date(),
+      status: 'sent'
     }
 
     const campaignsCollection = await getCollection('campaigns')
