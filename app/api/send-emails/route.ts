@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
       return {
         to: contact.email,
-        from: 'onboarding@resend.dev',
+        from: 'heliopsis@outlook.be',
         subject: personalizedSubject,
         html: personalizedContent
       }
