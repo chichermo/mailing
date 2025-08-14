@@ -404,22 +404,36 @@ export async function POST() {
         // Procesar contactos de esta lista
         for (const contactData of list.contacts) {
           try {
-            // Crear un contacto NUEVO para cada lista con email original
-            const newContact = {
-              firstName: contactData.firstName,
-              lastName: contactData.lastName,
-              email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
-              company: '',
-              phone: '',
-              listNames: [list.name], // SOLO esta lista
-              originalEmail: contactData.email, // Preservar email original
-              listGroup: list.name, // Identificador del grupo
-              createdAt: new Date()
-            }
+            // Buscar si ya existe un contacto con este email
+            const existingContact = await contactsCollection.findOne({ 
+              email: contactData.email 
+            })
 
-            await contactsCollection.insertOne(newContact)
-            totalContactsCreated++
-            console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
+            if (existingContact) {
+              // Si existe, agregar esta lista a listNames
+              await contactsCollection.updateOne(
+                { email: contactData.email },
+                { $addToSet: { listNames: list.name } }
+              )
+              console.log(`🔄 Actualizado: ${contactData.email} agregado a ${list.name}`)
+            } else {
+              // Si no existe, crear nuevo contacto
+              const newContact = {
+                firstName: contactData.firstName,
+                lastName: contactData.lastName,
+                email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
+                company: '',
+                phone: '',
+                listNames: [list.name], // SOLO esta lista
+                originalEmail: contactData.email, // Preservar email original
+                listGroup: list.name, // Identificador del grupo
+                createdAt: new Date()
+              }
+
+              await contactsCollection.insertOne(newContact)
+              totalContactsCreated++
+              console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
+            }
           } catch (error) {
             const errorMsg = `Error procesando ${contactData.email}: ${error}`
             console.error(errorMsg)
