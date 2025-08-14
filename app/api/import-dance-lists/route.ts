@@ -6,6 +6,11 @@ export async function POST() {
   try {
     const contactsCollection = await getCollection('contacts')
     
+    // LIMPIAR BASE DE DATOS ANTES DE IMPORTAR
+    console.log('🧹 Limpiando base de datos...')
+    await contactsCollection.deleteMany({})
+    console.log('✅ Base de datos limpiada')
+    
     // Datos reales basados en los archivos que tienes
     const danceLists = [
       {
