@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { templateId, listName, customSubject, customContent, testMode } = await request.json()
-    console.log('📨 Request data:', { templateId, listName, customSubject, customContent, testMode })
+    const { templateId, listName, customSubject, customContent, testMode, ccEmails, bccEmails } = await request.json()
+    console.log('📨 Request data:', { templateId, listName, customSubject, customContent, testMode, ccEmails, bccEmails })
 
     // Validate required fields
     if (!templateId && (!customSubject || !customContent)) {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         personalizedSubject = personalizedSubject.replace(new RegExp(key, 'g'), value)
       })
 
-      return {
+      const emailData: any = {
         to: contact.email,
         from: 'heliopsis@outlook.be',
         replyTo: 'heliopsis@outlook.be',
@@ -117,6 +117,18 @@ export async function POST(request: NextRequest) {
           'X-MSMail-Priority': 'Normal'
         }
       }
+
+      // Add CC if specified
+      if (ccEmails && ccEmails.length > 0) {
+        emailData.cc = ccEmails
+      }
+
+      // Add BCC if specified
+      if (bccEmails && bccEmails.length > 0) {
+        emailData.bcc = bccEmails
+      }
+
+      return emailData
     })
 
     console.log('📨 Prepared emails:', emails.length)
@@ -128,7 +140,9 @@ export async function POST(request: NextRequest) {
         from: emails[0].from,
         subject: emails[0].subject,
         hasHtml: !!emails[0].html,
-        htmlLength: emails[0].html?.length || 0
+        htmlLength: emails[0].html?.length || 0,
+        cc: emails[0].cc || 'none',
+        bcc: emails[0].bcc || 'none'
       })
     }
 
@@ -140,7 +154,13 @@ export async function POST(request: NextRequest) {
     for (const email of emails) {
       try {
         console.log('📤 Sending email to:', email.to)
-        console.log('📤 Email data:', { to: email.to, from: email.from, subject: email.subject })
+        console.log('📤 Email data:', { 
+          to: email.to, 
+          from: email.from, 
+          subject: email.subject,
+          cc: email.cc || 'none',
+          bcc: email.bcc || 'none'
+        })
         
         // 🔍 DEBUG: Show exact email object being sent
         console.log('🔍 Exact email object for SendGrid:', JSON.stringify(email, null, 2))
@@ -181,6 +201,8 @@ export async function POST(request: NextRequest) {
       success_count: successCount,
       error_count: errorCount,
       status: 'sent',
+      cc_recipients: ccEmails?.length || 0,
+      bcc_recipients: bccEmails?.length || 0,
       created_at: new Date()
     }
 

@@ -53,6 +53,9 @@ export default function SendEmails() {
   const [customSubject, setCustomSubject] = useState('')
   const [customContent, setCustomContent] = useState('')
   const [testMode, setTestMode] = useState(false)
+  const [ccEmails, setCcEmails] = useState<string[]>([])
+  const [bccEmails, setBccEmails] = useState<string[]>([])
+  const [showCcBcc, setShowCcBcc] = useState(false)
 
   // Load data
   const loadData = async () => {
@@ -146,7 +149,9 @@ export default function SendEmails() {
         listName: selectedList,
         customSubject: customSubject || undefined,
         customContent: customContent || undefined,
-        testMode
+        testMode,
+        ccEmails: ccEmails.length > 0 ? ccEmails : undefined,
+        bccEmails: bccEmails.length > 0 ? bccEmails : undefined
       }
 
       console.log('📤 Sending request body:', requestBody)
@@ -184,6 +189,9 @@ export default function SendEmails() {
     setCustomSubject('')
     setCustomContent('')
     setTestMode(false)
+    setCcEmails([])
+    setBccEmails([])
+    setShowCcBcc(false)
   }
 
   // Open modal
@@ -228,6 +236,17 @@ export default function SendEmails() {
     const totalErrors = campaigns.reduce((sum, c) => sum + (c.error_count || 0), 0)
 
     return { totalContacts, totalTemplates, totalCampaigns, totalSent, totalSuccess, totalErrors }
+  }
+
+  // Handle CC/BCC email input
+  const handleCcBccInput = (type: 'cc' | 'bcc', value: string) => {
+    const emails = value.split(',').map(email => email.trim()).filter(email => email && email.includes('@'))
+    
+    if (type === 'cc') {
+      setCcEmails(emails)
+    } else {
+      setBccEmails(emails)
+    }
   }
 
   // Get campaign status badge
@@ -459,6 +478,74 @@ export default function SendEmails() {
                 </select>
               </div>
 
+              {/* CC and BCC Section */}
+              <div className="border-t pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">Additional Recipients</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowCcBcc(!showCcBcc)}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    {showCcBcc ? 'Hide' : 'Show'} CC/BCC
+                  </button>
+                </div>
+
+                {showCcBcc && (
+                  <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                    {/* CC Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        CC (Carbon Copy)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="email1@example.com, email2@example.com"
+                        onChange={(e) => handleCcBccInput('cc', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Separate multiple emails with commas. These recipients will be visible to all.
+                      </p>
+                      {ccEmails.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {ccEmails.map((email, index) => (
+                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                              {email}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* BCC Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        BCC (Blind Carbon Copy)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="email1@example.com, email2@example.com"
+                        onChange={(e) => handleCcBccInput('bcc', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Separate multiple emails with commas. These recipients will be hidden from others.
+                      </p>
+                      {bccEmails.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {bccEmails.map((email, index) => (
+                            <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                              {email}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Template preview */}
               {selectedTemplate && getSelectedTemplate() && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -525,6 +612,12 @@ export default function SendEmails() {
                   )}
                   {!selectedTemplate && (
                     <div>• Type: Custom content</div>
+                  )}
+                  {ccEmails.length > 0 && (
+                    <div>• CC recipients: {ccEmails.length}</div>
+                  )}
+                  {bccEmails.length > 0 && (
+                    <div>• BCC recipients: {bccEmails.length}</div>
                   )}
                 </div>
               </div>
