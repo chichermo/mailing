@@ -404,9 +404,7 @@ export async function POST() {
         // Procesar contactos de esta lista
         for (const contactData of list.contacts) {
           try {
-            // Crear un contacto NUEVO para cada lista con ID único pero email original
-            const uniqueId = `${contactData.firstName}_${contactData.lastName}_${list.name.replace(/\s+/g, '_')}`
-            
+            // Crear un contacto NUEVO para cada lista con email original
             const newContact = {
               firstName: contactData.firstName,
               lastName: contactData.lastName,
@@ -414,7 +412,8 @@ export async function POST() {
               company: '',
               phone: '',
               listNames: [list.name], // SOLO esta lista
-              uniqueId: uniqueId, // ID único para evitar duplicados
+              originalEmail: contactData.email, // Preservar email original
+              listGroup: list.name, // Identificador del grupo
               createdAt: new Date()
             }
 
