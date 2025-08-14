@@ -412,7 +412,7 @@ export async function POST() {
             const newContact = {
               firstName: contactData.firstName,
               lastName: contactData.lastName,
-              email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
+              email: `${contactData.email}_${list.name.replace(/\s+/g, '_')}`, // EMAIL ÚNICO POR LISTA
               company: '',
               phone: '',
               listNames: [list.name], // SOLO esta lista específica
