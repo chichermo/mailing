@@ -148,6 +148,246 @@ export async function POST() {
           { firstName: "Vandamme", lastName: "Lucie", email: "sophie@interiorsbysophie.be" },
           { firstName: "Vandekerkhove", lastName: "Maud", email: "e.wintein@hotmail.com" }
         ]
+      },
+      {
+        name: "Street 1",
+        contacts: [
+          { firstName: "Baeckelandt", lastName: "Enora", email: "wijnepatricia@gmail.com" },
+          { firstName: "Baert", lastName: "Amy", email: "sarah_roelandt@hotmail.com" },
+          { firstName: "Brouckaert", lastName: "Emma en Liana", email: "demeesterkim@hotmail.com" },
+          { firstName: "Coppejans", lastName: "Dieuwke", email: "johnnycoppejans@hotmail.com" },
+          { firstName: "De Coussemaker", lastName: "Emilia", email: "kurt.cheryl@telenet.be" },
+          { firstName: "De Paep", lastName: "Louna", email: "sarahds1985@gmail.com" },
+          { firstName: "De Schuyter", lastName: "Loena", email: "saradeleener@telenet.be" },
+          { firstName: "Desmidt", lastName: "Chiara", email: "melanievangheluwe@icloud.com" },
+          { firstName: "Desmidt", lastName: "Dante", email: "fre_desmidt@hotmail.com" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Noëlie", email: "magaliboedt@hotmail.com" },
+          { firstName: "Filisia", lastName: "Tamsin", email: "kasiafilisia@gmail.com" },
+          { firstName: "Geraci", lastName: "Julie", email: "giuliageraci@hotmail.com" },
+          { firstName: "kreps", lastName: "Gigi", email: "liesbethkreps@gmail.com" },
+          { firstName: "Leemans", lastName: "Jorbe", email: "kurzieboy@hotmail.com" },
+          { firstName: "Lierman", lastName: "Anaïs", email: "rebecca_Maelfeyt@hotmail.com" },
+          { firstName: "Mareydt", lastName: "Marie-Lou", email: "tommareydt@hotmail.com" },
+          { firstName: "Marley", lastName: "Leuntjens", email: "anke.dekee@knokke-heist.be" },
+          { firstName: "Meyers", lastName: "Alexie", email: "welvaertjanice@hotmail.com" },
+          { firstName: "Meyers", lastName: "Elise", email: "shana.moyaert@hotmail.com" },
+          { firstName: "Ouders Vossen", lastName: "Elle", email: "sylvie_cantraine@yahoo.com" },
+          { firstName: "Patteet", lastName: "Charlotte", email: "cverstraaten@hotmail.com" },
+          { firstName: "Peeters", lastName: "Lee-Ann", email: "kaat.lannoy@outlook.com" },
+          { firstName: "Sarah", lastName: "Deputter", email: "sdeputter@icloud.com" },
+          { firstName: "Savels", lastName: "Elsie", email: "Moens_Tamara@hotmail.com" },
+          { firstName: "Savels", lastName: "Lise", email: "kellefleerackers@hotmail.com" },
+          { firstName: "Van Biervliet", lastName: "Gaëlle", email: "caroline.goeminne@telenet.be" },
+          { firstName: "Vandierendonck", lastName: "Kate", email: "devoogtannelies@gmail.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene", email: "sarahdobbelaere@icloud.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene 2", email: "dries.vansteenkiste@telenet.be" },
+          { firstName: "Verlinde", lastName: "Fleur", email: "heikedeweerdt@gmail.com" },
+          { firstName: "Wasnaire", lastName: "Fay", email: "lizzy.litaer@gmail.com" }
+        ]
+      },
+      {
+        name: "Street 2_3",
+        contacts: [
+          { firstName: "Baeckelandt", lastName: "Enora", email: "wijnepatricia@gmail.com" },
+          { firstName: "Baert", lastName: "Amy", email: "sarah_roelandt@hotmail.com" },
+          { firstName: "Brouckaert", lastName: "Emma en Liana", email: "demeesterkim@hotmail.com" },
+          { firstName: "Coppejans", lastName: "Dieuwke", email: "johnnycoppejans@hotmail.com" },
+          { firstName: "De Coussemaker", lastName: "Emilia", email: "kurt.cheryl@telenet.be" },
+          { firstName: "De Paep", lastName: "Louna", email: "sarahds1985@gmail.com" },
+          { firstName: "De Schuyter", lastName: "Loena", email: "saradeleener@telenet.be" },
+          { firstName: "Desmidt", lastName: "Chiara", email: "melanievangheluwe@icloud.com" },
+          { firstName: "Desmidt", lastName: "Dante", email: "fre_desmidt@hotmail.com" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Noëlie", email: "magaliboedt@hotmail.com" },
+          { firstName: "Filisia", lastName: "Tamsin", email: "kasiafilisia@gmail.com" },
+          { firstName: "Geraci", lastName: "Julie", email: "giuliageraci@hotmail.com" },
+          { firstName: "kreps", lastName: "Gigi", email: "liesbethkreps@gmail.com" },
+          { firstName: "Leemans", lastName: "Jorbe", email: "kurzieboy@hotmail.com" },
+          { firstName: "Lierman", lastName: "Anaïs", email: "rebecca_Maelfeyt@hotmail.com" },
+          { firstName: "Mareydt", lastName: "Marie-Lou", email: "tommareydt@hotmail.com" },
+          { firstName: "Marley", lastName: "Leuntjens", email: "anke.dekee@knokke-heist.be" },
+          { firstName: "Meyers", lastName: "Alexie", email: "welvaertjanice@hotmail.com" },
+          { firstName: "Meyers", lastName: "Elise", email: "shana.moyaert@hotmail.com" },
+          { firstName: "Ouders Vossen", lastName: "Elle", email: "sylvie_cantraine@yahoo.com" },
+          { firstName: "Patteet", lastName: "Charlotte", email: "cverstraaten@hotmail.com" },
+          { firstName: "Peeters", lastName: "Lee-Ann", email: "kaat.lannoy@outlook.com" },
+          { firstName: "Sarah", lastName: "Deputter", email: "sdeputter@icloud.com" },
+          { firstName: "Savels", lastName: "Elsie", email: "Moens_Tamara@hotmail.com" },
+          { firstName: "Savels", lastName: "Lise", email: "kellefleerackers@hotmail.com" },
+          { firstName: "Van Biervliet", lastName: "Gaëlle", email: "caroline.goeminne@telenet.be" },
+          { firstName: "Vandierendonck", lastName: "Kate", email: "devoogtannelies@gmail.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene", email: "sarahdobbelaere@icloud.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene 2", email: "dries.vansteenkiste@telenet.be" },
+          { firstName: "Verlinde", lastName: "Fleur", email: "heikedeweerdt@gmail.com" },
+          { firstName: "Wasnaire", lastName: "Fay", email: "lizzy.litaer@gmail.com" }
+        ]
+      },
+      {
+        name: "Street 3_4",
+        contacts: [
+          { firstName: "Baeckelandt", lastName: "Enora", email: "wijnepatricia@gmail.com" },
+          { firstName: "Baert", lastName: "Amy", email: "sarah_roelandt@hotmail.com" },
+          { firstName: "Brouckaert", lastName: "Emma en Liana", email: "demeesterkim@hotmail.com" },
+          { firstName: "Coppejans", lastName: "Dieuwke", email: "johnnycoppejans@hotmail.com" },
+          { firstName: "De Coussemaker", lastName: "Emilia", email: "kurt.cheryl@telenet.be" },
+          { firstName: "De Paep", lastName: "Louna", email: "sarahds1985@gmail.com" },
+          { firstName: "De Schuyter", lastName: "Loena", email: "saradeleener@telenet.be" },
+          { firstName: "Desmidt", lastName: "Chiara", email: "melanievangheluwe@icloud.com" },
+          { firstName: "Desmidt", lastName: "Dante", email: "fre_desmidt@hotmail.com" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Noëlie", email: "magaliboedt@hotmail.com" },
+          { firstName: "Filisia", lastName: "Tamsin", email: "kasiafilisia@gmail.com" },
+          { firstName: "Geraci", lastName: "Julie", email: "giuliageraci@hotmail.com" },
+          { firstName: "kreps", lastName: "Gigi", email: "liesbethkreps@gmail.com" },
+          { firstName: "Leemans", lastName: "Jorbe", email: "kurzieboy@hotmail.com" },
+          { firstName: "Lierman", lastName: "Anaïs", email: "rebecca_Maelfeyt@hotmail.com" },
+          { firstName: "Mareydt", lastName: "Marie-Lou", email: "tommareydt@hotmail.com" },
+          { firstName: "Marley", lastName: "Leuntjens", email: "anke.dekee@knokke-heist.be" },
+          { firstName: "Meyers", lastName: "Alexie", email: "welvaertjanice@hotmail.com" },
+          { firstName: "Meyers", lastName: "Elise", email: "shana.moyaert@hotmail.com" }
+        ]
+      },
+      {
+        name: "Modern 1",
+        contacts: [
+          { firstName: "Barnes", lastName: "Lily", email: "marjolijnrotsaert@hotmail.com" },
+          { firstName: "Crombez", lastName: "Eline", email: "vermeirsch.m@gmail.com" },
+          { firstName: "De Block", lastName: "Romy", email: "evy_verstrynge@hotmail.com" },
+          { firstName: "De Groote", lastName: "Eline", email: "tamaralefevere@hotmail.com" },
+          { firstName: "Deconinck", lastName: "Louise", email: "tine.kreps@telenet.be" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Naëlle", email: "magaliboedt@hotmail.com" },
+          { firstName: "Eggericks", lastName: "Juliette", email: "vanderheydenkate@hotmail.com" },
+          { firstName: "Elshout", lastName: "Anaïs", email: "w-elshout@hotmail.com" },
+          { firstName: "Hertsens", lastName: "Elise", email: "sofiehertsens@hotmail.com" },
+          { firstName: "Heylen", lastName: "Olivia", email: "joycedemey@telenet.be" },
+          { firstName: "Hongenaert", lastName: "Amélie", email: "nathalie.beyen@skynet.be" },
+          { firstName: "Kim", lastName: "De Clercq", email: "kimdeclercq81@gmail.com" },
+          { firstName: "Martens", lastName: "Madeleine", email: "annemie.schepens@howest.be" },
+          { firstName: "Miet", lastName: "Aarnouts", email: "miet_aarnouts@hotmail.com" },
+          { firstName: "Opsomer", lastName: "Louise", email: "schiettecatte.nathalie@gmail.com" },
+          { firstName: "Peeters", lastName: "Jenna", email: "kaat.lannoy@telenet.be" },
+          { firstName: "Popelier", lastName: "Casey", email: "verbouwsandra@gmail.com" },
+          { firstName: "Pyckavet", lastName: "Estelle", email: "tantefie2109@hotmail.com" },
+          { firstName: "Vandamme", lastName: "Lucie", email: "sophie@interiorsbysophie.be" },
+          { firstName: "Vandekerkhove", lastName: "Maud", email: "e.wintein@hotmail.com" }
+        ]
+      },
+      {
+        name: "Modern 2_3",
+        contacts: [
+          { firstName: "Barnes", lastName: "Lily", email: "marjolijnrotsaert@hotmail.com" },
+          { firstName: "Crombez", lastName: "Eline", email: "vermeirsch.m@gmail.com" },
+          { firstName: "De Block", lastName: "Romy", email: "evy_verstrynge@hotmail.com" },
+          { firstName: "De Groote", lastName: "Eline", email: "tamaralefevere@hotmail.com" },
+          { firstName: "Deconinck", lastName: "Louise", email: "tine.kreps@telenet.be" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Naëlle", email: "magaliboedt@hotmail.com" },
+          { firstName: "Eggericks", lastName: "Juliette", email: "vanderheydenkate@hotmail.com" },
+          { firstName: "Elshout", lastName: "Anaïs", email: "w-elshout@hotmail.com" },
+          { firstName: "Hertsens", lastName: "Elise", email: "sofiehertsens@hotmail.com" },
+          { firstName: "Heylen", lastName: "Olivia", email: "joycedemey@telenet.be" },
+          { firstName: "Hongenaert", lastName: "Amélie", email: "nathalie.beyen@skynet.be" },
+          { firstName: "Kim", lastName: "De Clercq", email: "kimdeclercq81@gmail.com" },
+          { firstName: "Martens", lastName: "Madeleine", email: "annemie.schepens@howest.be" },
+          { firstName: "Miet", lastName: "Aarnouts", email: "miet_aarnouts@hotmail.com" },
+          { firstName: "Opsomer", lastName: "Louise", email: "schiettecatte.nathalie@gmail.com" },
+          { firstName: "Peeters", lastName: "Jenna", email: "kaat.lannoy@telenet.be" },
+          { firstName: "Popelier", lastName: "Casey", email: "verbouwsandra@gmail.com" },
+          { firstName: "Pyckavet", lastName: "Estelle", email: "tantefie2109@hotmail.com" },
+          { firstName: "Vandamme", lastName: "Lucie", email: "sophie@interiorsbysophie.be" },
+          { firstName: "Vandekerkhove", lastName: "Maud", email: "e.wintein@hotmail.com" }
+        ]
+      },
+      {
+        name: "Modern 3_4",
+        contacts: [
+          { firstName: "Barnes", lastName: "Lily", email: "marjolijnrotsaert@hotmail.com" },
+          { firstName: "Crombez", lastName: "Eline", email: "vermeirsch.m@gmail.com" },
+          { firstName: "De Block", lastName: "Romy", email: "evy_verstrynge@hotmail.com" },
+          { firstName: "De Groote", lastName: "Eline", email: "tamaralefevere@hotmail.com" },
+          { firstName: "Deconinck", lastName: "Louise", email: "tine.kreps@telenet.be" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Naëlle", email: "magaliboedt@hotmail.com" },
+          { firstName: "Eggericks", lastName: "Juliette", email: "vanderheydenkate@hotmail.com" },
+          { firstName: "Elshout", lastName: "Anaïs", email: "w-elshout@hotmail.com" },
+          { firstName: "Hertsens", lastName: "Elise", email: "sofiehertsens@hotmail.com" },
+          { firstName: "Heylen", lastName: "Olivia", email: "joycedemey@telenet.be" },
+          { firstName: "Hongenaert", lastName: "Amélie", email: "nathalie.beyen@skynet.be" },
+          { firstName: "Kim", lastName: "De Clercq", email: "kimdeclercq81@gmail.com" },
+          { firstName: "Martens", lastName: "Madeleine", email: "annemie.schepens@howest.be" },
+          { firstName: "Miet", lastName: "Aarnouts", email: "miet_aarnouts@hotmail.com" },
+          { firstName: "Opsomer", lastName: "Louise", email: "schiettecatte.nathalie@gmail.com" },
+          { firstName: "Peeters", lastName: "Jenna", email: "kaat.lannoy@telenet.be" },
+          { firstName: "Popelier", lastName: "Casey", email: "verbouwsandra@gmail.com" },
+          { firstName: "Pyckavet", lastName: "Estelle", email: "tantefie2109@hotmail.com" }
+        ]
+      },
+      {
+        name: "Volwassenen",
+        contacts: [
+          { firstName: "Baeckelandt", lastName: "Enora", email: "wijnepatricia@gmail.com" },
+          { firstName: "Baert", lastName: "Amy", email: "sarah_roelandt@hotmail.com" },
+          { firstName: "Brouckaert", lastName: "Emma en Liana", email: "demeesterkim@hotmail.com" },
+          { firstName: "Coppejans", lastName: "Dieuwke", email: "johnnycoppejans@hotmail.com" },
+          { firstName: "De Coussemaker", lastName: "Emilia", email: "kurt.cheryl@telenet.be" },
+          { firstName: "De Paep", lastName: "Louna", email: "sarahds1985@gmail.com" },
+          { firstName: "De Schuyter", lastName: "Loena", email: "saradeleener@telenet.be" },
+          { firstName: "Desmidt", lastName: "Chiara", email: "melanievangheluwe@icloud.com" },
+          { firstName: "Desmidt", lastName: "Dante", email: "fre_desmidt@hotmail.com" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Noëlie", email: "magaliboedt@hotmail.com" },
+          { firstName: "Filisia", lastName: "Tamsin", email: "kasiafilisia@gmail.com" },
+          { firstName: "Geraci", lastName: "Julie", email: "giuliageraci@hotmail.com" },
+          { firstName: "kreps", lastName: "Gigi", email: "liesbethkreps@gmail.com" },
+          { firstName: "Leemans", lastName: "Jorbe", email: "kurzieboy@hotmail.com" },
+          { firstName: "Lierman", lastName: "Anaïs", email: "rebecca_Maelfeyt@hotmail.com" },
+          { firstName: "Mareydt", lastName: "Marie-Lou", email: "tommareydt@hotmail.com" },
+          { firstName: "Marley", lastName: "Leuntjens", email: "anke.dekee@knokke-heist.be" },
+          { firstName: "Meyers", lastName: "Alexie", email: "welvaertjanice@hotmail.com" },
+          { firstName: "Meyers", lastName: "Elise", email: "shana.moyaert@hotmail.com" },
+          { firstName: "Ouders Vossen", lastName: "Elle", email: "sylvie_cantraine@yahoo.com" },
+          { firstName: "Patteet", lastName: "Charlotte", email: "cverstraaten@hotmail.com" },
+          { firstName: "Peeters", lastName: "Lee-Ann", email: "kaat.lannoy@outlook.com" },
+          { firstName: "Sarah", lastName: "Deputter", email: "sdeputter@icloud.com" },
+          { firstName: "Savels", lastName: "Elsie", email: "Moens_Tamara@hotmail.com" },
+          { firstName: "Savels", lastName: "Lise", email: "kellefleerackers@hotmail.com" },
+          { firstName: "Van Biervliet", lastName: "Gaëlle", email: "caroline.goeminne@telenet.be" },
+          { firstName: "Vandierendonck", lastName: "Kate", email: "devoogtannelies@gmail.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene", email: "sarahdobbelaere@icloud.com" },
+          { firstName: "Vansteenkiste", lastName: "Niene 2", email: "dries.vansteenkiste@telenet.be" },
+          { firstName: "Verlinde", lastName: "Fleur", email: "heikedeweerdt@gmail.com" },
+          { firstName: "Wasnaire", lastName: "Fay", email: "lizzy.litaer@gmail.com" }
+        ]
+      },
+      {
+        name: "Mini's",
+        contacts: [
+          { firstName: "Baeckelandt", lastName: "Enora", email: "wijnepatricia@gmail.com" },
+          { firstName: "Baert", lastName: "Amy", email: "sarah_roelandt@hotmail.com" },
+          { firstName: "Brouckaert", lastName: "Emma en Liana", email: "demeesterkim@hotmail.com" },
+          { firstName: "Coppejans", lastName: "Dieuwke", email: "johnnycoppejans@hotmail.com" },
+          { firstName: "De Coussemaker", lastName: "Emilia", email: "kurt.cheryl@telenet.be" },
+          { firstName: "De Paep", lastName: "Louna", email: "sarahds1985@gmail.com" },
+          { firstName: "De Schuyter", lastName: "Loena", email: "saradeleener@telenet.be" },
+          { firstName: "Desmidt", lastName: "Chiara", email: "melanievangheluwe@icloud.com" },
+          { firstName: "Desmidt", lastName: "Dante", email: "fre_desmidt@hotmail.com" },
+          { firstName: "Devisch", lastName: "Yliana", email: "melissa_lamote@hotmail.com" },
+          { firstName: "Dobbelaere", lastName: "Noëlie", email: "magaliboedt@hotmail.com" },
+          { firstName: "Filisia", lastName: "Tamsin", email: "kasiafilisia@gmail.com" },
+          { firstName: "Geraci", lastName: "Julie", email: "giuliageraci@hotmail.com" },
+          { firstName: "kreps", lastName: "Gigi", email: "liesbethkreps@gmail.com" },
+          { firstName: "Leemans", lastName: "Jorbe", email: "kurzieboy@hotmail.com" },
+          { firstName: "Lierman", lastName: "Anaïs", email: "rebecca_Maelfeyt@hotmail.com" },
+          { firstName: "Mareydt", lastName: "Marie-Lou", email: "tommareydt@hotmail.com" },
+          { firstName: "Marley", lastName: "Leuntjens", email: "anke.dekee@knokke-heist.be" },
+          { firstName: "Meyers", lastName: "Alexie", email: "welvaertjanice@hotmail.com" },
+          { firstName: "Meyers", lastName: "Elise", email: "shana.moyaert@hotmail.com" },
+          { firstName: "Ouders Vossen", lastName: "Elle", email: "sylvie_cantraine@yahoo.com" },
+          { firstName: "Patteet", lastName: "Charlotte", email: "cverstraaten@hotmail.com" },
+          { firstName: "Peeters", lastName: "Lee-Ann", email: "kaat.lannoy@outlook.com" }
+        ]
       }
     ]
 
@@ -164,36 +404,23 @@ export async function POST() {
         // Procesar contactos de esta lista
         for (const contactData of list.contacts) {
           try {
-            // Buscar si ya existe un contacto con este email
-            const existingContact = await contactsCollection.findOne({ 
-              email: contactData.email 
-            })
-
-            if (existingContact) {
-              // Si existe, agregar esta lista a listNames
-              await contactsCollection.updateOne(
-                { email: contactData.email },
-                { $addToSet: { listNames: list.name } }
-              )
-              console.log(`🔄 Actualizado: ${contactData.email} agregado a ${list.name}`)
-            } else {
-              // Si no existe, crear nuevo contacto
-              const newContact = {
-                firstName: contactData.firstName,
-                lastName: contactData.lastName,
-                email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
-                company: '',
-                phone: '',
-                listNames: [list.name], // SOLO esta lista
-                originalEmail: contactData.email, // Preservar email original
-                listGroup: list.name, // Identificador del grupo
-                createdAt: new Date()
-              }
-
-              await contactsCollection.insertOne(newContact)
-              totalContactsCreated++
-              console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
+            // SIEMPRE crear un nuevo contacto para cada entrada en cada lista
+            // Esto asegura que cada lista tenga sus propios contactos independientes
+            const newContact = {
+              firstName: contactData.firstName,
+              lastName: contactData.lastName,
+              email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
+              company: '',
+              phone: '',
+              listNames: [list.name], // SOLO esta lista específica
+              originalEmail: contactData.email, // Preservar email original
+              listGroup: list.name, // Identificador del grupo
+              createdAt: new Date()
             }
+    
+            await contactsCollection.insertOne(newContact)
+            totalContactsCreated++
+            console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
           } catch (error) {
             const errorMsg = `Error procesando ${contactData.email}: ${error}`
             console.error(errorMsg)
