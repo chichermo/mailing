@@ -407,23 +407,24 @@ export async function POST() {
         // Procesar contactos de esta lista
         for (const contactData of list.contacts) {
           try {
-            // SIEMPRE crear un nuevo contacto para cada entrada en cada lista
-            // Esto asegura que cada lista tenga sus propios contactos independientes
+            // Crear email único para cada lista
+            const uniqueEmail = `${contactData.email}_${list.name.replace(/\s+/g, '_')}`
+            
             const newContact = {
               firstName: contactData.firstName,
               lastName: contactData.lastName,
-              email: `${contactData.email}_${list.name.replace(/\s+/g, '_')}`, // EMAIL ÚNICO POR LISTA
+              email: uniqueEmail,
               company: '',
               phone: '',
-              listNames: [list.name], // SOLO esta lista específica
-              originalEmail: contactData.email, // Preservar email original
-              listGroup: list.name, // Identificador del grupo
+              listNames: [list.name],
+              originalEmail: contactData.email,
+              listGroup: list.name,
               createdAt: new Date()
             }
     
-            await contactsCollection.insertOne(newContact)
+            const result = await contactsCollection.insertOne(newContact)
             totalContactsCreated++
-            console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
+            console.log(`🆕 Creado: ${uniqueEmail} en ${list.name} (ID: ${result.insertedId})`)
           } catch (error) {
             const errorMsg = `Error procesando ${contactData.email}: ${error}`
             console.error(errorMsg)
@@ -432,6 +433,7 @@ export async function POST() {
         }
 
         processedLists.push(list.name)
+        console.log(`✅ Lista ${list.name} procesada exitosamente`)
 
       } catch (error) {
         const errorMsg = `Error procesando lista ${list.name}: ${error}`
