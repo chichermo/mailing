@@ -4,7 +4,7 @@ let client: MongoClient
 let clientPromise: Promise<MongoClient>
 
 // Only initialize connection when actually needed
-function getClientPromise(): Promise<MongoClient> {
+export function getClientPromise(): Promise<MongoClient> {
   // Si estamos en BUILD, no nos conectamos a MongoDB
   if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
     throw new Error('MongoDB connection not available during build phase')
@@ -47,4 +47,5 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise
 }
 
+// También exportar como default para compatibilidad
 export default getClientPromise
