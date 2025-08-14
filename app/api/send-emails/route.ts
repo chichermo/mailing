@@ -12,7 +12,11 @@ console.log('✅ Resend module loaded')
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 === EMAIL SEND FUNCTION STARTED ===')
     console.log('🚀 Starting email send process with Resend...')
+    console.log('🚀 Request method:', request.method)
+    console.log('🚀 Request URL:', request.url)
+    console.log('🚀 Request headers:', Object.fromEntries(request.headers.entries()))
     
     // Check API key
     if (!process.env.RESEND_API_KEY) {

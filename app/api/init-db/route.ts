@@ -26,6 +26,27 @@ export async function GET() {
         { status: 500 }
       )
     }
+
+    // Test MongoDB connection first
+    try {
+      console.log('🔍 Testing MongoDB connection...')
+      const { MongoClient } = await import('mongodb')
+      const client = new MongoClient(process.env.MONGODB_URI)
+      await client.connect()
+      console.log('✅ MongoDB connection successful')
+      await client.close()
+    } catch (mongoError) {
+      console.error('❌ MongoDB connection failed:', mongoError)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'MongoDB connection failed',
+          mongoError: String(mongoError),
+          uri: process.env.MONGODB_URI?.substring(0, 100) + '...'
+        },
+        { status: 500 }
+      )
+    }
     
     const success = await initializeDatabase()
     

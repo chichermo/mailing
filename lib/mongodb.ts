@@ -5,6 +5,11 @@ let clientPromise: Promise<MongoClient>
 
 // Only initialize connection when actually needed
 function getClientPromise(): Promise<MongoClient> {
+  // Si estamos en BUILD, no nos conectamos a MongoDB
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+    throw new Error('MongoDB connection not available during build phase')
+  }
+
   if (clientPromise) {
     return clientPromise
   }
@@ -19,6 +24,7 @@ function getClientPromise(): Promise<MongoClient> {
   console.log('- URI exists:', !!uri)
   console.log('- URI length:', uri?.length || 0)
   console.log('- NODE_ENV:', process.env.NODE_ENV)
+  console.log('- NEXT_PHASE:', process.env.NEXT_PHASE)
 
   if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
@@ -41,4 +47,4 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise
 }
 
-export default getClientPromise()
+export default getClientPromise

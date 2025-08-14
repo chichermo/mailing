@@ -1,8 +1,8 @@
-import clientPromise from './mongodb'
+import { getClientPromise } from './mongodb'
 import { dbConfig } from './db-config'
 
 export async function getDb() {
-  const client = await clientPromise
+  const client = await getClientPromise()
   return client.db(dbConfig.database)
 }
 
