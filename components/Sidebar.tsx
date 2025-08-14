@@ -7,7 +7,8 @@ import {
   DocumentTextIcon, 
   PaperAirplaneIcon, 
   ClockIcon, 
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 
 interface SidebarProps {
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Templates', href: 'templates', icon: DocumentTextIcon },
   { name: 'Send Emails', href: 'send-emails', icon: PaperAirplaneIcon },
   { name: 'History', href: 'history', icon: ClockIcon },
+  { name: 'Dance Stats', href: 'dance-stats', icon: ChartBarIcon },
   { name: 'Settings', href: 'settings', icon: Cog6ToothIcon },
 ]
 

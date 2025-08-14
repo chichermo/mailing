@@ -7,6 +7,7 @@ import ContactList from '../components/ContactList'
 import EmailTemplates from '../components/EmailTemplates'
 import SendEmails from '../components/SendEmails'
 import EmailHistory from '../components/EmailHistory'
+import DanceListStats from '../components/DanceListStats'
 import Settings from '../components/Settings'
 
 export default function Home() {
@@ -46,6 +47,8 @@ export default function Home() {
         return <SendEmails />
       case 'history':
         return <EmailHistory />
+      case 'dance-stats':
+        return <DanceListStats />
       case 'settings':
         return <Settings />
       default:

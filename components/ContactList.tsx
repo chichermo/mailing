@@ -403,6 +403,33 @@ export default function ContactList() {
     }
   }
 
+  // Función para importar listas de danza
+  const handleImportDanceLists = async () => {
+    if (!confirm('¿Estás seguro de que quieres importar todas las listas de danza? Esto creará/actualizará muchos contactos.')) {
+      return
+    }
+
+    try {
+      toast.loading('Importando listas de danza...', { id: 'dance-import' })
+      
+      const response = await fetch('/api/import-dance-lists', {
+        method: 'POST'
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success(`✅ ${result.message}`, { id: 'dance-import' })
+        toast.success(`📊 Resumen: ${result.summary.listsProcessed} listas procesadas, ${result.summary.contactsCreated} contactos creados, ${result.summary.contactsUpdated} actualizados`)
+        loadContacts() // Recargar contactos para reflejar las nuevas listas
+      } else {
+        toast.error(`❌ ${result.error || 'Error importing dance lists'}`, { id: 'dance-import' })
+      }
+    } catch (error) {
+      toast.error('❌ Error de conexión', { id: 'dance-import' })
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -471,6 +498,12 @@ export default function ContactList() {
             className="btn-secondary flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700"
           >
             🔄 Migrate
+          </button>
+          <button
+            onClick={handleImportDanceLists}
+            className="btn-secondary flex items-center gap-2 bg-green-600 hover:bg-green-700"
+          >
+            🎭 Import Dance Lists
           </button>
         </div>
         <div className="relative">
