@@ -104,6 +104,8 @@ export default function RichTextEditor({
   const [showLinkDialog, setShowLinkDialog] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
   const [linkText, setLinkText] = useState('')
+  const [currentColor, setCurrentColor] = useState('#000000')
+  const [currentBgColor, setCurrentBgColor] = useState('#ffffff')
   const quillRef = useRef<any>(null)
 
   useEffect(() => {
@@ -136,20 +138,35 @@ export default function RichTextEditor({
 
   // Funciones del editor
   const formatText = (format: string, value?: any) => {
-    if (quillRef.current) {
-      quillRef.current.format(format, value)
+    if (quillRef.current && quillRef.current.getEditor) {
+      const editor = quillRef.current.getEditor()
+      if (editor) {
+        editor.format(format, value)
+      }
     }
   }
 
   const insertLink = () => {
     if (linkUrl && linkText) {
-      const range = quillRef.current?.getSelection()
-      if (range) {
-        quillRef.current?.insertEmbed(range.index, 'link', { href: linkUrl, text: linkText })
-        setShowLinkDialog(false)
-        setLinkUrl('')
-        setLinkText('')
+      if (quillRef.current && quillRef.current.getEditor) {
+        const editor = quillRef.current.getEditor()
+        if (editor) {
+          const range = editor.getSelection()
+          if (range) {
+            // Insertar el enlace en el texto seleccionado
+            editor.insertText(range.index, linkText)
+            editor.formatText(range.index, linkText.length, 'link', linkUrl)
+          } else {
+            // Si no hay selección, insertar al final
+            const length = editor.getLength()
+            editor.insertText(length, linkText)
+            editor.formatText(length, linkText.length, 'link', linkUrl)
+          }
+        }
       }
+      setShowLinkDialog(false)
+      setLinkUrl('')
+      setLinkText('')
     }
   }
 
@@ -164,9 +181,13 @@ export default function RichTextEditor({
       if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
-          const range = quillRef.current?.getSelection()
-          if (range) {
-            quillRef.current?.insertEmbed(range.index, 'image', e.target?.result)
+          if (quillRef.current && quillRef.current.getEditor) {
+            const editor = quillRef.current.getEditor()
+            if (editor) {
+              const range = editor.getSelection()
+              const index = range ? range.index : editor.getLength()
+              editor.insertEmbed(index, 'image', e.target?.result)
+            }
           }
         }
         reader.readAsDataURL(file)
@@ -177,9 +198,13 @@ export default function RichTextEditor({
   const insertImageFromUrl = () => {
     const url = prompt('Ingresa la URL de la imagen:')
     if (url) {
-      const range = quillRef.current?.getSelection()
-      if (range) {
-        quillRef.current?.insertEmbed(range.index, 'image', url)
+      if (quillRef.current && quillRef.current.getEditor) {
+        const editor = quillRef.current.getEditor()
+        if (editor) {
+          const range = editor.getSelection()
+          const index = range ? range.index : editor.getLength()
+          editor.insertEmbed(index, 'image', url)
+        }
       }
     }
   }
@@ -188,8 +213,72 @@ export default function RichTextEditor({
     const rows = prompt('Número de filas:', '3')
     const cols = prompt('Número de columnas:', '3')
     if (rows && cols) {
-      // Implementar inserción de tabla
-      console.log('Insertar tabla:', rows, cols)
+      if (quillRef.current && quillRef.current.getEditor) {
+        const editor = quillRef.current.getEditor()
+        if (editor) {
+          const range = editor.getSelection()
+          const index = range ? range.index : editor.getLength()
+          
+          // Crear tabla HTML básica
+          let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;">'
+          for (let i = 0; i < parseInt(rows); i++) {
+            tableHTML += '<tr>'
+            for (let j = 0; j < parseInt(cols); j++) {
+              tableHTML += '<td style="padding: 8px; border: 1px solid #ddd;">Celda</td>'
+            }
+            tableHTML += '</tr>'
+          }
+          tableHTML += '</table>'
+          
+          // Insertar la tabla
+          editor.clipboard.dangerouslyPasteHTML(index, tableHTML)
+        }
+      }
+    }
+  }
+
+  const changeTextColor = (color: string) => {
+    setCurrentColor(color)
+    formatText('color', color)
+    setShowColorPicker(false)
+  }
+
+  const changeBackgroundColor = (color: string) => {
+    setCurrentBgColor(color)
+    formatText('background', color)
+    setShowColorPicker(false)
+  }
+
+  const removeLink = () => {
+    if (quillRef.current && quillRef.current.getEditor) {
+      const editor = quillRef.current.getEditor()
+      if (editor) {
+        const range = editor.getSelection()
+        if (range) {
+          editor.formatText(range.index, range.length, 'link', false)
+        }
+      }
+    }
+  }
+
+  const editLink = () => {
+    if (quillRef.current && quillRef.current.getEditor) {
+      const editor = quillRef.current.getEditor()
+      if (editor) {
+        const range = editor.getSelection()
+        if (range) {
+          const formats = editor.getFormat(range.index, range.length)
+          if (formats.link) {
+            setLinkUrl(formats.link)
+            setLinkText(editor.getText(range.index, range.length))
+            setShowLinkDialog(true)
+          } else {
+            setShowLinkDialog(true)
+          }
+        } else {
+          setShowLinkDialog(true)
+        }
+      }
     }
   }
 
@@ -209,13 +298,13 @@ export default function RichTextEditor({
               onClick={() => setActiveMenu(activeMenu === 'edit' ? null : 'edit')}
               className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'edit' ? 'bg-gray-700' : ''}`}
             >
-              Bewerken
+              Editar
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'format' ? null : 'format')}
               className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'format' ? 'bg-gray-700' : ''}`}
             >
-              Opmaak
+              Formato
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'media' ? null : 'media')}
@@ -227,19 +316,19 @@ export default function RichTextEditor({
               onClick={() => setActiveMenu(activeMenu === 'table' ? null : 'table')}
               className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'table' ? 'bg-gray-700' : ''}`}
             >
-              Tabel
+              Tabla
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'insert' ? null : 'insert')}
               className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'insert' ? 'bg-gray-700' : ''}`}
             >
-              Invoegen
+              Insertar
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'view' ? null : 'view')}
               className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'view' ? 'bg-gray-700' : ''}`}
             >
-              Beeld
+              Ver
             </button>
           </div>
 
@@ -247,11 +336,11 @@ export default function RichTextEditor({
           {activeMenu === 'edit' && (
             <div className="bg-gray-700 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={() => quillRef.current?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.getEditor()?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
                   <UndoIcon className="w-4 h-4 inline mr-2" />
                   Deshacer
                 </button>
-                <button onClick={() => quillRef.current?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.getEditor()?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
                   <RedoIcon className="w-4 h-4 inline mr-2" />
                   Rehacer
                 </button>
@@ -393,14 +482,14 @@ export default function RichTextEditor({
                 <LinkIcon className="w-4 h-4" />
               </button>
               <button
-                onClick={() => formatText('link', false)}
+                onClick={editLink}
                 className="p-2 hover:bg-gray-200 rounded transition-colors"
                 title="Editar enlace"
               >
                 <LinkIcon className="w-4 h-4" />
               </button>
               <button
-                onClick={() => formatText('link', false)}
+                onClick={removeLink}
                 className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-400"
                 title="Quitar enlace"
               >
@@ -464,7 +553,18 @@ export default function RichTextEditor({
               >
                 <ListNumberedIcon className="w-4 h-4" />
               </button>
-              <button className="p-2 hover:bg-gray-200 rounded transition-colors">
+              <button 
+                onClick={() => formatText('indent', '+1')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Aumentar sangría"
+              >
+                <PlusIcon className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => formatText('indent', '-1')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Reducir sangría"
+              >
                 <MinusIcon className="w-4 h-4" />
               </button>
             </div>
@@ -473,6 +573,35 @@ export default function RichTextEditor({
           {/* Selector de colores */}
           {showColorPicker && (
             <div className="mt-3 p-3 bg-white border border-gray-300 rounded-lg shadow-lg">
+              <div className="mb-3">
+                <div className="flex space-x-4 mb-2">
+                  <button
+                    onClick={() => changeTextColor(currentColor)}
+                    className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                  >
+                    Color de texto
+                  </button>
+                  <button
+                    onClick={() => changeBackgroundColor(currentBgColor)}
+                    className="px-3 py-1 bg-green-600 text-white rounded text-sm"
+                  >
+                    Color de fondo
+                  </button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">Color actual:</span>
+                  <div 
+                    className="w-6 h-6 border border-gray-300 rounded"
+                    style={{ backgroundColor: currentColor }}
+                  ></div>
+                  <input
+                    type="color"
+                    value={currentColor}
+                    onChange={(e) => setCurrentColor(e.target.value)}
+                    className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-8 gap-2">
                 {['#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef',
                   '#f2f2f2', '#f7f7f7', '#ffffff', '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00',
@@ -481,10 +610,7 @@ export default function RichTextEditor({
                   '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#b4a6d6', '#d5a6bd'].map((color) => (
                   <button
                     key={color}
-                    onClick={() => {
-                      formatText('color', color)
-                      setShowColorPicker(false)
-                    }}
+                    onClick={() => setCurrentColor(color)}
                     className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
                     title={color}
@@ -564,6 +690,7 @@ export default function RichTextEditor({
           <li>• La barra de herramientas te permite formatear texto rápidamente</li>
           <li>• Puedes insertar imágenes, enlaces y tablas desde los menús</li>
           <li>• Las variables como {'{{firstName}}'} se reemplazarán automáticamente</li>
+          <li>• Selecciona texto antes de aplicar formato o insertar enlaces</li>
         </ul>
       </div>
     </div>
