@@ -356,17 +356,18 @@ export default function EmailTemplates() {
                    console.log('🔒 Blocking editor click from form submission')
                  }
                }}
-               // RADICAL SOLUTION: Remove form submission entirely when editing
-               onSubmit={(e) => {
-                 if (editingTemplate) {
-                   e.preventDefault()
-                   e.stopPropagation()
-                   console.log('🚫 RADICAL: Form submission completely blocked when editing')
-                   toast.error('Form submission is disabled while editing. Use the Update Template button.')
-                   return false
-                 }
-                 return handleSubmit(e)
-               }}
+                               // INTELLIGENT SOLUTION: Only block form submission, allow editor functionality
+                onSubmit={(e) => {
+                  // Only block if this is actually a form submission attempt
+                  if (editingTemplate && e.type === 'submit') {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('🚫 INTELLIGENT: Form submission blocked when editing')
+                    toast.error('Form submission is disabled while editing. Use the Update Template button.')
+                    return false
+                  }
+                  return handleSubmit(e)
+                }}
              >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
