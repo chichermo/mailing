@@ -373,13 +373,16 @@ export default function EmailTemplates() {
                   </p>
                 </div>
 
-                <RichTextEditor
-                  value={formData.content}
-                  onChange={(content) => setFormData({...formData, content})}
-                  placeholder="<h1>¡Hola {'{{firstName}}'}!</h1><p>Bienvenido a nuestro boletín. Estamos emocionados de tenerte a bordo.</p><p>Saludos,<br>El Equipo</p>"
-                  height="h-80"
-                  className="w-full"
-                />
+                                 <div className="border border-gray-300 rounded-lg">
+                   <RichTextEditor
+                     value={formData.content}
+                     onChange={(content) => setFormData({...formData, content})}
+                     placeholder="<h1>Hello {'{{firstName}}'}!</h1><p>Welcome to our newsletter. We're excited to have you on board.</p><p>Best regards,<br>The Team</p>"
+                     height="h-80"
+                     className="w-full"
+                     showToolbar={true}
+                   />
+                 </div>
                 
                 {/* Estadísticas del contenido */}
                 <EditorStats content={formData.content} />

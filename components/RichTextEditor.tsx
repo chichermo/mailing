@@ -138,42 +138,50 @@ export default function RichTextEditor({
 
   // Editor functions
   const formatText = (format: string, value?: any, e?: React.MouseEvent) => {
-    // Prevent event bubbling to avoid form submission
+    // CRITICAL: Prevent form submission
     if (e) {
       e.preventDefault()
       e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation()
     }
     
-    if (quillRef.current) {
-      quillRef.current.format(format, value)
-    }
+    // Add a small delay to ensure event is completely stopped
+    setTimeout(() => {
+      if (quillRef.current) {
+        quillRef.current.format(format, value)
+      }
+    }, 10)
   }
 
   const insertLink = (e?: React.MouseEvent) => {
-    // Prevent event bubbling to avoid form submission
+    // CRITICAL: Prevent form submission
     if (e) {
       e.preventDefault()
       e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation()
     }
     
-    if (linkUrl && linkText) {
-      if (quillRef.current) {
-        const range = quillRef.current.getSelection()
-        if (range) {
-          // Insert link in selected text
-          quillRef.current.insertText(range.index, linkText)
-          quillRef.current.formatText(range.index, linkText.length, 'link', linkUrl)
-        } else {
-          // If no selection, insert at the end
-          const length = quillRef.current.getLength()
-          quillRef.current.insertText(length, linkText)
-          quillRef.current.formatText(length, linkText.length, 'link', linkUrl)
+    // Add a small delay to ensure event is completely stopped
+    setTimeout(() => {
+      if (linkUrl && linkText) {
+        if (quillRef.current) {
+          const range = quillRef.current.getSelection()
+          if (range) {
+            // Insert link in selected text
+            quillRef.current.insertText(range.index, linkText)
+            quillRef.current.formatText(range.index, linkText.length, 'link', linkUrl)
+          } else {
+            // If no selection, insert at the end
+            const length = quillRef.current.getLength()
+            quillRef.current.insertText(length, linkText)
+            quillRef.current.formatText(length, linkText.length, 'link', linkUrl)
+          }
         }
+        setShowLinkDialog(false)
+        setLinkUrl('')
+        setLinkText('')
       }
-      setShowLinkDialog(false)
-      setLinkUrl('')
-      setLinkText('')
-    }
+    }, 10)
   }
 
   const insertImage = () => {
@@ -247,53 +255,61 @@ export default function RichTextEditor({
   }
 
   const removeLink = (e?: React.MouseEvent) => {
-    // Prevent event bubbling to avoid form submission
+    // CRITICAL: Prevent form submission
     if (e) {
       e.preventDefault()
       e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation()
     }
     
-    if (quillRef.current) {
-      const range = quillRef.current.getSelection()
-      if (range) {
-        quillRef.current.formatText(range.index, range.length, 'link', false)
+    // Add a small delay to ensure event is completely stopped
+    setTimeout(() => {
+      if (quillRef.current) {
+        const range = quillRef.current.getSelection()
+        if (range) {
+          quillRef.current.formatText(range.index, range.length, 'link', false)
+        }
       }
-    }
+    }, 10)
   }
 
   const editLink = (e?: React.MouseEvent) => {
-    // Prevent event bubbling to avoid form submission
+    // CRITICAL: Prevent form submission
     if (e) {
       e.preventDefault()
       e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation()
     }
     
-    if (quillRef.current) {
-      const range = quillRef.current.getSelection()
-      
-      // If there's selected text, check if it's already a link
-      if (range && range.length > 0) {
-        const formats = quillRef.current.getFormat(range.index, range.length)
-        if (formats.link) {
-          // Edit existing link
-          setLinkUrl(formats.link)
-          setLinkText(quillRef.current.getText(range.index, range.length))
-          setShowLinkDialog(true)
+    // Add a small delay to ensure event is completely stopped
+    setTimeout(() => {
+      if (quillRef.current) {
+        const range = quillRef.current.getSelection()
+        
+        // If there's selected text, check if it's already a link
+        if (range && range.length > 0) {
+          const formats = quillRef.current.getFormat(range.index, range.length)
+          if (formats.link) {
+            // Edit existing link
+            setLinkUrl(formats.link)
+            setLinkText(quillRef.current.getText(range.index, range.length))
+            setShowLinkDialog(true)
+          } else {
+            // Convert selected text to link
+            setLinkUrl('')
+            setLinkText(quillRef.current.getText(range.index, range.length))
+            setShowLinkDialog(true)
+          }
         } else {
-          // Convert selected text to link
-          setLinkUrl('')
-          setLinkText(quillRef.current.getText(range.index, range.length))
-          setShowLinkDialog(true)
+          // If no selection, show informative message
+          toast('Select text to create or edit a link', {
+            icon: '💡',
+            duration: 3000
+          })
+          return
         }
-      } else {
-        // If no selection, show informative message
-        toast('Select text to create or edit a link', {
-          icon: '💡',
-          duration: 3000
-        })
-        return
       }
-    }
+    }, 10)
   }
 
   if (!mounted) {
