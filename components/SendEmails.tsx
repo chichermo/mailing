@@ -135,7 +135,7 @@ export default function SendEmails() {
       return
     }
 
-         if (testMode && contacts.filter(c => c.listNames.includes(selectedList) || selectedList === 'all').length > 5) {
+         if (testMode && contacts.filter(c => (c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList)) || selectedList === 'all').length > 5) {
       toast.error('Test mode only allows maximum 5 emails')
       return
     }
@@ -235,7 +235,7 @@ export default function SendEmails() {
       return allContacts
     }
     
-         const filteredContacts = contacts.filter(c => c.listNames.includes(selectedList))
+         const filteredContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList))
     console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
     return filteredContacts
   }
@@ -280,7 +280,7 @@ export default function SendEmails() {
     
     // Add emails from selected list
     if (ccList && ccList !== '') {
-      const listContacts = contacts.filter(c => c.listNames.includes(ccList))
+      const listContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(ccList))
       allEmails.push(...listContacts.map(c => c.email))
     }
     
@@ -296,7 +296,7 @@ export default function SendEmails() {
     
     // Add emails from selected list
     if (bccList && bccList !== '') {
-      const listContacts = contacts.filter(c => c.listNames.includes(bccList))
+      const listContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(bccList))
       allEmails.push(...listContacts.map(c => c.email))
     }
     
