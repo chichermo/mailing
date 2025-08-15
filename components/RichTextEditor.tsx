@@ -137,13 +137,25 @@ export default function RichTextEditor({
   ]
 
   // Editor functions
-  const formatText = (format: string, value?: any) => {
+  const formatText = (format: string, value?: any, e?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     if (quillRef.current) {
       quillRef.current.format(format, value)
     }
   }
 
-  const insertLink = () => {
+  const insertLink = (e?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     if (linkUrl && linkText) {
       if (quillRef.current) {
         const range = quillRef.current.getSelection()
@@ -222,19 +234,25 @@ export default function RichTextEditor({
     }
   }
 
-  const changeTextColor = (color: string) => {
+  const changeTextColor = (color: string, e?: React.MouseEvent) => {
     setCurrentColor(color)
-    formatText('color', color)
+    formatText('color', color, e)
     setShowColorPicker(false)
   }
 
-  const changeBackgroundColor = (color: string) => {
+  const changeBackgroundColor = (color: string, e?: React.MouseEvent) => {
     setCurrentBgColor(color)
-    formatText('background', color)
+    formatText('background', color, e)
     setShowColorPicker(false)
   }
 
-  const removeLink = () => {
+  const removeLink = (e?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     if (quillRef.current) {
       const range = quillRef.current.getSelection()
       if (range) {
@@ -243,7 +261,13 @@ export default function RichTextEditor({
     }
   }
 
-  const editLink = () => {
+  const editLink = (e?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
     if (quillRef.current) {
       const range = quillRef.current.getSelection()
       
@@ -398,14 +422,14 @@ export default function RichTextEditor({
           {activeMenu === 'insert' && (
             <div className="bg-gray-700 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={() => formatText('blockquote')} className="hover:bg-gray-600 px-2 py-1 rounded">
-                  <QuoteIcon className="w-4 h-4 inline mr-2" />
-                  Quote
-                </button>
-                <button onClick={() => formatText('code-block')} className="hover:bg-gray-600 px-2 py-1 rounded">
-                  <DocumentTextIcon className="w-4 h-4 inline mr-2" />
-                  Code
-                </button>
+                                 <button onClick={(e) => formatText('blockquote', undefined, e)} className="hover:bg-gray-600 px-2 py-1 rounded">
+                   <QuoteIcon className="w-4 h-4 inline mr-2" />
+                   Quote
+                 </button>
+                 <button onClick={(e) => formatText('code-block', undefined, e)} className="hover:bg-gray-600 px-2 py-1 rounded">
+                   <DocumentTextIcon className="w-4 h-4 inline mr-2" />
+                   Code
+                 </button>
               </div>
             </div>
           )}
@@ -418,27 +442,27 @@ export default function RichTextEditor({
           <div className="flex items-center space-x-4">
             {/* Text formatting */}
             <div className="flex items-center space-x-1">
-              <button
-                onClick={() => formatText('bold')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Bold"
-              >
-                <BoldIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('italic')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Italic"
-              >
-                <ItalicIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('underline')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Underline"
-              >
-                <UnderlineIcon className="w-4 h-4" />
-              </button>
+                             <button
+                 onClick={(e) => formatText('bold', undefined, e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Bold"
+               >
+                 <BoldIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('italic', undefined, e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Italic"
+               >
+                 <ItalicIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('underline', undefined, e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Underline"
+               >
+                 <UnderlineIcon className="w-4 h-4" />
+               </button>
             </div>
 
             {/* Colors */}
@@ -497,66 +521,66 @@ export default function RichTextEditor({
           <div className="flex items-center space-x-4 mt-3">
             {/* Alignment */}
             <div className="flex items-center space-x-1">
-              <button
-                onClick={() => formatText('align', 'left')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Align left"
-              >
-                <AlignLeftIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('align', 'center')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Center"
-              >
-                <AlignCenterIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('align', 'right')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Align right"
-              >
-                <AlignRightIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('align', 'justify')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Justify"
-              >
-                <AlignJustifyIcon className="w-4 h-4" />
-              </button>
+                             <button
+                 onClick={(e) => formatText('align', 'left', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Align left"
+               >
+                 <AlignLeftIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('align', 'center', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Center"
+               >
+                 <AlignCenterIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('align', 'right', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Align right"
+               >
+                 <AlignRightIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('align', 'justify', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Justify"
+               >
+                 <AlignJustifyIcon className="w-4 h-4" />
+               </button>
             </div>
 
             {/* Lists */}
             <div className="flex items-center space-x-1">
-              <button
-                onClick={() => formatText('list', 'bullet')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Bullet list"
-              >
-                <ListBulletIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => formatText('list', 'ordered')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Numbered list"
-              >
-                <ListNumberedIcon className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => formatText('indent', '+1')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Increase indent"
-              >
-                <PlusIcon className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => formatText('indent', '-1')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
-                title="Decrease indent"
-              >
-                <MinusIcon className="w-4 h-4" />
-              </button>
+                             <button
+                 onClick={(e) => formatText('list', 'bullet', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Bullet list"
+               >
+                 <ListBulletIcon className="w-4 h-4" />
+               </button>
+               <button
+                 onClick={(e) => formatText('list', 'ordered', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Numbered list"
+               >
+                 <ListNumberedIcon className="w-4 h-4" />
+               </button>
+               <button 
+                 onClick={(e) => formatText('indent', '+1', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Increase indent"
+               >
+                 <PlusIcon className="w-4 h-4" />
+               </button>
+               <button 
+                 onClick={(e) => formatText('indent', '-1', e)}
+                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 title="Decrease indent"
+               >
+                 <MinusIcon className="w-4 h-4" />
+               </button>
             </div>
           </div>
 
@@ -565,18 +589,18 @@ export default function RichTextEditor({
             <div className="mt-3 p-3 bg-white border border-gray-300 rounded-lg shadow-lg">
               <div className="mb-3">
                 <div className="flex space-x-4 mb-2">
-                  <button
-                    onClick={() => changeTextColor(currentColor)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-                  >
-                    Text color
-                  </button>
-                  <button
-                    onClick={() => changeBackgroundColor(currentBgColor)}
-                    className="px-3 py-1 bg-green-600 text-white rounded text-sm"
-                  >
-                    Background color
-                  </button>
+                                     <button
+                     onClick={(e) => changeTextColor(currentColor, e)}
+                     className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                   >
+                     Text color
+                   </button>
+                   <button
+                     onClick={(e) => changeBackgroundColor(currentBgColor, e)}
+                     className="px-3 py-1 bg-green-600 text-white rounded text-sm"
+                   >
+                     Background color
+                   </button>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">Current color:</span>
