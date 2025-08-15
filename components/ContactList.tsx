@@ -254,7 +254,7 @@ export default function ContactList() {
       (contact.email && contact.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesList = filterList === 'all' || contact.listNames.includes(filterList)
+            const matchesList = filterList === 'all' || (contact.listNames && Array.isArray(contact.listNames) && contact.listNames.includes(filterList))
 
     return matchesSearch && matchesList
   })
@@ -764,7 +764,7 @@ export default function ContactList() {
                     <label key={list} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.listNames.includes(list)}
+                        checked={formData.listNames && Array.isArray(formData.listNames) && formData.listNames.includes(list)}
                         onChange={(e) => {
                           const newListNames = [...formData.listNames];
                           if (e.target.checked) {

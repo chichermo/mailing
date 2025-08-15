@@ -524,7 +524,7 @@ export default function SendEmails() {
                 >
                                      <option value="all">All lists ({contacts.length} contacts)</option>
                    {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
-                     const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
+                     const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                     console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
@@ -568,7 +568,7 @@ export default function SendEmails() {
                         >
                           <option value="">-- Sin lista --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
-                            const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
+                            const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                             return (
                               <option key={list} value={list}>
                                 {list} ({count} contacts)
@@ -630,7 +630,7 @@ export default function SendEmails() {
                         >
                           <option value="">-- Sin lista --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
-                            const count = contacts.filter(c => c.listNames && c.listNames.includes(list)).length
+                            const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                             return (
                               <option key={list} value={list}>
                                 {list} ({count} contacts)
