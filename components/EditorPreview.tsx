@@ -7,12 +7,50 @@ import {
   DocumentTextIcon,
   PhotoIcon,
   LinkIcon,
-  TableCellsIcon
+  TableCellsIcon,
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  ListBulletIcon,
+  ListNumberedIcon,
+  PlusIcon,
+  MinusIcon
 } from '@heroicons/react/24/outline'
 
 interface EditorPreviewProps {
   className?: string
 }
+
+// Iconos personalizados para los que no están en Heroicons
+const AlignLeftIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h6" />
+  </svg>
+)
+
+const AlignCenterIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M6 12h12M8 18h8" />
+  </svg>
+)
+
+const AlignRightIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M10 12h10M14 18h6" />
+  </svg>
+)
+
+const AlignJustifyIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+)
+
+const LinkBreakIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+  </svg>
+)
 
 export default function EditorPreview({ className = '' }: EditorPreviewProps) {
   const [activeTab, setActiveTab] = useState<'preview' | 'features' | 'code'>('preview')
@@ -280,16 +318,3 @@ import RichTextEditor from './RichTextEditor'
     </div>
   )
 }
-
-// Componentes auxiliares para los iconos
-const MinusIcon = ({ className = "w-4 h-4" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-  </svg>
-)
-
-const LinkBreakIcon = ({ className = "w-4 h-4" }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-  </svg>
-)
