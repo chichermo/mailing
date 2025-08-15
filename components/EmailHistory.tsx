@@ -84,7 +84,7 @@ export default function EmailHistory() {
   const handleExportCSV = () => {
     const filteredCampaigns = getFilteredCampaigns()
     
-    if (filteredCampaigns.length === 0) {
+    if (filteredCampaigns && Array.isArray(filteredCampaigns) && filteredCampaigns.length === 0) {
       toast.error('No hay datos para exportar')
       return
     }
@@ -203,7 +203,7 @@ export default function EmailHistory() {
   // Obtener estadísticas
   const getStats = () => {
     const filtered = getFilteredCampaigns()
-    const totalCampaigns = filtered.length
+    const totalCampaigns = filtered && Array.isArray(filtered) ? filtered.length : 0
     const totalSent = filtered.reduce((sum, c) => sum + c.total_sent, 0)
     const totalSuccess = filtered.reduce((sum, c) => sum + c.success_count, 0)
     const totalErrors = filtered.reduce((sum, c) => sum + c.error_count, 0)
@@ -398,7 +398,7 @@ export default function EmailHistory() {
           </table>
         </div>
         
-        {filteredCampaigns.length === 0 && (
+        {filteredCampaigns && Array.isArray(filteredCampaigns) && filteredCampaigns.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500">
               {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
