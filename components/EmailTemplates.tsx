@@ -10,6 +10,9 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import RichTextEditor from './RichTextEditor'
+import HTMLViewer from './HTMLViewer'
+import EditorStats from './EditorStats'
 
 interface EmailTemplate {
   _id: string
@@ -168,19 +171,10 @@ export default function EmailTemplates() {
 
   // Insert variable into content
   const insertVariable = (variable: string) => {
-    const textarea = document.getElementById('template-content') as HTMLTextAreaElement
-    if (textarea) {
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const newContent = formData.content.substring(0, start) + variable + formData.content.substring(end)
-      setFormData({ ...formData, content: newContent })
-      
-      // Focus back to textarea and set cursor position
-      setTimeout(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + variable.length, start + variable.length)
-      }, 100)
-    }
+    // Para el editor de texto enriquecido, simplemente agregamos la variable al final
+    // o en la posición actual del cursor si es posible
+    const newContent = formData.content + variable
+    setFormData({ ...formData, content: newContent })
   }
 
   // Get available variables
@@ -338,15 +332,16 @@ export default function EmailTemplates() {
                   </p>
                 </div>
 
-                <textarea
-                  id="template-content"
-                  required
-                  rows={12}
+                <RichTextEditor
                   value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
-                  placeholder="<h1>Hello {{firstName}}!</h1>&#10;<p>Welcome to our newsletter. We're excited to have you on board.</p>&#10;<p>Best regards,<br>The Team</p>"
+                  onChange={(content) => setFormData({...formData, content})}
+                  placeholder="<h1>¡Hola {{firstName}}!</h1><p>Bienvenido a nuestro boletín. Estamos emocionados de tenerte a bordo.</p><p>Saludos,<br>El Equipo</p>"
+                  height="h-80"
+                  className="w-full"
                 />
+                
+                {/* Estadísticas del contenido */}
+                <EditorStats content={formData.content} />
                 
                 <div className="mt-2 space-y-2">
                   <p className="text-xs text-gray-500">
@@ -402,11 +397,12 @@ export default function EmailTemplates() {
               </div>
               
               <div>
-                <span className="text-sm font-medium text-gray-700">Content Preview:</span>
-                <div className="mt-2 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <div 
-                    className="prose max-w-none"
-                    dangerouslySetInnerHTML={{ __html: previewTemplate.content }}
+                <span className="text-sm font-medium text-gray-700">Vista previa del contenido:</span>
+                <div className="mt-2">
+                  <HTMLViewer 
+                    html={previewTemplate.content}
+                    title="Vista previa del template"
+                    showToggle={true}
                   />
                 </div>
               </div>

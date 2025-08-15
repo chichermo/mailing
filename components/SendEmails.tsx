@@ -10,6 +10,7 @@ import {
   PauseIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import RichTextEditor from './RichTextEditor'
 
 interface EmailTemplate {
   _id: string
@@ -714,18 +715,17 @@ export default function SendEmails() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      HTML Content *
+                      Contenido del Email *
                     </label>
-                    <textarea
-                      required
-                      rows={8}
+                    <RichTextEditor
                       value={customContent}
-                      onChange={(e) => setCustomContent(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
-                      placeholder="<h1>Hello!</h1><p>Your email content...</p>"
+                      onChange={setCustomContent}
+                      placeholder="<h1>¡Hola!</h1><p>Tu contenido del email...</p>"
+                      height="h-64"
+                      className="w-full"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      You can use HTML and variables like {'{firstName}'}, {'{lastName}'}, {'{company}'}
+                      Puedes usar HTML y variables como {'{firstName}'}, {'{lastName}'}, {'{company}'}
                     </p>
                   </div>
                 </>

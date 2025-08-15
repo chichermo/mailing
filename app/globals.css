@@ -62,3 +62,178 @@
     -webkit-backdrop-filter: blur(8px);
   }
 }
+
+/* Estilos personalizados para el editor de texto enriquecido */
+.rich-text-editor .ql-editor {
+  min-height: 200px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.rich-text-editor .ql-editor p {
+  margin-bottom: 1em;
+}
+
+.rich-text-editor .ql-editor h1,
+.rich-text-editor .ql-editor h2,
+.rich-text-editor .ql-editor h3,
+.rich-text-editor .ql-editor h4,
+.rich-text-editor .ql-editor h5,
+.rich-text-editor .ql-editor h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.rich-text-editor .ql-editor h1 { font-size: 2em; }
+.rich-text-editor .ql-editor h2 { font-size: 1.5em; }
+.rich-text-editor .ql-editor h3 { font-size: 1.25em; }
+.rich-text-editor .ql-editor h4 { font-size: 1em; }
+.rich-text-editor .ql-editor h5 { font-size: 0.875em; }
+.rich-text-editor .ql-editor h6 { font-size: 0.85em; }
+
+.rich-text-editor .ql-editor ul,
+.rich-text-editor .ql-editor ol {
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+.rich-text-editor .ql-editor li {
+  margin-bottom: 0.5em;
+}
+
+.rich-text-editor .ql-editor blockquote {
+  border-left: 4px solid #e5e7eb;
+  margin: 1em 0;
+  padding-left: 1em;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.rich-text-editor .ql-editor code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25em;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875em;
+}
+
+.rich-text-editor .ql-editor pre {
+  background-color: #f3f4f6;
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.rich-text-editor .ql-editor pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.rich-text-editor .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5em;
+  margin: 1em 0;
+}
+
+.rich-text-editor .ql-editor a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.rich-text-editor .ql-editor a:hover {
+  color: #1d4ed8;
+}
+
+/* Estilos para la barra de herramientas personalizada */
+.rich-text-editor .custom-toolbar {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5em 0.5em 0 0;
+}
+
+.rich-text-editor .custom-toolbar button {
+  transition: all 0.2s ease-in-out;
+}
+
+.rich-text-editor .custom-toolbar button:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rich-text-editor .custom-toolbar button:active {
+  transform: translateY(0);
+}
+
+/* Estilos para el contenido HTML renderizado */
+.html-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.html-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5em;
+  margin: 1em 0;
+}
+
+.html-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.html-content a:hover {
+  color: #1d4ed8;
+}
+
+/* Estilos para el modal de vista previa */
+.preview-modal .ql-editor {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5em;
+  padding: 1.5em;
+  margin: 1em 0;
+}
+
+/* Responsive design para el editor */
+@media (max-width: 768px) {
+  .rich-text-editor .custom-toolbar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .rich-text-editor .custom-toolbar button {
+    padding: 0.5rem;
+  }
+  
+  .rich-text-editor .ql-editor {
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+}
+
+/* Animaciones para transiciones suaves */
+.rich-text-editor * {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estilos para el placeholder */
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Estilos para el foco del editor */
+.rich-text-editor .ql-editor:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

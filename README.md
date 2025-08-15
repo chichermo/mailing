@@ -6,7 +6,7 @@ Un sistema profesional y moderno para el envío de correos masivos con interfaz 
 
 - **Dashboard Intuitivo**: Vista general con estadísticas en tiempo real
 - **Gestión de Contactos**: CRUD completo con importación CSV
-- **Plantillas Personalizables**: Editor HTML con variables dinámicas
+- **Plantillas Personalizables**: Editor de texto enriquecido con formato avanzado, imágenes y variables dinámicas
 - **Envío Masivo**: Campañas programables con límites configurables
 - **Historial Detallado**: Seguimiento completo de envíos y métricas
 - **Configuración Avanzada**: Integración con SendGrid y Twilio
@@ -17,6 +17,7 @@ Un sistema profesional y moderno para el envío de correos masivos con interfaz 
 
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Estilos**: Tailwind CSS, Headless UI
+- **Editor**: React Quill (Editor de texto enriquecido)
 - **Email**: SendGrid API
 - **Notificaciones**: Twilio
 - **Base de Datos**: SQLite
@@ -94,6 +95,43 @@ heliopsismail/
 └── package.json            # Dependencias del proyecto
 ```
 
+## ✨ Editor de Texto Enriquecido
+
+El sistema ahora incluye un editor de texto enriquecido profesional basado en React Quill que te permite crear emails atractivos y profesionales.
+
+### 🎨 Características del Editor
+
+- **Formato de texto**: Negrita, cursiva, subrayado, tachado
+- **Colores**: Texto y fondo personalizables
+- **Tipografías**: Múltiples fuentes y tamaños
+- **Estructura**: Encabezados, listas, citas, código
+- **Multimedia**: Imágenes, enlaces, videos
+- **Layout**: Alineación, indentación, espaciado
+- **Historial**: Deshacer/rehacer cambios
+
+### 🖼️ Inserción de Imágenes
+
+- **Desde archivo**: Selecciona imágenes locales
+- **Desde URL**: Pega URLs de imágenes online
+- **Arrastrar y soltar**: Funcionalidad drag & drop
+- **Optimización automática**: Responsive y optimizadas
+
+### 📊 Estadísticas en Tiempo Real
+
+- Conteo de palabras y caracteres
+- Número de imágenes y enlaces
+- Tags HTML utilizados
+- Consejos de optimización
+
+### 📱 Responsive Design
+
+- Funciona perfectamente en móviles
+- Botones touch-friendly
+- Adaptación automática a pantallas
+- Accesibilidad mejorada
+
+Para más detalles, consulta la [Guía del Editor](EDITOR_GUIDE.md).
+
 ## 📧 Configuración de SendGrid
 
 1. Crear cuenta en [SendGrid](https://sendgrid.com)
@@ -138,10 +176,14 @@ git push origin main
 - Estados: Activo, Inactivo, Baja
 
 ### 3. Plantillas de Correo
-- Editor HTML visual
-- Variables dinámicas: {{firstName}}, {{lastName}}, {{company}}
-- Categorías organizadas
-- Vista previa en tiempo real
+- **Editor de texto enriquecido** con barra de herramientas completa
+- **Formato avanzado**: Negrita, cursiva, colores, alineación
+- **Inserción de imágenes** desde archivos o URLs
+- **Enlaces y multimedia** integrados
+- **Variables dinámicas**: {{firstName}}, {{lastName}}, {{company}}
+- **Vista previa dual**: HTML y renderizado
+- **Estadísticas en tiempo real** del contenido
+- **Responsive design** para todos los dispositivos
 
 ### 4. Envío de Correos
 - Crear campañas
@@ -214,10 +256,16 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 ## 🔄 Actualizaciones
 
+- **v1.1.0**: Editor de texto enriquecido
+  - Formato avanzado de texto (negrita, cursiva, colores)
+  - Inserción de imágenes y multimedia
+  - Barra de herramientas completa
+  - Vista previa dual (HTML y renderizado)
+  - Estadísticas del contenido en tiempo real
 - **v1.0.0**: Lanzamiento inicial
-- Funcionalidades básicas de envío masivo
-- Interfaz moderna y responsive
-- Integración con SendGrid y Twilio
+  - Funcionalidades básicas de envío masivo
+  - Interfaz moderna y responsive
+  - Integración con SendGrid y Twilio
 
 ---
 
