@@ -176,6 +176,10 @@ export default function RichTextEditor({
             quillRef.current.insertText(length, linkText)
             quillRef.current.formatText(length, linkText.length, 'link', linkUrl)
           }
+          
+          // ✅ CRITICAL: Sync with parent component after inserting link
+          const updatedContent = quillRef.current.root.innerHTML
+          onChange(updatedContent)
         }
         setShowLinkDialog(false)
         setLinkUrl('')
@@ -290,7 +294,7 @@ export default function RichTextEditor({
         if (range && range.length > 0) {
           const formats = quillRef.current.getFormat(range.index, range.length)
           if (formats.link) {
-            // Edit existing link
+            // Edit existing link - store the range for later update
             setLinkUrl(formats.link)
             setLinkText(quillRef.current.getText(range.index, range.length))
             setShowLinkDialog(true)
