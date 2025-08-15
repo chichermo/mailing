@@ -130,9 +130,9 @@ export default function EmailTemplates() {
     // INCREMENT SUBMIT COUNTER
     setSubmitCount(prev => prev + 1)
     
-    // FINAL PROTECTION: If this is the first submission and we're editing, block it
-    if (editingTemplate && submitCount === 0) {
-      console.log('🚫 BLOCKING first automatic form submission when editing')
+    // FINAL PROTECTION: Block ALL automatic submissions when editing
+    if (editingTemplate && submitCount < 2) {
+      console.log('🚫 BLOCKING automatic form submission - submitCount:', submitCount)
       toast.error('Please wait for the form to be fully ready before submitting')
       return
     }
@@ -405,6 +405,13 @@ export default function EmailTemplates() {
                    type: e.target.type,
                    className: e.target.className
                  })
+                 
+                 // Prevent form submission from editor elements
+                 if (e.target.tagName === 'PATH' || e.target.closest('.ql-editor')) {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   console.log('🔒 Blocking editor click from form submission')
+                 }
                }}
              >
               <div>
@@ -464,7 +471,18 @@ export default function EmailTemplates() {
                   </p>
                 </div>
 
-                                 <div className="border border-gray-300 rounded-lg">
+                                 <div 
+                   className="border border-gray-300 rounded-lg"
+                   onClick={(e) => {
+                     // Prevent any clicks inside the editor from submitting the form
+                     e.stopPropagation()
+                     console.log('🔒 Editor clicked, preventing form submission')
+                   }}
+                   onMouseDown={(e) => {
+                     // Additional protection on mouse down
+                     e.stopPropagation()
+                   }}
+                 >
                    <RichTextEditor
                      value={formData.content}
                      onChange={(content) => setFormData({...formData, content})}
