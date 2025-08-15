@@ -64,12 +64,32 @@ export default function EmailTemplates() {
     loadTemplates()
   }, [])
 
+  // Debug form data changes
+  useEffect(() => {
+    console.log('Form data changed:', formData)
+  }, [formData])
+
   // Create/Edit template
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.name || !formData.subject || !formData.content) {
-      toast.error('Name, subject and content are required')
+    // Improved validation with better error messages
+    const trimmedName = formData.name.trim()
+    const trimmedSubject = formData.subject.trim()
+    const trimmedContent = formData.content.trim()
+    
+    if (!trimmedName) {
+      toast.error('Template name is required')
+      return
+    }
+    
+    if (!trimmedSubject) {
+      toast.error('Email subject is required')
+      return
+    }
+    
+    if (!trimmedContent) {
+      toast.error('Email content is required')
       return
     }
 
@@ -77,8 +97,17 @@ export default function EmailTemplates() {
       const url = '/api/templates'
       const method = editingTemplate ? 'PUT' : 'POST'
       const body = editingTemplate 
-        ? { ...formData, id: editingTemplate._id }
-        : formData
+        ? { 
+            name: trimmedName,
+            subject: trimmedSubject, 
+            content: trimmedContent,
+            id: editingTemplate._id 
+          }
+        : {
+            name: trimmedName,
+            subject: trimmedSubject,
+            content: trimmedContent
+          }
 
       console.log('Sending template request:', { method, url, body })
 
@@ -131,12 +160,21 @@ export default function EmailTemplates() {
 
   // Edit template
   const handleEdit = (template: EmailTemplate) => {
+    console.log('Editing template:', template)
+    
+    // Ensure all fields have valid values
+    const safeName = template.name || ''
+    const safeSubject = template.subject || ''
+    const safeContent = template.content || ''
+    
     setEditingTemplate(template)
     setFormData({
-      name: template.name,
-      subject: template.subject,
-      content: template.content
+      name: safeName,
+      subject: safeSubject,
+      content: safeContent
     })
+    
+    console.log('Form data set to:', { name: safeName, subject: safeSubject, content: safeContent })
     setShowModal(true)
   }
 
@@ -148,11 +186,13 @@ export default function EmailTemplates() {
 
   // Reset form
   const resetForm = () => {
+    console.log('Resetting form')
     setFormData({
       name: '',
       subject: '',
       content: ''
     })
+    setEditingTemplate(null)
   }
 
   // Open modal for new template
@@ -164,6 +204,7 @@ export default function EmailTemplates() {
 
   // Close modal
   const closeModal = () => {
+    console.log('Closing modal')
     setShowModal(false)
     setEditingTemplate(null)
     resetForm()
