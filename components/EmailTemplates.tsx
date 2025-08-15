@@ -71,6 +71,7 @@ export default function EmailTemplates() {
 
   // Prevent automatic form submission when editing
   const [isFormReady, setIsFormReady] = useState(false)
+  const [submitCount, setSubmitCount] = useState(0)
   
   useEffect(() => {
     if (editingTemplate && formData.name && formData.subject && formData.content) {
@@ -86,9 +87,18 @@ export default function EmailTemplates() {
       setIsFormReady(false)
     }
   }, [editingTemplate, formData.name, formData.subject, formData.content])
+  
+  // Track form submissions to detect automatic ones
+  useEffect(() => {
+    if (submitCount > 0) {
+      console.log('📊 Form submission count:', submitCount)
+    }
+  }, [submitCount])
 
   // Create/Edit template
   const handleSubmit = async (e: React.FormEvent) => {
+    // Get the call stack to see what's calling this function
+    const stack = new Error().stack
     console.log('🚨 FORM SUBMIT TRIGGERED!', { 
       event: e.type, 
       target: e.target, 
@@ -96,7 +106,8 @@ export default function EmailTemplates() {
       editingTemplate: editingTemplate?._id,
       formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length },
       isFormReady,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      stack: stack
     })
     
     e.preventDefault()
@@ -106,6 +117,23 @@ export default function EmailTemplates() {
     if (editingTemplate && !isFormReady) {
       console.log('🚫 BLOCKING automatic form submission - form not ready yet')
       toast.error('Please wait for the form to load completely before submitting')
+      return
+    }
+    
+    // ADDITIONAL PROTECTION: Check if this is an automatic submission
+    if (editingTemplate && !e.isTrusted) {
+      console.log('🚫 BLOCKING untrusted form submission')
+      toast.error('Form submission blocked for security')
+      return
+    }
+    
+    // INCREMENT SUBMIT COUNTER
+    setSubmitCount(prev => prev + 1)
+    
+    // FINAL PROTECTION: If this is the first submission and we're editing, block it
+    if (editingTemplate && submitCount === 0) {
+      console.log('🚫 BLOCKING first automatic form submission when editing')
+      toast.error('Please wait for the form to be fully ready before submitting')
       return
     }
     
@@ -367,6 +395,16 @@ export default function EmailTemplates() {
                  if (e.key === 'Enter' && e.target !== e.currentTarget) {
                    e.preventDefault()
                  }
+               }}
+               onClick={(e) => {
+                 // Log any clicks on the form
+                 console.log('🔍 Form clicked:', { 
+                   target: e.target, 
+                   currentTarget: e.currentTarget,
+                   tagName: e.target.tagName,
+                   type: e.target.type,
+                   className: e.target.className
+                 })
                }}
              >
               <div>
