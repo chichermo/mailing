@@ -70,9 +70,20 @@ export default function EmailTemplates() {
   }, [formData])
 
   // Prevent automatic form submission when editing
+  const [isFormReady, setIsFormReady] = useState(false)
+  
   useEffect(() => {
     if (editingTemplate && formData.name && formData.subject && formData.content) {
       console.log('Template loaded for editing, preventing auto-submit')
+      // Set a small delay to ensure form is fully ready
+      const timer = setTimeout(() => {
+        setIsFormReady(true)
+        console.log('Form is now ready for editing')
+      }, 100)
+      
+      return () => clearTimeout(timer)
+    } else {
+      setIsFormReady(false)
     }
   }, [editingTemplate, formData.name, formData.subject, formData.content])
 
@@ -83,10 +94,20 @@ export default function EmailTemplates() {
       target: e.target, 
       currentTarget: e.currentTarget,
       editingTemplate: editingTemplate?._id,
-      formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length }
+      formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length },
+      isFormReady,
+      timestamp: new Date().toISOString()
     })
     
     e.preventDefault()
+    e.stopPropagation()
+    
+    // CRITICAL: Prevent automatic submission when editing
+    if (editingTemplate && !isFormReady) {
+      console.log('🚫 BLOCKING automatic form submission - form not ready yet')
+      toast.error('Please wait for the form to load completely before submitting')
+      return
+    }
     
     // Improved validation with better error messages
     const trimmedName = formData.name.trim()
@@ -326,9 +347,17 @@ export default function EmailTemplates() {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">
-              {editingTemplate ? 'Edit Template' : 'New Template'}
-            </h2>
+                         <div className="flex items-center justify-between mb-4">
+               <h2 className="text-xl font-bold">
+                 {editingTemplate ? 'Edit Template' : 'New Template'}
+               </h2>
+               {editingTemplate && !isFormReady && (
+                 <div className="flex items-center gap-2 text-sm text-blue-600">
+                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                   <span>Loading form...</span>
+                 </div>
+               )}
+             </div>
             
                          <form 
                onSubmit={handleSubmit} 
@@ -424,21 +453,23 @@ export default function EmailTemplates() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 btn-primary"
-                >
-                  {editingTemplate ? 'Update Template' : 'Create Template'}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 btn-secondary"
-                >
-                  Cancel
-                </button>
-              </div>
+                             <div className="flex gap-3 pt-4">
+                 <button
+                   type="submit"
+                   className={`flex-1 ${editingTemplate && !isFormReady ? 'btn-secondary opacity-50 cursor-not-allowed' : 'btn-primary'}`}
+                   disabled={editingTemplate && !isFormReady}
+                   title={editingTemplate && !isFormReady ? 'Please wait for the form to load completely' : ''}
+                 >
+                   {editingTemplate ? 'Update Template' : 'Create Template'}
+                 </button>
+                 <button
+                   type="button"
+                   onClick={closeModal}
+                   className="flex-1 btn-secondary"
+                 >
+                   Cancel
+                 </button>
+               </div>
             </form>
           </div>
         </div>
