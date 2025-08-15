@@ -27,22 +27,22 @@ export default function EditorStats({ content, className = '' }: EditorStatsProp
     }
 
     // Contar caracteres (sin espacios)
-    const characters = content.replace(/\s/g, '').length
+    const characters = content ? content.replace(/\s/g, '').length : 0
     
     // Contar palabras
-    const words = content.trim().split(/\s+/).filter(word => word.length > 0).length
+    const words = content ? content.trim().split(/\s+/).filter(word => word.length > 0).length : 0
     
     // Contar líneas
-    const lines = content.split('\n').filter(line => line.trim().length > 0).length
+    const lines = content ? content.split('\n').filter(line => line.trim().length > 0).length : 0
     
     // Contar imágenes
-    const images = (content.match(/<img[^>]*>/gi) || []).length
+    const images = content ? (content.match(/<img[^>]*>/gi) || []).length : 0
     
     // Contar enlaces
-    const links = (content.match(/<a[^>]*>/gi) || []).length
+    const links = content ? (content.match(/<a[^>]*>/gi) || []).length : 0
     
     // Contar tags HTML
-    const htmlTags = (content.match(/<[^>]+>/g) || []).length
+    const htmlTags = content ? (content.match(/<[^>]+>/g) || []).length : 0
 
     return {
       characters,

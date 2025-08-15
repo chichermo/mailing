@@ -77,7 +77,7 @@ export default function EmailTemplates() {
     console.log('🚨 TEMPLATE SAVE TRIGGERED!', { 
       event: e?.type || 'click', 
       editingTemplate: editingTemplate?._id,
-      formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length },
+      formData: { name: formData.name, subject: formData.subject, contentLength: formData.content ? formData.content.length : 0 },
       timestamp: new Date().toISOString()
     })
     
@@ -308,7 +308,7 @@ export default function EmailTemplates() {
         ))}
       </div>
 
-      {templates.length === 0 && (
+      {templates && Array.isArray(templates) && templates.length === 0 && (
         <div className="text-center py-12">
           <div className="text-gray-500">No templates created yet</div>
           <p className="text-sm text-gray-400 mt-2">Create your first template to get started</p>

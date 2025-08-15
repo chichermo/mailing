@@ -139,15 +139,15 @@ export default function EditorTest() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <span className="font-medium">Longitud del contenido:</span>
-            <p className="text-gray-600">{content.length} caracteres</p>
+            <p className="text-gray-600">{content ? content.length : 0} caracteres</p>
           </div>
           <div>
             <span className="font-medium">Contiene HTML:</span>
-            <p className="text-gray-600">{content.includes('<') ? 'Sí' : 'No'}</p>
+            <p className="text-gray-600">{content && content.includes('<') ? 'Sí' : 'No'}</p>
           </div>
           <div>
             <span className="font-medium">Contiene enlaces:</span>
-            <p className="text-gray-600">{content.includes('href=') ? 'Sí' : 'No'}</p>
+            <p className="text-gray-600">{content && content.includes('href=') ? 'Sí' : 'No'}</p>
           </div>
         </div>
       </div>

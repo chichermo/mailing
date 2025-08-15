@@ -427,7 +427,7 @@ export default function SendEmails() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                       {campaign.listNames.length > 0 ? campaign.listNames.join(', ') : 'All'}
+                       {campaign.listNames && Array.isArray(campaign.listNames) && campaign.listNames.length > 0 ? campaign.listNames.join(', ') : 'All'}
                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
