@@ -9,13 +9,13 @@ import {
   ListBulletIcon, 
   LinkIcon,
   PhotoIcon,
-  PaletteIcon,
   PlusIcon,
   MinusIcon,
   TableCellsIcon,
   DocumentTextIcon,
   VideoCameraIcon
 } from '@heroicons/react/24/outline'
+import toast from 'react-hot-toast'
 
 // Importar ReactQuill dinámicamente para evitar problemas de SSR
 const ReactQuill = dynamic(() => import('react-quill'), {
@@ -112,6 +112,13 @@ export default function RichTextEditor({
     setMounted(true)
   }, [])
 
+  // Capturar la referencia del editor cuando se monte
+  useEffect(() => {
+    if (mounted && quillRef.current) {
+      // El editor ya está disponible
+    }
+  }, [mounted])
+
   // Configuración de módulos de Quill
   const modules = {
     toolbar: false, // Deshabilitamos la toolbar por defecto para usar la personalizada
@@ -138,30 +145,24 @@ export default function RichTextEditor({
 
   // Funciones del editor
   const formatText = (format: string, value?: any) => {
-    if (quillRef.current && quillRef.current.getEditor) {
-      const editor = quillRef.current.getEditor()
-      if (editor) {
-        editor.format(format, value)
-      }
+    if (quillRef.current) {
+      quillRef.current.format(format, value)
     }
   }
 
   const insertLink = () => {
     if (linkUrl && linkText) {
-      if (quillRef.current && quillRef.current.getEditor) {
-        const editor = quillRef.current.getEditor()
-        if (editor) {
-          const range = editor.getSelection()
-          if (range) {
-            // Insertar el enlace en el texto seleccionado
-            editor.insertText(range.index, linkText)
-            editor.formatText(range.index, linkText.length, 'link', linkUrl)
-          } else {
-            // Si no hay selección, insertar al final
-            const length = editor.getLength()
-            editor.insertText(length, linkText)
-            editor.formatText(length, linkText.length, 'link', linkUrl)
-          }
+      if (quillRef.current) {
+        const range = quillRef.current.getSelection()
+        if (range) {
+          // Insertar el enlace en el texto seleccionado
+          quillRef.current.insertText(range.index, linkText)
+          quillRef.current.formatText(range.index, linkText.length, 'link', linkUrl)
+        } else {
+          // Si no hay selección, insertar al final
+          const length = quillRef.current.getLength()
+          quillRef.current.insertText(length, linkText)
+          quillRef.current.formatText(length, linkText.length, 'link', linkUrl)
         }
       }
       setShowLinkDialog(false)
@@ -181,13 +182,10 @@ export default function RichTextEditor({
       if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
-          if (quillRef.current && quillRef.current.getEditor) {
-            const editor = quillRef.current.getEditor()
-            if (editor) {
-              const range = editor.getSelection()
-              const index = range ? range.index : editor.getLength()
-              editor.insertEmbed(index, 'image', e.target?.result)
-            }
+          if (quillRef.current) {
+            const range = quillRef.current.getSelection()
+            const index = range ? range.index : quillRef.current.getLength()
+            quillRef.current.insertEmbed(index, 'image', e.target?.result)
           }
         }
         reader.readAsDataURL(file)
@@ -198,13 +196,10 @@ export default function RichTextEditor({
   const insertImageFromUrl = () => {
     const url = prompt('Ingresa la URL de la imagen:')
     if (url) {
-      if (quillRef.current && quillRef.current.getEditor) {
-        const editor = quillRef.current.getEditor()
-        if (editor) {
-          const range = editor.getSelection()
-          const index = range ? range.index : editor.getLength()
-          editor.insertEmbed(index, 'image', url)
-        }
+      if (quillRef.current) {
+        const range = quillRef.current.getSelection()
+        const index = range ? range.index : quillRef.current.getLength()
+        quillRef.current.insertEmbed(index, 'image', url)
       }
     }
   }
@@ -213,26 +208,23 @@ export default function RichTextEditor({
     const rows = prompt('Número de filas:', '3')
     const cols = prompt('Número de columnas:', '3')
     if (rows && cols) {
-      if (quillRef.current && quillRef.current.getEditor) {
-        const editor = quillRef.current.getEditor()
-        if (editor) {
-          const range = editor.getSelection()
-          const index = range ? range.index : editor.getLength()
-          
-          // Crear tabla HTML básica
-          let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;">'
-          for (let i = 0; i < parseInt(rows); i++) {
-            tableHTML += '<tr>'
-            for (let j = 0; j < parseInt(cols); j++) {
-              tableHTML += '<td style="padding: 8px; border: 1px solid #ddd;">Celda</td>'
-            }
-            tableHTML += '</tr>'
+      if (quillRef.current) {
+        const range = quillRef.current.getSelection()
+        const index = range ? range.index : quillRef.current.getLength()
+        
+        // Crear tabla HTML básica
+        let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;">'
+        for (let i = 0; i < parseInt(rows); i++) {
+          tableHTML += '<tr>'
+          for (let j = 0; j < parseInt(cols); j++) {
+            tableHTML += '<td style="padding: 8px; border: 1px solid #ddd;">Celda</td>'
           }
-          tableHTML += '</table>'
-          
-          // Insertar la tabla
-          editor.clipboard.dangerouslyPasteHTML(index, tableHTML)
+          tableHTML += '</tr>'
         }
+        tableHTML += '</table>'
+        
+        // Insertar la tabla
+        quillRef.current.clipboard.dangerouslyPasteHTML(index, tableHTML)
       }
     }
   }
@@ -249,35 +241,40 @@ export default function RichTextEditor({
     setShowColorPicker(false)
   }
 
-  const removeLink = () => {
-    if (quillRef.current && quillRef.current.getEditor) {
-      const editor = quillRef.current.getEditor()
-      if (editor) {
-        const range = editor.getSelection()
-        if (range) {
-          editor.formatText(range.index, range.length, 'link', false)
-        }
+    const removeLink = () => {
+    if (quillRef.current) {
+      const range = quillRef.current.getSelection()
+      if (range) {
+        quillRef.current.formatText(range.index, range.length, 'link', false)
       }
     }
   }
 
   const editLink = () => {
-    if (quillRef.current && quillRef.current.getEditor) {
-      const editor = quillRef.current.getEditor()
-      if (editor) {
-        const range = editor.getSelection()
-        if (range) {
-          const formats = editor.getFormat(range.index, range.length)
-          if (formats.link) {
-            setLinkUrl(formats.link)
-            setLinkText(editor.getText(range.index, range.length))
-            setShowLinkDialog(true)
-          } else {
-            setShowLinkDialog(true)
-          }
+    if (quillRef.current) {
+      const range = quillRef.current.getSelection()
+      
+      // Si hay texto seleccionado, verificar si ya es un enlace
+      if (range && range.length > 0) {
+        const formats = quillRef.current.getFormat(range.index, range.length)
+        if (formats.link) {
+          // Editar enlace existente
+          setLinkUrl(formats.link)
+          setLinkText(quillRef.current.getText(range.index, range.length))
+          setShowLinkDialog(true)
         } else {
+          // Convertir texto seleccionado en enlace
+          setLinkUrl('')
+          setLinkText(quillRef.current.getText(range.index, range.length))
           setShowLinkDialog(true)
         }
+      } else {
+        // Si no hay selección, mostrar mensaje informativo
+        toast('Selecciona texto para crear o editar un enlace', {
+          icon: '💡',
+          duration: 3000
+        })
+        return
       }
     }
   }
@@ -336,11 +333,11 @@ export default function RichTextEditor({
           {activeMenu === 'edit' && (
             <div className="bg-gray-700 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={() => quillRef.current?.getEditor()?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
                   <UndoIcon className="w-4 h-4 inline mr-2" />
                   Deshacer
                 </button>
-                <button onClick={() => quillRef.current?.getEditor()?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
                   <RedoIcon className="w-4 h-4 inline mr-2" />
                   Rehacer
                 </button>
@@ -625,7 +622,6 @@ export default function RichTextEditor({
       {/* Editor principal */}
       <div className={`${height} border border-gray-300 rounded-b-lg ${!showToolbar ? 'rounded-t-lg' : ''}`}>
         <ReactQuill
-          ref={quillRef}
           theme="snow"
           value={value}
           onChange={onChange}
