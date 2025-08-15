@@ -136,7 +136,7 @@ export default function EditorDemo() {
               <div className="bg-red-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-red-900 mb-2">✨ Variables Dinámicas</h3>
                 <ul className="text-sm text-red-800 space-y-1">
-                  <li>• Compatible con {{firstName}}</li>
+                  <li>• Compatible con {'{{firstName}}'}</li>
                   <li>• Integración con templates</li>
                   <li>• Reemplazo automático</li>
                   <li>• Personalización de emails</li>

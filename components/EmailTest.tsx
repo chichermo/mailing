@@ -44,8 +44,8 @@ export default function EmailTest() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Template',
-          subject: 'Test Email - {{firstName}}',
-          content: '<h1>Hello {{firstName}}!</h1><p>This is a test email from your system.</p><p>Company: {{company}}</p>'
+                  subject: 'Test Email - {'{{firstName}}'}',
+        content: '<h1>Hello {'{{firstName}}'}!</h1><p>This is a test email from your system.</p><p>Company: {'{{company}}'}</p>'
         })
       })
 
