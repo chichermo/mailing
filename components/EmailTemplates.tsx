@@ -10,7 +10,7 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
-import SimpleRichEditor from './SimpleRichEditor'
+import WorkingEditor from './WorkingEditor'
 import HTMLViewer from './HTMLViewer'
 import EditorStats from './EditorStats'
 
@@ -384,12 +384,10 @@ export default function EmailTemplates() {
                 </div>
 
                                                                    <div className="border border-gray-300 rounded-lg">
-                    <SimpleRichEditor
+                    <WorkingEditor
                       value={formData.content}
                       onChange={(content) => setFormData({...formData, content})}
                       placeholder="<h1>Hello {'{{firstName}}'}!</h1><p>Welcome to our newsletter. We're excited to have you on board.</p><p>Best regards,<br>The Team</p>"
-                      height="h-80"
-                      className="w-full"
                     />
                   </div>
                 
