@@ -9,6 +9,7 @@ import SendEmails from '../components/SendEmails'
 import EmailHistory from '../components/EmailHistory'
 import DanceListStats from '../components/DanceListStats'
 import Settings from '../components/Settings'
+import EditorDemo from './editor-demo/page'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -49,6 +50,8 @@ export default function Home() {
         return <EmailHistory />
       case 'dance-stats':
         return <DanceListStats />
+      case 'editor-demo':
+        return <EditorDemo />
       case 'settings':
         return <Settings />
       default:

@@ -17,7 +17,14 @@ import {
   AlignRightIcon,
   AlignJustifyIcon,
   UndoIcon,
-  RedoIcon
+  RedoIcon,
+  PlusIcon,
+  MinusIcon,
+  TableCellsIcon,
+  DocumentTextIcon,
+  PhotoIcon,
+  VideoCameraIcon,
+  LinkBreakIcon
 } from '@heroicons/react/24/outline'
 
 // Importar ReactQuill dinámicamente para evitar problemas de SSR
@@ -47,6 +54,11 @@ export default function RichTextEditor({
   showToolbar = true
 }: RichTextEditorProps) {
   const [mounted, setMounted] = useState(false)
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [showColorPicker, setShowColorPicker] = useState(false)
+  const [showLinkDialog, setShowLinkDialog] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkText, setLinkText] = useState('')
   const quillRef = useRef<any>(null)
 
   useEffect(() => {
@@ -55,47 +67,14 @@ export default function RichTextEditor({
 
   // Configuración de módulos de Quill
   const modules = {
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'font': [] }],
-        [{ 'size': ['small', false, 'large', 'huge'] }],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'script': 'sub'}, { 'script': 'super' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        [{ 'direction': 'rtl' }],
-        [{ 'align': [] }],
-        ['blockquote', 'code-block'],
-        ['link', 'image', 'video'],
-        ['clean']
-      ],
-      handlers: {
-        image: () => {
-          const input = document.createElement('input')
-          input.setAttribute('type', 'file')
-          input.setAttribute('accept', 'image/*')
-          input.click()
-          
-          input.onchange = () => {
-            const file = input.files?.[0]
-            if (file) {
-              const reader = new FileReader()
-              reader.onload = (e) => {
-                const range = quillRef.current?.getSelection()
-                if (range) {
-                  quillRef.current?.insertEmbed(range.index, 'image', e.target?.result)
-                }
-              }
-              reader.readAsDataURL(file)
-            }
-          }
-        }
-      }
-    },
+    toolbar: false, // Deshabilitamos la toolbar por defecto para usar la personalizada
     clipboard: {
       matchVisual: false
+    },
+    history: {
+      delay: 2000,
+      maxStack: 500,
+      userOnly: true
     }
   }
 
@@ -110,7 +89,46 @@ export default function RichTextEditor({
     'code-block', 'script'
   ]
 
-  // Función para insertar imagen desde URL
+  // Funciones del editor
+  const formatText = (format: string, value?: any) => {
+    if (quillRef.current) {
+      quillRef.current.format(format, value)
+    }
+  }
+
+  const insertLink = () => {
+    if (linkUrl && linkText) {
+      const range = quillRef.current?.getSelection()
+      if (range) {
+        quillRef.current?.insertEmbed(range.index, 'link', { href: linkUrl, text: linkText })
+        setShowLinkDialog(false)
+        setLinkUrl('')
+        setLinkText('')
+      }
+    }
+  }
+
+  const insertImage = () => {
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', 'image/*')
+    input.click()
+    
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const range = quillRef.current?.getSelection()
+          if (range) {
+            quillRef.current?.insertEmbed(range.index, 'image', e.target?.result)
+          }
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+  }
+
   const insertImageFromUrl = () => {
     const url = prompt('Ingresa la URL de la imagen:')
     if (url) {
@@ -121,32 +139,12 @@ export default function RichTextEditor({
     }
   }
 
-  // Función para cambiar color del texto
-  const changeTextColor = () => {
-    const color = prompt('Ingresa el color (nombre o código hex):', '#000000')
-    if (color) {
-      quillRef.current?.format('color', color)
-    }
-  }
-
-  // Función para cambiar color de fondo
-  const changeBackgroundColor = () => {
-    const color = prompt('Ingresa el color de fondo (nombre o código hex):', '#ffffff')
-    if (color) {
-      quillRef.current?.format('background', color)
-    }
-  }
-
-  // Función para insertar enlace
-  const insertLink = () => {
-    const url = prompt('Ingresa la URL del enlace:')
-    if (url) {
-      const range = quillRef.current?.getSelection()
-      if (range && range.length > 0) {
-        quillRef.current?.format('link', url)
-      } else {
-        quillRef.current?.insertText(range.index, url, 'link', url)
-      }
+  const insertTable = () => {
+    const rows = prompt('Número de filas:', '3')
+    const cols = prompt('Número de columnas:', '3')
+    if (rows && cols) {
+      // Implementar inserción de tabla
+      console.log('Insertar tabla:', rows, cols)
     }
   }
 
@@ -158,160 +156,298 @@ export default function RichTextEditor({
 
   return (
     <div className={`rich-text-editor ${className}`}>
-      {/* Toolbar personalizado */}
+      {/* Barra de menú superior */}
       {showToolbar && (
-        <div className="custom-toolbar p-2 flex flex-wrap items-center gap-1">
-          {/* Formato de texto */}
-          <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+        <div className="bg-gray-800 text-white border-b border-gray-700">
+          <div className="flex items-center px-4 py-2 space-x-6 text-sm">
             <button
-              type="button"
-              onClick={() => quillRef.current?.format('bold')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Negrita"
+              onClick={() => setActiveMenu(activeMenu === 'edit' ? null : 'edit')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'edit' ? 'bg-gray-700' : ''}`}
             >
-              <BoldIcon className="w-4 h-4" />
+              Bewerken
             </button>
             <button
-              type="button"
-              onClick={() => quillRef.current?.format('italic')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Cursiva"
+              onClick={() => setActiveMenu(activeMenu === 'format' ? null : 'format')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'format' ? 'bg-gray-700' : ''}`}
             >
-              <ItalicIcon className="w-4 h-4" />
+              Opmaak
             </button>
             <button
-              type="button"
-              onClick={() => quillRef.current?.format('underline')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Subrayado"
+              onClick={() => setActiveMenu(activeMenu === 'media' ? null : 'media')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'media' ? 'bg-gray-700' : ''}`}
             >
-              <UnderlineIcon className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Listas */}
-          <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
-            <button
-              type="button"
-              onClick={() => quillRef.current?.format('list', 'bullet')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Lista con viñetas"
-            >
-              <ListBulletIcon className="w-4 h-4" />
+              Media
             </button>
             <button
-              type="button"
-              onClick={() => quillRef.current?.format('list', 'ordered')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Lista numerada"
+              onClick={() => setActiveMenu(activeMenu === 'table' ? null : 'table')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'table' ? 'bg-gray-700' : ''}`}
             >
-              <ListNumberedIcon className="w-4 h-4" />
+              Tabel
             </button>
             <button
-              type="button"
-              onClick={() => quillRef.current?.format('blockquote')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Cita"
+              onClick={() => setActiveMenu(activeMenu === 'insert' ? null : 'insert')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'insert' ? 'bg-gray-700' : ''}`}
             >
-              <QuoteIcon className="w-4 h-4" />
+              Invoegen
+            </button>
+            <button
+              onClick={() => setActiveMenu(activeMenu === 'view' ? null : 'view')}
+              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'view' ? 'bg-gray-700' : ''}`}
+            >
+              Beeld
             </button>
           </div>
 
-          {/* Enlaces e imágenes */}
-          <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
-            <button
-              type="button"
-              onClick={insertLink}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Insertar enlace"
-            >
-              <LinkIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={insertImageFromUrl}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Insertar imagen desde URL"
-            >
-              <ImageIcon className="w-4 h-4" />
+          {/* Menús desplegables */}
+          {activeMenu === 'edit' && (
+            <div className="bg-gray-700 px-4 py-2 text-sm">
+              <div className="flex items-center space-x-4">
+                <button onClick={() => quillRef.current?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <UndoIcon className="w-4 h-4 inline mr-2" />
+                  Deshacer
+                </button>
+                <button onClick={() => quillRef.current?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <RedoIcon className="w-4 h-4 inline mr-2" />
+                  Rehacer
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'format' && (
+            <div className="bg-gray-700 px-4 py-2 text-sm">
+              <div className="flex items-center space-x-4">
+                <select 
+                  onChange={(e) => formatText('font', e.target.value)}
+                  className="bg-gray-600 text-white px-2 py-1 rounded border border-gray-500"
+                >
+                  <option value="Open Sans">Open Sans</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier New">Courier New</option>
+                </select>
+                <select 
+                  onChange={(e) => formatText('size', e.target.value)}
+                  className="bg-gray-600 text-white px-2 py-1 rounded border border-gray-500"
+                >
+                  <option value="12px">12px</option>
+                  <option value="14px">14px</option>
+                  <option value="16px">16px</option>
+                  <option value="18px">18px</option>
+                  <option value="20px">20px</option>
+                  <option value="24px">24px</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'media' && (
+            <div className="bg-gray-700 px-4 py-2 text-sm">
+              <div className="flex items-center space-x-4">
+                <button onClick={insertImage} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <PhotoIcon className="w-4 h-4 inline mr-2" />
+                  Imagen desde archivo
+                </button>
+                <button onClick={insertImageFromUrl} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <ImageIcon className="w-4 h-4 inline mr-2" />
+                  Imagen desde URL
+                </button>
+                <button className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <VideoCameraIcon className="w-4 h-4 inline mr-2" />
+                  Video
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'table' && (
+            <div className="bg-gray-700 px-4 py-2 text-sm">
+              <div className="flex items-center space-x-4">
+                <button onClick={insertTable} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <TableCellsIcon className="w-4 h-4 inline mr-2" />
+                  Insertar tabla
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'insert' && (
+            <div className="bg-gray-700 px-4 py-2 text-sm">
+              <div className="flex items-center space-x-4">
+                <button onClick={() => formatText('blockquote')} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <QuoteIcon className="w-4 h-4 inline mr-2" />
+                  Cita
+                </button>
+                <button onClick={() => formatText('code-block')} className="hover:bg-gray-600 px-2 py-1 rounded">
+                  <DocumentTextIcon className="w-4 h-4 inline mr-2" />
+                  Código
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Barra de herramientas principal */}
+      {showToolbar && (
+        <div className="bg-gray-100 border-b border-gray-300 p-3">
+          <div className="flex items-center space-x-4">
+            {/* Formato de texto */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => formatText('bold')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Negrita"
+              >
+                <BoldIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('italic')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Cursiva"
+              >
+                <ItalicIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('underline')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Subrayado"
+              >
+                <UnderlineIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Colores */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="p-2 hover:bg-gray-200 rounded transition-colors flex items-center"
+                title="Color del texto"
+              >
+                <span className="text-red-500 font-bold">A</span>
+                <MinusIcon className="w-3 h-3 ml-1" />
+              </button>
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Color de fondo"
+              >
+                <div className="w-4 h-4 border border-gray-400 rounded-sm bg-yellow-200"></div>
+                <MinusIcon className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Enlaces */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setShowLinkDialog(true)}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Insertar enlace"
+              >
+                <PlusIcon className="w-4 h-4" />
+                <LinkIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('link', false)}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Editar enlace"
+              >
+                <LinkIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('link', false)}
+                className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-400"
+                title="Quitar enlace"
+              >
+                <LinkBreakIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Emoji */}
+            <button className="p-2 hover:bg-gray-200 rounded transition-colors text-xl">
+              😊
             </button>
           </div>
 
-          {/* Colores */}
-          <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
-            <button
-              type="button"
-              onClick={changeTextColor}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Color del texto"
-            >
-              <PaletteIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={changeBackgroundColor}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Color de fondo"
-            >
-              <div className="w-4 h-4 border border-gray-400 rounded-sm bg-gradient-to-br from-white to-gray-200"></div>
-            </button>
+          {/* Segunda fila de herramientas */}
+          <div className="flex items-center space-x-4 mt-3">
+            {/* Alineación */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => formatText('align', 'left')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Alinear a la izquierda"
+              >
+                <AlignLeftIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('align', 'center')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Centrar"
+              >
+                <AlignCenterIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('align', 'right')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Alinear a la derecha"
+              >
+                <AlignRightIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('align', 'justify')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Justificar"
+              >
+                <AlignJustifyIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Listas */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => formatText('list', 'bullet')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Lista con viñetas"
+              >
+                <ListBulletIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => formatText('list', 'ordered')}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Lista numerada"
+              >
+                <ListNumberedIcon className="w-4 h-4" />
+              </button>
+              <button className="p-2 hover:bg-gray-200 rounded transition-colors">
+                <MinusIcon className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Alineación */}
-          <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
-            <button
-              type="button"
-              onClick={() => quillRef.current?.format('align', 'left')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Alinear a la izquierda"
-            >
-              <AlignLeftIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => quillRef.current?.format('align', 'center')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Centrar"
-            >
-              <AlignCenterIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => quillRef.current?.format('align', 'right')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Alinear a la derecha"
-            >
-              <AlignRightIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => quillRef.current?.format('align', 'justify')}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Justificar"
-            >
-              <AlignJustifyIcon className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Deshacer/Rehacer */}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => quillRef.current?.history.undo()}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Deshacer"
-            >
-              <UndoIcon className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => quillRef.current?.history.redo()}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Rehacer"
-            >
-              <RedoIcon className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Selector de colores */}
+          {showColorPicker && (
+            <div className="mt-3 p-3 bg-white border border-gray-300 rounded-lg shadow-lg">
+              <div className="grid grid-cols-8 gap-2">
+                {['#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef',
+                  '#f2f2f2', '#f7f7f7', '#ffffff', '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00',
+                  '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff', '#e6b8af', '#f4cccc', '#fce5cd',
+                  '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc', '#dd7e6b',
+                  '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#b4a6d6', '#d5a6bd'].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => {
+                      formatText('color', color)
+                      setShowColorPicker(false)
+                    }}
+                    className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -330,14 +466,59 @@ export default function RichTextEditor({
         />
       </div>
 
+      {/* Diálogo de enlace */}
+      {showLinkDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4">Insertar enlace</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Texto del enlace:</label>
+                <input
+                  type="text"
+                  value={linkText}
+                  onChange={(e) => setLinkText(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Texto a mostrar"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL:</label>
+                <input
+                  type="url"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://ejemplo.com"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={insertLink}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+                >
+                  Insertar
+                </button>
+                <button
+                  onClick={() => setShowLinkDialog(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Información de ayuda */}
       <div className="mt-2 text-xs text-gray-500 space-y-1">
         <p>💡 <strong>Consejos:</strong></p>
         <ul className="ml-4 space-y-1">
-          <li>• Usa la barra de herramientas para formatear tu texto</li>
-          <li>• Puedes insertar imágenes arrastrando archivos o usando el botón de imagen</li>
+          <li>• Usa la barra de menú superior para acceder a opciones avanzadas</li>
+          <li>• La barra de herramientas te permite formatear texto rápidamente</li>
+          <li>• Puedes insertar imágenes, enlaces y tablas desde los menús</li>
           <li>• Las variables como {'{{firstName}}'} se reemplazarán automáticamente</li>
-          <li>• El contenido se guarda en formato HTML</li>
         </ul>
       </div>
     </div>
