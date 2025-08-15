@@ -69,75 +69,24 @@ export default function EmailTemplates() {
     console.log('Form data changed:', formData)
   }, [formData])
 
-  // Prevent automatic form submission when editing
-  const [isFormReady, setIsFormReady] = useState(false)
-  const [submitCount, setSubmitCount] = useState(0)
-  
-  useEffect(() => {
-    if (editingTemplate && formData.name && formData.subject && formData.content) {
-      console.log('Template loaded for editing, preventing auto-submit')
-      // Set a small delay to ensure form is fully ready
-      const timer = setTimeout(() => {
-        setIsFormReady(true)
-        console.log('Form is now ready for editing')
-      }, 100)
-      
-      return () => clearTimeout(timer)
-    } else {
-      setIsFormReady(false)
-    }
-  }, [editingTemplate, formData.name, formData.subject, formData.content])
-  
-  // Track form submissions to detect automatic ones
-  useEffect(() => {
-    if (submitCount > 0) {
-      console.log('📊 Form submission count:', submitCount)
-    }
-  }, [submitCount])
+  // Form is always ready when editing
+  const isFormReady = true
 
   // Create/Edit template
   const handleSubmit = async (e: React.FormEvent) => {
-    // Get the call stack to see what's calling this function
-    const stack = new Error().stack
     console.log('🚨 FORM SUBMIT TRIGGERED!', { 
       event: e.type, 
       target: e.target, 
       currentTarget: e.currentTarget,
       editingTemplate: editingTemplate?._id,
       formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length },
-      isFormReady,
-      timestamp: new Date().toISOString(),
-      stack: stack
+      timestamp: new Date().toISOString()
     })
     
     e.preventDefault()
     e.stopPropagation()
     
-    // CRITICAL: Prevent automatic submission when editing
-    if (editingTemplate && !isFormReady) {
-      console.log('🚫 BLOCKING automatic form submission - form not ready yet')
-      toast.error('Please wait for the form to load completely before submitting')
-      return
-    }
-    
-    // ADDITIONAL PROTECTION: Check if this is an automatic submission
-    if (editingTemplate && !e.isTrusted) {
-      console.log('🚫 BLOCKING untrusted form submission')
-      toast.error('Form submission blocked for security')
-      return
-    }
-    
-    // INCREMENT SUBMIT COUNTER
-    setSubmitCount(prev => prev + 1)
-    
-    // FINAL PROTECTION: Block ALL automatic submissions when editing
-    if (editingTemplate && submitCount < 2) {
-      console.log('🚫 BLOCKING automatic form submission - submitCount:', submitCount)
-      toast.error('Please wait for the form to be fully ready before submitting')
-      return
-    }
-    
-    // Improved validation with better error messages
+    // SIMPLE VALIDATION
     const trimmedName = formData.name.trim()
     const trimmedSubject = formData.subject.trim()
     const trimmedContent = formData.content.trim()
@@ -379,12 +328,6 @@ export default function EmailTemplates() {
                <h2 className="text-xl font-bold">
                  {editingTemplate ? 'Edit Template' : 'New Template'}
                </h2>
-               {editingTemplate && !isFormReady && (
-                 <div className="flex items-center gap-2 text-sm text-blue-600">
-                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                   <span>Loading form...</span>
-                 </div>
-               )}
              </div>
             
                          <form 
@@ -412,6 +355,17 @@ export default function EmailTemplates() {
                    e.stopPropagation()
                    console.log('🔒 Blocking editor click from form submission')
                  }
+               }}
+               // RADICAL SOLUTION: Remove form submission entirely when editing
+               onSubmit={(e) => {
+                 if (editingTemplate) {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   console.log('🚫 RADICAL: Form submission completely blocked when editing')
+                   toast.error('Form submission is disabled while editing. Use the Update Template button.')
+                   return false
+                 }
+                 return handleSubmit(e)
                }}
              >
               <div>
@@ -512,9 +466,7 @@ export default function EmailTemplates() {
                              <div className="flex gap-3 pt-4">
                  <button
                    type="submit"
-                   className={`flex-1 ${editingTemplate && !isFormReady ? 'btn-secondary opacity-50 cursor-not-allowed' : 'btn-primary'}`}
-                   disabled={editingTemplate && !isFormReady}
-                   title={editingTemplate && !isFormReady ? 'Please wait for the form to load completely' : ''}
+                   className="flex-1 btn-primary"
                  >
                    {editingTemplate ? 'Update Template' : 'Create Template'}
                  </button>
