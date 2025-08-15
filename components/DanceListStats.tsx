@@ -61,7 +61,7 @@ export default function DanceListStats() {
         listNames: contact.listNames,
         hasListNames: !!contact.listNames,
         isArray: Array.isArray(contact.listNames),
-        listNamesLength: contact.listNames ? contact.listNames.length : 'N/A'
+        listNamesLength: contact.listNames && Array.isArray(contact.listNames) ? contact.listNames.length : 'N/A'
       })
       
       if (contact.listNames && Array.isArray(contact.listNames)) {
@@ -84,7 +84,7 @@ export default function DanceListStats() {
     const stats = Array.from(listMap.entries())
       .map(([name, contacts]) => ({
         name,
-        count: contacts.length,
+        count: contacts && Array.isArray(contacts) ? contacts.length : 0,
         contacts
       }))
       .sort((a, b) => b.count - a.count)
@@ -100,7 +100,7 @@ export default function DanceListStats() {
   }
 
   const getTotalLists = () => {
-    return listStats.length
+            return listStats && Array.isArray(listStats) ? listStats.length : 0
   }
 
   // Función para debug
@@ -171,7 +171,7 @@ export default function DanceListStats() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Emails</p>
-              <p className="text-2xl font-bold text-gray-900">{contacts.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{contacts && Array.isArray(contacts) ? contacts.length : 0}</p>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@ export default function DanceListStats() {
                               {contact.firstName} {contact.lastName} ({contact.email})
                             </div>
                           ))}
-                          {list.contacts.length > 5 && (
+                          {list.contacts && Array.isArray(list.contacts) && list.contacts.length > 5 && (
                             <div className="text-gray-400 italic">
                               ... y {list.contacts.length - 5} más
                             </div>
