@@ -69,8 +69,23 @@ export default function EmailTemplates() {
     console.log('Form data changed:', formData)
   }, [formData])
 
+  // Prevent automatic form submission when editing
+  useEffect(() => {
+    if (editingTemplate && formData.name && formData.subject && formData.content) {
+      console.log('Template loaded for editing, preventing auto-submit')
+    }
+  }, [editingTemplate, formData.name, formData.subject, formData.content])
+
   // Create/Edit template
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🚨 FORM SUBMIT TRIGGERED!', { 
+      event: e.type, 
+      target: e.target, 
+      currentTarget: e.currentTarget,
+      editingTemplate: editingTemplate?._id,
+      formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length }
+    })
+    
     e.preventDefault()
     
     // Improved validation with better error messages
@@ -315,7 +330,16 @@ export default function EmailTemplates() {
               {editingTemplate ? 'Edit Template' : 'New Template'}
             </h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+                         <form 
+               onSubmit={handleSubmit} 
+               className="space-y-6"
+               onKeyDown={(e) => {
+                 // Prevent form submission on Enter key
+                 if (e.key === 'Enter' && e.target !== e.currentTarget) {
+                   e.preventDefault()
+                 }
+               }}
+             >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Template Name *
