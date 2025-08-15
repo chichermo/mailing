@@ -73,18 +73,13 @@ export default function EmailTemplates() {
   const isFormReady = true
 
   // Create/Edit template
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log('🚨 FORM SUBMIT TRIGGERED!', { 
-      event: e.type, 
-      target: e.target, 
-      currentTarget: e.currentTarget,
+  const handleSubmit = async (e?: React.MouseEvent) => {
+    console.log('🚨 TEMPLATE SAVE TRIGGERED!', { 
+      event: e?.type || 'click', 
       editingTemplate: editingTemplate?._id,
       formData: { name: formData.name, subject: formData.subject, contentLength: formData.content.length },
       timestamp: new Date().toISOString()
     })
-    
-    e.preventDefault()
-    e.stopPropagation()
     
     // SIMPLE VALIDATION
     const trimmedName = formData.name.trim()
@@ -330,48 +325,7 @@ export default function EmailTemplates() {
                </h2>
              </div>
             
-                         <form 
-               onSubmit={handleSubmit} 
-               className="space-y-6"
-               onKeyDown={(e) => {
-                 // Prevent form submission on Enter key
-                 if (e.key === 'Enter' && e.target !== e.currentTarget) {
-                   e.preventDefault()
-                 }
-               }}
-               onClick={(e) => {
-                 // Log any clicks on the form
-                 console.log('🔍 Form clicked:', { 
-                   target: e.target, 
-                   currentTarget: e.currentTarget,
-                   tagName: e.target.tagName,
-                   type: e.target.type,
-                   className: e.target.className
-                 })
-                 
-                 // Prevent form submission from editor elements
-                 if (e.target.tagName === 'PATH' || e.target.closest('.ql-editor')) {
-                   e.preventDefault()
-                   e.stopPropagation()
-                   console.log('🔒 Blocking editor click from form submission')
-                 }
-               }}
-                                               // INTELLIGENT SOLUTION: Only block form submission, allow editor functionality
-                 onSubmit={(e) => {
-                   // Only block if this is actually a form submission attempt
-                   if (editingTemplate) {
-                     e.preventDefault()
-                     e.stopPropagation()
-                     console.log('🚫 INTELLIGENT: Form submission blocked when editing')
-                     // Don't show toast on every click, only on actual submit attempts
-                     if (e.nativeEvent.submitter) {
-                       toast.error('Form submission is disabled while editing. Use the Update Template button.')
-                     }
-                     return false
-                   }
-                   return handleSubmit(e)
-                 }}
-             >
+                                                   <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Template Name *
@@ -429,27 +383,16 @@ export default function EmailTemplates() {
                   </p>
                 </div>
 
-                                 <div 
-                   className="border border-gray-300 rounded-lg"
-                   onClick={(e) => {
-                     // Prevent any clicks inside the editor from submitting the form
-                     e.stopPropagation()
-                     console.log('🔒 Editor clicked, preventing form submission')
-                   }}
-                   onMouseDown={(e) => {
-                     // Additional protection on mouse down
-                     e.stopPropagation()
-                   }}
-                 >
-                   <RichTextEditor
-                     value={formData.content}
-                     onChange={(content) => setFormData({...formData, content})}
-                     placeholder="<h1>Hello {'{{firstName}}'}!</h1><p>Welcome to our newsletter. We're excited to have you on board.</p><p>Best regards,<br>The Team</p>"
-                     height="h-80"
-                     className="w-full"
-                     showToolbar={true}
-                   />
-                 </div>
+                                                                   <div className="border border-gray-300 rounded-lg">
+                    <RichTextEditor
+                      value={formData.content}
+                      onChange={(content) => setFormData({...formData, content})}
+                      placeholder="<h1>Hello {'{{firstName}}'}!</h1><p>Welcome to our newsletter. We're excited to have you on board.</p><p>Best regards,<br>The Team</p>"
+                      height="h-80"
+                      className="w-full"
+                      showToolbar={true}
+                    />
+                  </div>
                 
                 {/* Estadísticas del contenido */}
                 <EditorStats content={formData.content} />
@@ -467,22 +410,23 @@ export default function EmailTemplates() {
                 </div>
               </div>
 
-                             <div className="flex gap-3 pt-4">
-                 <button
-                   type="submit"
-                   className="flex-1 btn-primary"
-                 >
-                   {editingTemplate ? 'Update Template' : 'Create Template'}
-                 </button>
-                 <button
-                   type="button"
-                   onClick={closeModal}
-                   className="flex-1 btn-secondary"
-                 >
-                   Cancel
-                 </button>
-               </div>
-            </form>
+                                                           <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="flex-1 btn-primary"
+                  >
+                    {editingTemplate ? 'Update Template' : 'Create Template'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                </div>
+             </div>
           </div>
         </div>
       )}
