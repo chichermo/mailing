@@ -37,19 +37,29 @@ export async function POST(request: NextRequest) {
         console.log(`📧 Processing ${file}: ${lines.length} lines for list "${listName}"`)
 
         let emailsImported = 0
+        let linesProcessed = 0
+        let linesSkipped = 0
 
         // Import each line
         for (const line of lines) {
           try {
             // Split by tab character and get the parts
             const parts = line.split('\t')
-            if (parts.length < 2) continue
+            if (parts.length < 2) {
+              linesSkipped++
+              console.log(`   ⚠️  Skipping line (${parts.length} parts): "${line}"`)
+              continue
+            }
             
             // Get the email part (second part)
             const emailPart = parts[1].trim()
             // Extract just the email address, removing any additional info in parentheses
             const emailMatch = emailPart.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
-            if (!emailMatch) continue
+            if (!emailMatch) {
+              linesSkipped++
+              console.log(`   ⚠️  Skipping line (invalid email): "${line}"`)
+              continue
+            }
             
             const email = emailMatch[0].toLowerCase()
             
@@ -126,14 +136,17 @@ export async function POST(request: NextRequest) {
               emailsImported++
               console.log(`✅ Created new contact ${email} with name ${firstName} ${lastName} for list ${listName}`)
             }
+                      linesProcessed++
           } catch (emailError) {
             totalErrors++
+            linesSkipped++
             results.push({ email: line, error: emailError.message })
             console.error(`❌ Error processing line: ${line}`, emailError.message)
           }
         }
         
-        results.push({ file, listName, emailsImported })
+        console.log(`   📊 File summary: ${emailsImported} imported, ${linesProcessed} processed, ${linesSkipped} skipped`)
+        results.push({ file, listName, emailsImported, linesProcessed, linesSkipped })
         
       } catch (fileError) {
         totalErrors++
