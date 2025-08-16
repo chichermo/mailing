@@ -48,11 +48,11 @@ export default function SystemStatus() {
       if (result.success) {
         setStatusData(result.data)
       } else {
-        toast.error('Error al cargar estado del sistema')
+        toast.error('Error loading system status')
       }
     } catch (error) {
       console.error('Error loading system status:', error)
-      toast.error('Error al cargar estado del sistema')
+      toast.error('Error loading system status')
     } finally {
       setLoading(false)
     }
@@ -71,7 +71,7 @@ export default function SystemStatus() {
       const result = await response.json()
       
       if (result.success) {
-        toast.success('SendGrid funcionando correctamente')
+        toast.success('SendGrid working correctly')
       } else {
         toast.error(`SendGrid: ${result.message}`)
       }
@@ -79,7 +79,7 @@ export default function SystemStatus() {
       // Recargar estado
       await loadSystemStatus()
     } catch (error) {
-      toast.error('Error al probar SendGrid')
+      toast.error('Error testing SendGrid')
     } finally {
       setTesting(null)
     }
@@ -98,7 +98,7 @@ export default function SystemStatus() {
       const result = await response.json()
       
       if (result.success) {
-        toast.success('Resend funcionando correctamente')
+        toast.success('Resend working correctly')
       } else {
         toast.error(`Resend: ${result.message}`)
       }
@@ -106,7 +106,7 @@ export default function SystemStatus() {
       // Recargar estado
       await loadSystemStatus()
     } catch (error) {
-      toast.error('Error al probar Resend')
+      toast.error('Error testing Resend')
     } finally {
       setTesting(null)
     }
@@ -120,7 +120,7 @@ export default function SystemStatus() {
       const result = await response.json()
       
       if (result.success) {
-        toast.success('Twilio funcionando correctamente')
+        toast.success('Twilio working correctly')
       } else {
         toast.error(`Twilio: ${result.message}`)
       }
@@ -128,7 +128,7 @@ export default function SystemStatus() {
       // Recargar estado
       await loadSystemStatus()
     } catch (error) {
-      toast.error('Error al probar Twilio')
+      toast.error('Error testing Twilio')
     } finally {
       setTesting(null)
     }
@@ -208,11 +208,11 @@ export default function SystemStatus() {
             <BoltIcon className="w-5 h-5 text-white" />
           </div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent">
-            Estado del Sistema
+            System Status
           </h2>
         </div>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Monitoreo en tiempo real de todos los servicios. Verifica el estado y prueba la conectividad de cada componente.
+          Real-time monitoring of all services. Verify status and test connectivity of each component.
         </p>
       </div>
 
@@ -225,9 +225,9 @@ export default function SystemStatus() {
                 <ServerIcon className="w-8 h-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-gray-900 mb-2">{statusData.summary.total}</div>
-              <div className="text-sm text-gray-600 font-medium">Total Servicios</div>
+              <div className="text-sm text-gray-600 font-medium">Total Services</div>
               <div className="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                Monitoreados
+                Monitored
               </div>
             </div>
           </div>
@@ -238,9 +238,9 @@ export default function SystemStatus() {
                 <CheckCircleIcon className="w-8 h-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-success-600 mb-2">{statusData.summary.connected}</div>
-              <div className="text-sm text-gray-600 font-medium">Conectados</div>
+              <div className="text-sm text-gray-600 font-medium">Connected</div>
               <div className="mt-3 text-xs text-success-600 bg-success-50 px-2 py-1 rounded-full">
-                Funcionando
+                Running
               </div>
             </div>
           </div>
@@ -251,9 +251,9 @@ export default function SystemStatus() {
                 <ClockIcon className="w-8 h-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-warning-600 mb-2">{statusData.summary.pending}</div>
-              <div className="text-sm text-gray-600 font-medium">Pendientes</div>
+              <div className="text-sm text-gray-600 font-medium">Pending</div>
               <div className="mt-3 text-xs text-warning-600 bg-warning-50 px-2 py-1 rounded-full">
-                Requieren Configuración
+                Need Configuration
               </div>
             </div>
           </div>
@@ -264,9 +264,9 @@ export default function SystemStatus() {
                 <XCircleIcon className="w-8 h-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-error-600 mb-2">{statusData.summary.error}</div>
-              <div className="text-sm text-gray-600 font-medium">Errores</div>
+              <div className="text-sm text-gray-600 font-medium">Errors</div>
               <div className="mt-3 text-xs text-error-600 bg-error-50 px-2 py-1 rounded-full">
-                Requieren Atención
+                Need Attention
               </div>
             </div>
           </div>
@@ -301,8 +301,8 @@ export default function SystemStatus() {
                         service.status === 'pending' ? 'text-warning-700' :
                         'text-error-700'
                       }`}>
-                        {service.status === 'connected' ? 'Conectado' :
-                         service.status === 'pending' ? 'Pendiente' : 'Error'}
+                        {service.status === 'connected' ? 'Connected' :
+                         service.status === 'pending' ? 'Pending' : 'Error'}
                       </span>
                     </div>
                     
@@ -316,12 +316,12 @@ export default function SystemStatus() {
                         {testing === 'sendgrid' ? (
                           <div className="flex items-center space-x-2">
                             <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                            <span>Probando...</span>
+                            <span>Testing...</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-2">
                             <BoltIcon className="w-4 h-4" />
-                            <span>Probar</span>
+                            <span>Test</span>
                           </div>
                         )}
                       </button>
@@ -336,12 +336,12 @@ export default function SystemStatus() {
                         {testing === 'resend' ? (
                           <div className="flex items-center space-x-2">
                             <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                            <span>Probando...</span>
+                            <span>Testing...</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-2">
                             <BoltIcon className="w-4 h-4" />
-                            <span>Probar</span>
+                            <span>Test</span>
                           </div>
                         )}
                       </button>
@@ -356,12 +356,12 @@ export default function SystemStatus() {
                         {testing === 'twilio' ? (
                           <div className="flex items-center space-x-2">
                             <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                            <span>Probando...</span>
+                            <span>Testing...</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-2">
                             <BoltIcon className="w-4 h-4" />
-                            <span>Probar</span>
+                            <span>Test</span>
                           </div>
                         )}
                       </button>
@@ -382,11 +382,11 @@ export default function SystemStatus() {
           className="btn-primary group"
         >
           <ArrowPathIcon className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : 'group-hover:rotate-180'} transition-all duration-300`} />
-          {loading ? 'Actualizando...' : 'Actualizar Estado'}
+          {loading ? 'Updating...' : 'Update Status'}
         </button>
         
         <div className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-xl">
-          Última actualización: {statusData ? new Date(statusData.timestamp).toLocaleString('es-ES') : 'Nunca'}
+          Last update: {statusData ? new Date(statusData.timestamp).toLocaleString('en-US') : 'Never'}
         </div>
       </div>
 
@@ -396,8 +396,8 @@ export default function SystemStatus() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full mb-6">
             <ArrowPathIcon className="w-10 h-10 text-white animate-spin" />
           </div>
-          <p className="text-lg text-gray-600 font-medium">Cargando estado del sistema...</p>
-          <p className="text-sm text-gray-500 mt-2">Verificando conectividad de servicios</p>
+          <p className="text-lg text-gray-600 font-medium">Loading system status...</p>
+          <p className="text-sm text-gray-500 mt-2">Verifying service connectivity</p>
         </div>
       )}
 
@@ -405,7 +405,7 @@ export default function SystemStatus() {
       <div className="text-center py-6">
         <div className="inline-flex items-center space-x-2 text-gray-500 bg-gray-100 px-4 py-2 rounded-xl">
           <SparklesIcon className="w-4 h-4" />
-          <span className="text-sm">Monitoreo en tiempo real • Actualización automática</span>
+          <span className="text-sm">Real-time monitoring • Automatic updates</span>
         </div>
       </div>
     </div>

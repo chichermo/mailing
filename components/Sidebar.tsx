@@ -32,49 +32,49 @@ const menuItems = [
     label: 'Dashboard',
     icon: HomeIcon,
     iconSolid: HomeIconSolid,
-    description: 'Vista general del sistema'
+    description: 'System overview and main controls'
   },
   {
     id: 'contacts',
-    label: 'Contactos',
+    label: 'Contacts',
     icon: UsersIcon,
     iconSolid: UsersIconSolid,
-    description: 'Gestionar lista de contactos'
+    description: 'Manage contact lists and subscribers'
   },
   {
     id: 'templates',
-    label: 'Plantillas',
+    label: 'Templates',
     icon: DocumentTextIcon,
     iconSolid: DocumentTextIconSolid,
-    description: 'Editor de plantillas de email'
+    description: 'Create and edit email templates'
   },
   {
     id: 'send-emails',
-    label: 'Enviar Emails',
+    label: 'Send Emails',
     icon: PaperAirplaneIcon,
     iconSolid: PaperAirplaneIconSolid,
-    description: 'Campañas de email marketing'
+    description: 'Email marketing campaigns'
   },
   {
     id: 'history',
-    label: 'Historial',
+    label: 'History',
     icon: ClockIcon,
     iconSolid: ClockIconSolid,
-    description: 'Registro de envíos y métricas'
+    description: 'Email history and metrics'
   },
   {
     id: 'dance-stats',
-    label: 'Estadísticas',
+    label: 'Statistics',
     icon: ChartBarIcon,
     iconSolid: ChartBarIconSolid,
-    description: 'Análisis y reportes'
+    description: 'Analytics and reports'
   },
   {
     id: 'settings',
-    label: 'Configuración',
+    label: 'Settings',
     icon: Cog6ToothIcon,
     iconSolid: Cog6ToothIconSolid,
-    description: 'Ajustes del sistema'
+    description: 'System configuration'
   }
 ]
 
@@ -183,8 +183,8 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               <SparklesIcon className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900">Sistema Activo</div>
-              <div className="text-xs text-gray-500">Todos los servicios funcionando</div>
+              <div className="text-sm font-medium text-gray-900">System Active</div>
+              <div className="text-xs text-gray-500">All services running</div>
             </div>
             <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
           </div>

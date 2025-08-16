@@ -39,7 +39,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </h1>
         </div>
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Bienvenido a tu sistema de email marketing profesional. Monitorea el rendimiento y gestiona tus campañas desde un solo lugar.
+          Welcome to your professional email marketing system. Monitor performance and manage your campaigns from one place.
         </p>
       </div>
 
@@ -51,9 +51,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <UsersIcon className="w-8 h-8 text-white" />
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
-            <div className="text-sm text-gray-600 font-medium">Total Contactos</div>
+            <div className="text-sm text-gray-600 font-medium">Total Contacts</div>
             <div className="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-              +0% este mes
+              +0% this month
             </div>
           </div>
         </div>
@@ -64,9 +64,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <EnvelopeIcon className="w-8 h-8 text-white" />
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
-            <div className="text-sm text-gray-600 font-medium">Plantillas</div>
+            <div className="text-sm text-gray-600 font-medium">Templates</div>
             <div className="mt-3 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-              +0% este mes
+              +0% this month
             </div>
           </div>
         </div>
@@ -77,9 +77,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <RocketLaunchIcon className="w-8 h-8 text-white" />
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
-            <div className="text-sm text-gray-600 font-medium">Campañas</div>
+            <div className="text-sm text-gray-600 font-medium">Campaigns</div>
             <div className="mt-3 text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-              +0% este mes
+              +0% this month
             </div>
           </div>
         </div>
@@ -90,9 +90,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <ArrowTrendingUpIcon className="w-8 h-8 text-white" />
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
-            <div className="text-sm text-gray-600 font-medium">Emails Enviados</div>
+            <div className="text-sm text-gray-600 font-medium">Emails Sent</div>
             <div className="mt-3 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
-              +0% este mes
+              +0% this month
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
                 <SparklesIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Acciones Rápidas</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Quick Actions</h3>
             </div>
             <div className="space-y-4">
               <button 
@@ -114,21 +114,21 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                 className="w-full btn-primary group"
               >
                 <EnvelopeIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                Crear Nueva Campaña
+                Create New Campaign
               </button>
               <button 
                 onClick={() => handleQuickAction('contacts')}
                 className="w-full btn-secondary group"
               >
                 <UsersIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                Agregar Contactos
+                Add Contacts
               </button>
               <button 
                 onClick={() => handleQuickAction('templates')}
                 className="w-full btn-secondary group"
               >
                 <EnvelopeIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                Crear Plantilla
+                Create Template
               </button>
             </div>
           </div>
@@ -140,28 +140,28 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
                 <ChartBarIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Estado del Sistema</h3>
+              <h3 className="text-xl font-semibold text-gray-900">System Status</h3>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-success-50 rounded-xl border border-success-200">
-                <span className="text-sm font-medium text-gray-700">Base de Datos</span>
+                <span className="text-sm font-medium text-gray-700">Database</span>
                 <div className="flex items-center space-x-2">
                   <CheckCircleIcon className="w-4 h-4 text-success-600" />
-                  <span className="text-sm font-medium text-success-700">Conectado</span>
+                  <span className="text-sm font-medium text-success-700">Connected</span>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
                 <span className="text-sm font-medium text-gray-700">SendGrid</span>
                 <div className="flex items-center space-x-2">
                   <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
-                  <span className="text-sm font-medium text-warning-700">Pendiente</span>
+                  <span className="text-sm font-medium text-warning-700">Pending</span>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
                 <span className="text-sm font-medium text-gray-700">Twilio</span>
                 <div className="flex items-center space-x-2">
                   <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
-                  <span className="text-sm font-medium text-warning-700">Pendiente</span>
+                  <span className="text-sm font-medium text-warning-700">Pending</span>
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                 onClick={() => handleQuickAction('settings')}
                 className="w-full btn-ghost text-sm"
               >
-                Configurar Servicios →
+                Configure Services →
               </button>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                 <ChartBarIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Pruebas de API</h3>
+              <h3 className="text-xl font-semibold text-gray-900">API Testing</h3>
             </div>
             <TestAPI />
           </div>
@@ -200,7 +200,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <EnvelopeIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Pruebas de Email</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Email Testing</h3>
             </div>
             <EmailTest />
           </div>
@@ -211,7 +211,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       <div className="text-center py-8">
         <div className="inline-flex items-center space-x-2 text-gray-500">
           <SparklesIcon className="w-4 h-4" />
-          <span className="text-sm">Heliopsis Mail - Sistema de Email Marketing Profesional</span>
+          <span className="text-sm">Heliopsis Mail - Professional Email Marketing System</span>
         </div>
       </div>
     </div>
