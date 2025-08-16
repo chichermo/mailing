@@ -47,6 +47,9 @@ export default function ContactList() {
   const [selectAll, setSelectAll] = useState(false)
   const [availableLists, setAvailableLists] = useState<string[]>([])
   
+  // Estados para selección con Shift
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number>(-1)
+  
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -288,22 +291,42 @@ export default function ContactList() {
   }, [filteredContacts, selectedContacts, selectAll])
 
   // Funciones para selección múltiple
-  const handleSelectContact = (contactId: string) => {
-    console.log('🔍 handleSelectContact called with:', contactId)
+  const handleSelectContact = (contactId: string, event: React.MouseEvent, index: number) => {
+    console.log('🔍 handleSelectContact called with:', contactId, 'index:', index)
     console.log('🔍 Current selectedContacts:', selectedContacts)
     
     const newSelected = new Set(selectedContacts)
-    if (newSelected.has(contactId)) {
-      newSelected.delete(contactId)
-      console.log('🔍 Removed contact:', contactId)
+    
+    // Si se presiona Shift, seleccionar rango
+    if (event.shiftKey && lastSelectedIndex !== -1) {
+      const startIndex = Math.min(lastSelectedIndex, index)
+      const endIndex = Math.max(lastSelectedIndex, index)
+      
+      console.log(`🔍 Shift selection: from ${startIndex} to ${endIndex}`)
+      
+      // Seleccionar todos los contactos en el rango
+      for (let i = startIndex; i <= endIndex; i++) {
+        if (filteredContacts[i]) {
+          newSelected.add(filteredContacts[i]._id)
+        }
+      }
     } else {
-      newSelected.add(contactId)
-      console.log('🔍 Added contact:', contactId)
+      // Selección normal (click individual)
+      if (newSelected.has(contactId)) {
+        newSelected.delete(contactId)
+        console.log('🔍 Removed contact:', contactId)
+      } else {
+        newSelected.add(contactId)
+        console.log('🔍 Added contact:', contactId)
+      }
     }
+    
+    // Actualizar el último índice seleccionado
+    setLastSelectedIndex(index)
     
     console.log('🔍 New selectedContacts:', newSelected)
     setSelectedContacts(newSelected)
-    setSelectAll(newSelected.size === contacts.length)
+    setSelectAll(newSelected.size === filteredContacts.length)
   }
 
   const handleSelectAll = () => {
@@ -568,18 +591,27 @@ export default function ContactList() {
         </div>
       </div>
 
-      {/* Contact table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        {/* Barra de acciones en lote */}
-        {selectedContacts.size > 0 && (
-          <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-blue-900">
-                <span className="font-medium">{selectedContacts.size}</span> contact{selectedContacts.size !== 1 ? 's' : ''} selected
-                <span className="text-blue-600 ml-2">
-                  (of {filteredContacts.length} filtered)
-                </span>
+              {/* Contact table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Indicador de selección con Shift */}
+          {selectedContacts.size === 0 && (
+            <div className="bg-gray-50 border-b border-gray-200 px-6 py-2">
+              <div className="text-xs text-gray-600 text-center">
+                💡 <strong>Tip:</strong> Hold <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Shift</kbd> + Click to select multiple contacts at once
               </div>
+            </div>
+          )}
+          
+          {/* Barra de acciones en lote */}
+          {selectedContacts.size > 0 && (
+            <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-blue-900">
+                  <span className="font-medium">{selectedContacts.size}</span> contact{selectedContacts.size !== 1 ? 's' : ''} selected
+                  <span className="text-blue-600 ml-2">
+                    (of {filteredContacts.length} filtered)
+                  </span>
+                </div>
               <div className="flex items-center gap-2">
                 <select
                   onChange={(e) => {
@@ -689,14 +721,14 @@ export default function ContactList() {
               ) : (
                 filteredContacts.map((contact) => (
                   <tr key={contact._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        checked={selectedContacts.has(contact._id)}
-                        onChange={() => handleSelectContact(contact._id)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                    </td>
+                                         <td className="px-6 py-4 whitespace-nowrap">
+                       <input
+                         type="checkbox"
+                         checked={selectedContacts.has(contact._id)}
+                         onClick={(e) => handleSelectContact(contact._id, e, filteredContacts.findIndex(c => c._id === contact._id))}
+                         className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                       />
+                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
