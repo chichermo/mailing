@@ -5,7 +5,7 @@ import path from 'path'
 
 export async function POST(request: NextRequest) {
   try {
-    const folderPath = "C:\\Users\\guill\\OneDrive\\Escritorio\\Heliopsismail\\OneDrive_2025-08-16\\email adressen"
+    const folderPath = path.join(process.cwd(), 'data', 'dance-emails')
     
     // Connect to database
     const contactsCollection = await getCollection('contacts')
