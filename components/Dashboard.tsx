@@ -39,17 +39,28 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   // Load real statistics
   const loadStats = async () => {
     try {
+      console.log('📊 Dashboard: Starting to load stats...')
       setLoading(true)
       
       // Load contacts count
+      console.log('📊 Dashboard: Fetching contacts from API...')
       const contactsResponse = await fetch('/api/contacts')
       const contactsResult = await contactsResponse.json()
       
+      console.log('📊 Dashboard: Contacts API response:', contactsResult)
+      
       if (contactsResult.success) {
+        const totalContacts = contactsResult.data.length
+        console.log('📊 Dashboard: Total contacts found:', totalContacts)
+        
         setStats(prev => ({
           ...prev,
-          total: contactsResult.data.length
+          total: totalContacts
         }))
+        
+        console.log('📊 Dashboard: Stats updated successfully')
+      } else {
+        console.error('📊 Dashboard: Failed to load contacts:', contactsResult.error)
       }
       
       // TODO: Load other stats when APIs are implemented
@@ -58,13 +69,15 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       // const emailsResponse = await fetch('/api/emails')
       
     } catch (error) {
-      console.error('Error loading stats:', error)
+      console.error('📊 Dashboard: Error loading stats:', error)
     } finally {
       setLoading(false)
+      console.log('📊 Dashboard: Stats loading completed')
     }
   }
 
   useEffect(() => {
+    console.log('📊 Dashboard: Component mounted, calling loadStats...')
     loadStats()
   }, [])
 
@@ -73,6 +86,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       onTabChange(tab)
     }
   }
+
+  // Debug: Log stats changes
+  useEffect(() => {
+    console.log('📊 Dashboard: Stats state changed:', stats)
+  }, [stats])
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -104,6 +122,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="text-sm text-gray-600 font-medium">Total Contacts</div>
             <div className="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
               {loading ? 'Loading...' : 'In Database'}
+            </div>
+            {/* Debug info */}
+            <div className="mt-2 text-xs text-gray-400">
+              Debug: {loading ? 'Loading' : `Loaded ${stats.total}`}
             </div>
           </div>
         </div>
@@ -150,6 +172,29 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="mt-3 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
               {loading ? 'Loading...' : 'Delivered'}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Debug section */}
+      <div className="card card-hover">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center">
+              <ChartBarIcon className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900">Debug Information</h3>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div><strong>Loading State:</strong> {loading ? 'true' : 'false'}</div>
+            <div><strong>Total Contacts:</strong> {stats.total}</div>
+            <div><strong>Stats Object:</strong> {JSON.stringify(stats)}</div>
+            <button 
+              onClick={loadStats}
+              className="btn-secondary btn-sm mt-2"
+            >
+              🔄 Reload Stats
+            </button>
           </div>
         </div>
       </div>
@@ -208,9 +253,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
                 <span className="text-sm font-medium text-gray-700">SendGrid</span>
-                <div className="flex items-center space-x-2">
-                  <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
-                  <span className="text-sm font-medium text-warning-700">Pending</span>
+                <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
+                  <span className="text-sm font-medium text-gray-700">SendGrid</span>
+                  <div className="flex items-center space-x-2">
+                    <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
+                    <span className="text-sm font-medium text-warning-700">Pending</span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
