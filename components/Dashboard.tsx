@@ -35,6 +35,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
     emailsSent: 0
   })
   const [loading, setLoading] = useState(true)
+  const [importing, setImporting] = useState(false)
 
   // Load real statistics
   const loadStats = async () => {
@@ -80,6 +81,34 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
     console.log('📊 Dashboard: Component mounted, calling loadStats...')
     loadStats()
   }, [])
+
+  const importDanceEmails = async () => {
+    try {
+      setImporting(true)
+      console.log('🚀 Dashboard: Starting dance emails import...')
+      
+      const response = await fetch('/api/import-dance-emails', {
+        method: 'POST'
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('✅ Dashboard: Import successful:', result.message)
+        // Reload stats to show updated contact count
+        await loadStats()
+        alert(`Import completed successfully!\n${result.message}`)
+      } else {
+        console.error('❌ Dashboard: Import failed:', result.error)
+        alert(`Import failed: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('❌ Dashboard: Import error:', error)
+      alert(`Import error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setImporting(false)
+    }
+  }
 
   const handleQuickAction = (tab: string) => {
     if (onTabChange) {
@@ -230,6 +259,23 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               >
                 <EnvelopeIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
                 Create Template
+              </button>
+              <button 
+                onClick={importDanceEmails}
+                className="w-full btn-success group"
+                disabled={importing}
+              >
+                {importing ? (
+                  <>
+                    <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <RocketLaunchIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                    Import Dance Emails
+                  </>
+                )}
               </button>
             </div>
           </div>
