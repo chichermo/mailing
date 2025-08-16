@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Limit the number of emails to prevent spam
-    const maxEmails = testMode ? 5 : 200
+    const maxEmails = testMode ? 5 : 350
     if (contacts.length > maxEmails) {
       return NextResponse.json(
         { success: false, error: `Maximum ${maxEmails} emails allowed per campaign` },
