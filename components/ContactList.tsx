@@ -82,6 +82,12 @@ export default function ContactList() {
     loadContacts()
   }, [])
 
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log('🔍 selectedContacts changed:', selectedContacts)
+    console.log('🔍 selectAll changed:', selectAll)
+  }, [selectedContacts, selectAll])
+
   // Create/Edit contact
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -264,12 +270,19 @@ export default function ContactList() {
 
   // Funciones para selección múltiple
   const handleSelectContact = (contactId: string) => {
+    console.log('🔍 handleSelectContact called with:', contactId)
+    console.log('🔍 Current selectedContacts:', selectedContacts)
+    
     const newSelected = new Set(selectedContacts)
     if (newSelected.has(contactId)) {
       newSelected.delete(contactId)
+      console.log('🔍 Removed contact:', contactId)
     } else {
       newSelected.add(contactId)
+      console.log('🔍 Added contact:', contactId)
     }
+    
+    console.log('🔍 New selectedContacts:', newSelected)
     setSelectedContacts(newSelected)
     setSelectAll(newSelected.size === contacts.length)
   }

@@ -1,0 +1,5 @@
+[33md1c2c4d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m  CRITICAL FIX: Corregido error 'variables.split is not a function' en EmailTemplates - Ahora maneja tanto arrays como strings
+[33m958b44c[m  FIX: Traducido texto en español a inglés en ContactList y EmailHistory
+[33mca5b0bb[m  CRITICAL FIX: Corregido problema de emails inválidos en importación de listas de danza - Emails ahora se mantienen originales sin concatenar nombre de lista
+[33maeb806a[m  DESIGN: Mejoras sustanciales de diseño en SendEmails y EmailTemplates - Gradientes, animaciones, cards modernos y UI profesional
+[33m7216d21[m  FEATURE: Aumentado límite de emails de 200 a 350 por campaña
