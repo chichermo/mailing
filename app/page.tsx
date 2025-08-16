@@ -9,7 +9,7 @@ import SendEmails from '../components/SendEmails'
 import EmailHistory from '../components/EmailHistory'
 import DanceListStats from '../components/DanceListStats'
 import Settings from '../components/Settings'
-import EditorDemo from '../components/WorkingEditor'
+import WorkingEditor from '../components/WorkingEditor'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -51,7 +51,7 @@ export default function Home() {
       case 'dance-stats':
         return <DanceListStats />
       case 'editor-demo':
-        return <EditorDemo />
+        return <WorkingEditor value="" onChange={() => {}} />
       case 'settings':
         return <Settings />
       default:
@@ -60,9 +60,9 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="app-container flex min-h-screen">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="main-content">
         {renderContent()}
       </main>
     </div>
