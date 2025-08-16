@@ -405,7 +405,7 @@ export default function ContactList() {
 
   // Función para importar listas de danza
   const handleImportDanceLists = async () => {
-    if (!confirm('¿Estás seguro de que quieres importar todas las listas de danza? Esto creará/actualizará muchos contactos.')) {
+    if (!confirm('Are you sure you want to import all dance lists? This will create/update many contacts.')) {
       return
     }
 

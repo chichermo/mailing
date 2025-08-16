@@ -60,7 +60,7 @@ export default function EmailHistory() {
 
   // Eliminar campaña
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta campaña del historial?')) return
+    if (!confirm('Are you sure you want to delete this campaign from history?')) return
 
     try {
       const response = await fetch(`/api/email-history?id=${id}`, {
