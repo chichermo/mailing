@@ -36,6 +36,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   })
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   // Load real statistics
   const loadStats = async () => {
@@ -107,6 +108,37 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       alert(`Import error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setImporting(false)
+    }
+  }
+
+  const resetDatabase = async () => {
+    if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los contactos de la base de datos?\n\nEsto permitirá hacer una importación limpia desde cero.')) {
+      return
+    }
+
+    try {
+      setResetting(true)
+      console.log('🗑️ Dashboard: Starting database reset...')
+      
+      const response = await fetch('/api/reset-contacts', {
+        method: 'POST'
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('✅ Dashboard: Database reset successful:', result.message)
+        await loadStats()
+        alert(`✅ Base de datos reseteada exitosamente!\n\nSe eliminaron ${result.deletedCount} contactos.\n\nAhora puedes ejecutar la importación para obtener todos los contactos correctamente.`)
+      } else {
+        console.error('❌ Dashboard: Database reset failed:', result.error)
+        alert(`❌ Error al resetear la base de datos: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('❌ Dashboard: Database reset error:', error)
+      alert(`❌ Error al resetear la base de datos: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -274,6 +306,23 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                   <>
                     <RocketLaunchIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
                     Import Dance Emails
+                  </>
+                )}
+              </button>
+              <button 
+                onClick={resetDatabase}
+                className="w-full btn-danger group"
+                disabled={resetting}
+              >
+                {resetting ? (
+                  <>
+                    <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Reseteando...
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200">🗑️</div>
+                    Reset Database
                   </>
                 )}
               </button>

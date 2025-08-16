@@ -177,6 +177,12 @@ body {
     @apply focus:ring-error-500;
   }
   
+  .btn-danger {
+    @apply btn bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg;
+    @apply hover:from-red-700 hover:to-red-800 hover:shadow-xl;
+    @apply focus:ring-red-500;
+  }
+  
   .btn-ghost {
     @apply btn bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900;
     @apply border border-transparent hover:border-gray-200;
