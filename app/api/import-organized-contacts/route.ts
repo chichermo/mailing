@@ -19,89 +19,107 @@ export async function POST(request: NextRequest) {
     const results = []
     const processedEmails = new Set()
 
-    // Parse lines and extract contacts
-    const lines = content
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line && line.startsWith('•'))
+    // Parse content and extract groups with contacts
+    const sections = content.split(/(?=GRUPO:)/)
+    let currentGroup = ''
+    
+    console.log(`📧 Processing organized contacts file: ${sections.length} sections found`)
 
-    console.log(`📧 Processing organized contacts file: ${lines.length} contact lines found`)
-
-    for (const line of lines) {
-      try {
-        // Parse format: "• Nombre - email@dominio.com"
-        const match = line.match(/^•\s*(.+?)\s*-\s*(.+)$/)
-        if (!match) {
-          totalSkipped++
-          console.log(`   ⚠️  Skipping line (invalid format): "${line}"`)
-          continue
-        }
-
-        const name = match[1].trim()
-        const email = match[2].trim().toLowerCase()
-
-        // Validate email
-        const emailMatch = email.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
-        if (!emailMatch) {
-          totalSkipped++
-          console.log(`   ⚠️  Skipping line (invalid email): "${line}"`)
-          continue
-        }
-
-        const cleanEmail = emailMatch[0].toLowerCase()
-
-        // Skip if we already processed this email
-        if (processedEmails.has(cleanEmail)) {
-          totalSkipped++
-          console.log(`   ⚠️  Skipping duplicate email: ${cleanEmail}`)
-          continue
-        }
-
-        // Extract name parts
-        let firstName = 'Imported'
-        let lastName = 'Contact'
-        
-        if (name) {
-          const cleanName = name.replace(/\s*\([^)]*\)/g, '').trim()
-          const nameParts = cleanName.split(' ')
-          
-          if (nameParts.length >= 2) {
-            firstName = nameParts[0]
-            lastName = nameParts.slice(1).join(' ')
-          } else if (nameParts.length === 1) {
-            firstName = nameParts[0]
+    for (const section of sections) {
+      if (!section.trim()) continue
+      
+      // Extract group name
+      const groupMatch = section.match(/GRUPO:\s*(.+?)(?:\s*\(|$)/)
+      if (groupMatch) {
+        currentGroup = groupMatch[1].trim()
+        console.log(`\n📁 Processing group: ${currentGroup}`)
+      }
+      
+      // Extract contact lines from this section
+      const contactLines = section
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line && line.startsWith('•'))
+      
+      console.log(`   📧 Found ${contactLines.length} contacts in group "${currentGroup}"`)
+      
+      for (const line of contactLines) {
+        try {
+          // Parse format: "• Nombre - email@dominio.com"
+          const match = line.match(/^•\s*(.+?)\s*-\s*(.+)$/)
+          if (!match) {
+            totalSkipped++
+            console.log(`     ⚠️  Skipping line (invalid format): "${line}"`)
+            continue
           }
-        }
 
-        // Check if contact already exists
-        const existingContact = await contactsCollection.findOne({ email: cleanEmail })
-        
-        if (existingContact) {
-          console.log(`   ℹ️  Contact already exists: ${cleanEmail}`)
-        } else {
-          // Create new contact
-          const newContact = {
-            firstName,
-            lastName,
-            email: cleanEmail,
-            company: '',
-            phone: '',
-            listNames: ['Organized Import'],
-            createdAt: new Date(),
-            source: 'Imported from contactos_organizados.txt',
-            importedAt: new Date()
+          const name = match[1].trim()
+          const email = match[2].trim().toLowerCase()
+
+          // Validate email
+          const emailMatch = email.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
+          if (!emailMatch) {
+            totalSkipped++
+            console.log(`     ⚠️  Skipping line (invalid email): "${line}"`)
+            continue
           }
-          
-          await contactsCollection.insertOne(newContact)
-          totalImported++
-          processedEmails.add(cleanEmail)
-          console.log(`✅ Created new contact ${cleanEmail} with name ${firstName} ${lastName}`)
-        }
 
-      } catch (error) {
-        totalErrors++
-        console.error(`❌ Error processing line: ${line}`, error.message)
-        results.push({ line, error: error.message })
+          const cleanEmail = emailMatch[0].toLowerCase()
+
+          // Skip if we already processed this email
+          if (processedEmails.has(cleanEmail)) {
+            totalSkipped++
+            console.log(`     ⚠️  Skipping duplicate email: ${cleanEmail}`)
+            continue
+          }
+
+          // Extract name parts
+          let firstName = 'Imported'
+          let lastName = 'Contact'
+          
+          if (name) {
+            const cleanName = name.replace(/\s*\([^)]*\)/g, '').trim()
+            const nameParts = cleanName.split(' ')
+            
+            if (nameParts.length >= 2) {
+              firstName = nameParts[0]
+              lastName = nameParts.slice(1).join(' ')
+            } else if (nameParts.length === 1) {
+              firstName = nameParts[0]
+            }
+          }
+
+          // Check if contact already exists
+          const existingContact = await contactsCollection.findOne({ email: cleanEmail })
+          
+          if (existingContact) {
+            console.log(`     ℹ️  Contact already exists: ${cleanEmail}`)
+          } else {
+            // Create new contact with group information
+            const newContact = {
+              firstName,
+              lastName,
+              email: cleanEmail,
+              company: '',
+              phone: '',
+              listNames: [currentGroup || 'Organized Import'],
+              group: currentGroup || 'Unknown Group', // Add group field
+              createdAt: new Date(),
+              source: 'Imported from contactos_organizados.txt',
+              importedAt: new Date()
+            }
+            
+            await contactsCollection.insertOne(newContact)
+            totalImported++
+            processedEmails.add(cleanEmail)
+            console.log(`     ✅ Created new contact ${cleanEmail} with name ${firstName} ${lastName} in group "${currentGroup}"`)
+          }
+
+        } catch (error) {
+          totalErrors++
+          console.error(`❌ Error processing line: ${line}`, error.message)
+          results.push({ line, error: error.message })
+        }
       }
     }
 
@@ -109,7 +127,7 @@ export async function POST(request: NextRequest) {
     const finalCount = await contactsCollection.countDocuments()
 
     console.log(`\n🎯 IMPORT SUMMARY:`)
-    console.log(`   - Total lines processed: ${lines.length}`)
+    console.log(`   - Total sections processed: ${sections.length}`)
     console.log(`   - New contacts imported: ${totalImported}`)
     console.log(`   - Lines skipped: ${totalSkipped}`)
     console.log(`   - Errors: ${totalErrors}`)
@@ -119,7 +137,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `Import completed: ${totalImported} new contacts imported, ${totalErrors} errors, ${totalSkipped} skipped`,
       summary: {
-        totalLines: lines.length,
+        totalSections: sections.length,
         totalImported,
         totalSkipped,
         totalErrors,
