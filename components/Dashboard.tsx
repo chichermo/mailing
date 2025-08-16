@@ -111,6 +111,34 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
     }
   }
 
+  const importOrganizedContacts = async () => {
+    try {
+      setImporting(true)
+      console.log('🚀 Dashboard: Starting organized contacts import...')
+      
+      const response = await fetch('/api/import-organized-contacts', {
+        method: 'POST'
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('✅ Dashboard: Organized import successful:', result.message)
+        // Reload stats to show updated contact count
+        await loadStats()
+        alert(`✅ Import organized contacts completed!\n\n${result.message}\n\nThis should give you all ${result.summary.totalLines} contacts from the organized file.`)
+      } else {
+        console.error('❌ Dashboard: Organized import failed:', result.error)
+        alert(`Import failed: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('❌ Dashboard: Organized import error:', error)
+      alert(`Import error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const resetDatabase = async () => {
     if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los contactos de la base de datos?\n\nEsto permitirá hacer una importación limpia desde cero.')) {
       return
@@ -306,6 +334,23 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                   <>
                     <RocketLaunchIcon className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
                     Import Dance Emails
+                  </>
+                )}
+              </button>
+              <button 
+                onClick={importOrganizedContacts}
+                className="w-full btn-primary group"
+                disabled={importing}
+              >
+                {importing ? (
+                  <>
+                    <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200">📋</div>
+                    Import Organized Contacts
                   </>
                 )}
               </button>
