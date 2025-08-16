@@ -269,12 +269,22 @@ export default function EmailTemplates() {
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">Variables</label>
                       <div className="flex flex-wrap gap-2">
-                        {template.variables.split(',').map((variable, index) => (
-                          <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 font-medium">
-                            <VariableIcon className="w-3 h-3 mr-1" />
-                            {variable.trim()}
-                          </span>
-                        ))}
+                        {Array.isArray(template.variables) 
+                          ? template.variables.map((variable, index) => (
+                              <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 font-medium">
+                                <VariableIcon className="w-3 h-3 mr-1" />
+                                {variable}
+                              </span>
+                            ))
+                          : typeof template.variables === 'string' 
+                            ? template.variables.split(',').map((variable, index) => (
+                                <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 font-medium">
+                                  <VariableIcon className="w-3 h-3 mr-1" />
+                                  {variable.trim()}
+                                </span>
+                              ))
+                            : null
+                        }
                       </div>
                     </div>
                   )}
