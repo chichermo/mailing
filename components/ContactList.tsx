@@ -268,6 +268,25 @@ export default function ContactList() {
   // Get unique lists
   const uniqueLists = ['all', ...Array.from(new Set(contacts.flatMap(c => c.listNames)))]
 
+  // Sincronizar selectAll cuando cambien los filtros
+  useEffect(() => {
+    // Si no hay contactos filtrados, desmarcar selectAll
+    if (filteredContacts.length === 0) {
+      setSelectAll(false)
+      return
+    }
+    
+    // Verificar si todos los contactos filtrados están seleccionados
+    const allFilteredSelected = filteredContacts.every(contact => 
+      selectedContacts.has(contact._id)
+    )
+    
+    // Solo actualizar si es diferente para evitar loops infinitos
+    if (allFilteredSelected !== selectAll) {
+      setSelectAll(allFilteredSelected)
+    }
+  }, [filteredContacts, selectedContacts, selectAll])
+
   // Funciones para selección múltiple
   const handleSelectContact = (contactId: string) => {
     console.log('🔍 handleSelectContact called with:', contactId)
@@ -292,7 +311,8 @@ export default function ContactList() {
       setSelectedContacts(new Set())
       setSelectAll(false)
     } else {
-      setSelectedContacts(new Set(contacts.map(c => c._id)))
+      // Solo seleccionar los contactos filtrados, no todos los contactos
+      setSelectedContacts(new Set(filteredContacts.map(c => c._id)))
       setSelectAll(true)
     }
   }
@@ -556,6 +576,9 @@ export default function ContactList() {
             <div className="flex items-center justify-between">
               <div className="text-sm text-blue-900">
                 <span className="font-medium">{selectedContacts.size}</span> contact{selectedContacts.size !== 1 ? 's' : ''} selected
+                <span className="text-blue-600 ml-2">
+                  (of {filteredContacts.length} filtered)
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <select
@@ -588,6 +611,16 @@ export default function ContactList() {
                     <option key={list} value={list}>{list}</option>
                   ))}
                 </select>
+                
+                <button
+                  onClick={() => {
+                    setSelectedContacts(new Set())
+                    setSelectAll(false)
+                  }}
+                  className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                  Clear Selection
+                </button>
                 
                 <button
                   onClick={handleDeleteSelected}
