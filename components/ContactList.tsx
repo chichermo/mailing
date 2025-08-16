@@ -457,9 +457,22 @@ export default function ContactList() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Contact List</h1>
-          <p className="text-gray-600">Manage your contact database</p>
+          <p className="text-gray-600">
+            Manage your contact database • <span className="font-semibold text-primary-600">{contacts.length.toLocaleString()} contacts</span>
+            {loading && <span className="ml-2 text-yellow-600">(Loading...)</span>}
+          </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={loadContacts}
+            disabled={loading}
+            className="btn-secondary"
+          >
+            <div className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`}>
+              {loading ? '⟳' : '↻'}
+            </div>
+            Refresh
+          </button>
           <button
             onClick={() => setShowBulkImport(true)}
             className="btn-secondary"
@@ -620,81 +633,92 @@ export default function ContactList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredContacts.map((contact) => (
-                <tr key={contact._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={selectedContacts.has(contact._id)}
-                      onChange={() => handleSelectContact(contact._id)}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {contact.firstName} {contact.lastName}
-                      </div>
-                      {contact.phone && (
-                        <div className="text-sm text-gray-500">{contact.phone}</div>
-                      )}
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+                      <span className="text-gray-500">Loading contacts...</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{contact.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{contact.company || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {contact.listNames && contact.listNames.length > 0 ? (
-                        contact.listNames.map((list, index) => (
-                          <span 
-                            key={index}
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
-                          >
-                            {list}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-gray-400 text-xs">No lists</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(contact.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(contact)}
-                      className="text-primary-600 hover:text-primary-900 mr-3"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(contact._id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
                   </td>
                 </tr>
-              ))}
+              ) : filteredContacts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="text-gray-500">
+                      {searchTerm || filterList !== 'all' 
+                        ? 'No contacts found with applied filters'
+                        : 'No contacts registered yet'
+                      }
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredContacts.map((contact) => (
+                  <tr key={contact._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedContacts.has(contact._id)}
+                        onChange={() => handleSelectContact(contact._id)}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {contact.firstName} {contact.lastName}
+                        </div>
+                        {contact.phone && (
+                          <div className="text-sm text-gray-500">{contact.phone}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{contact.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{contact.company || '-'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-wrap gap-1">
+                        {contact.listNames && contact.listNames.length > 0 ? (
+                          contact.listNames.map((list, index) => (
+                            <span 
+                              key={index}
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                            >
+                              {list}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 text-xs">No lists</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(contact.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(contact)}
+                        className="text-primary-600 hover:text-primary-900 mr-3"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(contact._id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-        
-        {filteredContacts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-500">
-              {searchTerm || filterList !== 'all' 
-                ? 'No contacts found with applied filters'
-                : 'No contacts registered yet'
-              }
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Modal for create/edit contact */}

@@ -1,6 +1,7 @@
 
 'use client'
 
+import { useState, useEffect } from 'react'
 import { 
   EnvelopeIcon, 
   UsersIcon, 
@@ -19,7 +20,54 @@ interface DashboardProps {
   onTabChange?: (tab: string) => void
 }
 
+interface ContactStats {
+  total: number
+  templates: number
+  campaigns: number
+  emailsSent: number
+}
+
 export default function Dashboard({ onTabChange }: DashboardProps) {
+  const [stats, setStats] = useState<ContactStats>({
+    total: 0,
+    templates: 0,
+    campaigns: 0,
+    emailsSent: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  // Load real statistics
+  const loadStats = async () => {
+    try {
+      setLoading(true)
+      
+      // Load contacts count
+      const contactsResponse = await fetch('/api/contacts')
+      const contactsResult = await contactsResponse.json()
+      
+      if (contactsResult.success) {
+        setStats(prev => ({
+          ...prev,
+          total: contactsResult.data.length
+        }))
+      }
+      
+      // TODO: Load other stats when APIs are implemented
+      // const templatesResponse = await fetch('/api/templates')
+      // const campaignsResponse = await fetch('/api/campaigns')
+      // const emailsResponse = await fetch('/api/emails')
+      
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
   const handleQuickAction = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab)
@@ -50,10 +98,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
               <UsersIcon className="w-8 h-8 text-white" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {loading ? '...' : stats.total.toLocaleString()}
+            </div>
             <div className="text-sm text-gray-600 font-medium">Total Contacts</div>
             <div className="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-              +0% this month
+              {loading ? 'Loading...' : 'In Database'}
             </div>
           </div>
         </div>
@@ -63,10 +113,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
               <EnvelopeIcon className="w-8 h-8 text-white" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {loading ? '...' : stats.templates.toLocaleString()}
+            </div>
             <div className="text-sm text-gray-600 font-medium">Templates</div>
             <div className="mt-3 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-              +0% this month
+              {loading ? 'Loading...' : 'Available'}
             </div>
           </div>
         </div>
@@ -76,10 +128,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
               <RocketLaunchIcon className="w-8 h-8 text-white" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {loading ? '...' : stats.campaigns.toLocaleString()}
+            </div>
             <div className="text-sm text-gray-600 font-medium">Campaigns</div>
             <div className="mt-3 text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-              +0% this month
+              {loading ? 'Loading...' : 'Created'}
             </div>
           </div>
         </div>
@@ -89,10 +143,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
               <ArrowTrendingUpIcon className="w-8 h-8 text-white" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">0</div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {loading ? '...' : stats.emailsSent.toLocaleString()}
+            </div>
             <div className="text-sm text-gray-600 font-medium">Emails Sent</div>
             <div className="mt-3 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
-              +0% this month
+              {loading ? 'Loading...' : 'Delivered'}
             </div>
           </div>
         </div>
