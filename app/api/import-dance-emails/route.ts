@@ -28,30 +28,31 @@ export async function POST(request: NextRequest) {
           .replace(' - Werkjaar 2024-2025.txt', '')
           .replace('.txt', '')
         
-        // Parse emails from file content
-        const emails = content
+        // Parse lines and extract emails with names
+        const lines = content
           .split('\n')
           .map(line => line.trim())
           .filter(line => line && line.includes('@'))
-          .map(line => {
-            // Split by tab character and get the email part
-            const parts = line.split('\t')
-            if (parts.length >= 2) {
-              // Get the email part (usually the second part)
-              const emailPart = parts[1].trim()
-              // Extract just the email address, removing any additional info in parentheses
-              const emailMatch = emailPart.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
-              return emailMatch ? emailMatch[0].toLowerCase() : null
-            }
-            return null
-          })
-          .filter(email => email) // Remove null values
 
-        console.log(`📧 Processing ${file}: ${emails.length} emails for list "${listName}"`)
+        console.log(`📧 Processing ${file}: ${lines.length} lines for list "${listName}"`)
 
-        // Import each email
-        for (const email of emails) {
+        let emailsImported = 0
+
+        // Import each line
+        for (const line of lines) {
           try {
+            // Split by tab character and get the parts
+            const parts = line.split('\t')
+            if (parts.length < 2) continue
+            
+            // Get the email part (second part)
+            const emailPart = parts[1].trim()
+            // Extract just the email address, removing any additional info in parentheses
+            const emailMatch = emailPart.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
+            if (!emailMatch) continue
+            
+            const email = emailMatch[0].toLowerCase()
+            
             // Check if contact already exists
             const existingContact = await contactsCollection.findOne({ email })
             
@@ -59,12 +60,11 @@ export async function POST(request: NextRequest) {
               // Update existing contact with new list
               if (!existingContact.listNames.includes(listName)) {
                 // Extract name from the line for potential update
-                const lineParts = line.split('\t')
                 let firstName = existingContact.firstName
                 let lastName = existingContact.lastName
                 
-                if (lineParts.length >= 1) {
-                  const namePart = lineParts[0].trim()
+                if (parts.length >= 1) {
+                  const namePart = parts[0].trim()
                   const cleanName = namePart.replace(/\s*\([^)]*\)/g, '').trim()
                   const nameParts = cleanName.split(' ')
                   
@@ -91,12 +91,11 @@ export async function POST(request: NextRequest) {
               }
             } else {
               // Extract name from the line
-              const lineParts = line.split('\t')
               let firstName = 'Imported'
               let lastName = 'Contact'
               
-              if (lineParts.length >= 1) {
-                const namePart = lineParts[0].trim()
+              if (parts.length >= 1) {
+                const namePart = parts[0].trim()
                 // Remove any additional info in parentheses
                 const cleanName = namePart.replace(/\s*\([^)]*\)/g, '').trim()
                 const nameParts = cleanName.split(' ')
@@ -124,16 +123,17 @@ export async function POST(request: NextRequest) {
               
               await contactsCollection.insertOne(newContact)
               totalImported++
-              console.log(`✅ Created new contact ${email} for list ${listName}`)
+              emailsImported++
+              console.log(`✅ Created new contact ${email} with name ${firstName} ${lastName} for list ${listName}`)
             }
           } catch (emailError) {
             totalErrors++
-            results.push({ email, error: emailError.message })
-            console.error(`❌ Error with email ${email}:`, emailError.message)
+            results.push({ email: line, error: emailError.message })
+            console.error(`❌ Error processing line: ${line}`, emailError.message)
           }
         }
         
-        results.push({ file, listName, emailsImported: emails.length })
+        results.push({ file, listName, emailsImported })
         
       } catch (fileError) {
         totalErrors++
