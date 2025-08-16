@@ -9,7 +9,7 @@ import SendEmails from '../components/SendEmails'
 import EmailHistory from '../components/EmailHistory'
 import DanceListStats from '../components/DanceListStats'
 import Settings from '../components/Settings'
-import EditorDemo from './editor-demo/page'
+import EditorDemo from '../components/WorkingEditor'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard')

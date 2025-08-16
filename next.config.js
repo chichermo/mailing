@@ -21,10 +21,7 @@ const nextConfig = {
   env: {
     MONGODB_URI: process.env.MONGODB_URI,
   },
-  // Evitar que las APIs se ejecuten durante el build
-  async generateStaticParams() {
-    return []
-  },
+
   // Configuración específica para evitar la ejecución de APIs durante el build
   async rewrites() {
     return []
