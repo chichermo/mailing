@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline'
 import TestAPI from './TestAPI'
 import EmailTest from './EmailTest'
+import SystemStatus from './SystemStatus'
 
 interface DashboardProps {
   onTabChange?: (tab: string) => void
@@ -104,8 +105,8 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Twilio</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800">
-                <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-800">
+                <ExclamationTriangleIcon className="w-3 h3 mr-1" />
                 Pending
               </span>
             </div>
@@ -118,6 +119,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
       {/* Email Test Component */}
       <EmailTest />
+
+      {/* System Status Component */}
+      <SystemStatus />
     </div>
   )
 }
