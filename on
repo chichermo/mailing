@@ -1,0 +1,5 @@
+[33me80cdf5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Fix build errors: correct import path and remove invalid next.config.js option
+[33m1dd0980[m �� CLEANUP: Eliminado archivo 'tatus' erróneo - Limpieza completa
+[33mb51fd64[m �� CLEANUP: Eliminado Editor Demo innecesario - Aplicación más limpia
+[33m17b1e44[m 🚨 CRITICAL FIX: Corregido error variables.split con manejo robusto de tipos de datos
+[33md1c2c4d[m  CRITICAL FIX: Corregido error 'variables.split is not a function' en EmailTemplates - Ahora maneja tanto arrays como strings
