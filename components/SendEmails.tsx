@@ -7,7 +7,11 @@ import {
   DocumentTextIcon, 
   EyeIcon,
   PlayIcon,
-  PauseIcon
+  PauseIcon,
+  SparklesIcon,
+  ChartBarIcon,
+  ClockIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import RichTextEditor from './RichTextEditor'
@@ -27,7 +31,7 @@ interface Contact {
   email: string
   company: string
   phone: string
-  listNames: string[] // Cambiado de listName a listNames
+  listNames: string[]
   createdAt: string
 }
 
@@ -35,7 +39,7 @@ interface Campaign {
   _id: string
   templateId: string
   templateName: string
-  listNames: string[] // Cambiado de listName a listNames
+  listNames: string[]
   customSubject: string
   customContent: string
   total_sent: number
@@ -95,7 +99,7 @@ export default function SendEmails() {
       if (contactsData.success) {
         setContacts(contactsData.data)
         console.log('👥 Contacts set:', contactsData.data)
-                console.log('🔍 Contact details:', contactsData.data.map((c: any) => ({
+        console.log('🔍 Contact details:', contactsData.data.map((c: any) => ({
           id: c._id,
           firstName: c.firstName,
           lastName: c.lastName,
@@ -135,7 +139,7 @@ export default function SendEmails() {
       return
     }
 
-         if (testMode && contacts.filter(c => (c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList)) || selectedList === 'all').length > 5) {
+    if (testMode && contacts.filter(c => (c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList)) || selectedList === 'all').length > 5) {
       toast.error('Test mode only allows maximum 5 emails')
       return
     }
@@ -235,7 +239,7 @@ export default function SendEmails() {
       return allContacts
     }
     
-         const filteredContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList))
+    const filteredContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList))
     console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
     return filteredContacts
   }
@@ -309,18 +313,18 @@ export default function SendEmails() {
   // Get campaign status badge
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      draft: { color: 'bg-gray-100 text-gray-800', text: 'Draft', icon: DocumentTextIcon },
-      sending: { color: 'bg-blue-100 text-blue-800', text: 'Sending', icon: PlayIcon },
-      sent: { color: 'bg-success-100 text-success-800', text: 'Sent', icon: EyeIcon },
-      failed: { color: 'bg-danger-100 text-danger-800', text: 'Failed', icon: PauseIcon }
+      draft: { color: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800', text: 'Draft', icon: DocumentTextIcon },
+      sending: { color: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800', text: 'Sending', icon: PlayIcon },
+      sent: { color: 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800', text: 'Sent', icon: CheckCircleIcon },
+      failed: { color: 'bg-gradient-to-r from-red-100 to-red-200 text-red-800', text: 'Failed', icon: PauseIcon }
     }
     
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft
     const Icon = config.icon
     
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        <Icon className="w-3 h-3 mr-1" />
+      <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${config.color} shadow-sm`}>
+        <Icon className="w-3 h-3 mr-1.5" />
         {config.text}
       </span>
     )
@@ -329,7 +333,10 @@ export default function SendEmails() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading campaign data...</p>
+        </div>
       </div>
     )
   }
@@ -347,106 +354,151 @@ export default function SendEmails() {
   const selectedContacts = getSelectedContacts()
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Send Emails</h1>
-          <p className="text-gray-600">Create and manage email campaigns</p>
+    <div className="space-y-8">
+      {/* Header with gradient background */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-8 text-white">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 flex items-center">
+                <SparklesIcon className="w-10 h-10 mr-3 text-yellow-300" />
+                Email Campaigns
+              </h1>
+              <p className="text-xl text-blue-100">Create and manage powerful email campaigns</p>
+            </div>
+            <button
+              onClick={openModal}
+              className="group relative px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 hover:bg-blue-50"
+            >
+              <PaperAirplaneIcon className="w-6 h-6 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              New Campaign
+            </button>
+          </div>
         </div>
-        <button
-          onClick={openModal}
-          className="btn-primary"
-        >
-          <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-          New Campaign
-        </button>
+        
+        {/* Floating elements */}
+        <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full"></div>
+        <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/5 rounded-full"></div>
       </div>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card text-center">
-          <UsersIcon className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">{stats.totalContacts}</div>
-          <div className="text-sm text-gray-600">Total Contacts</div>
+      {/* Enhanced Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-blue-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Total Contacts</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalContacts.toLocaleString()}</p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors">
+              <UsersIcon className="w-8 h-8 text-blue-600" />
+            </div>
+          </div>
         </div>
         
-        <div className="card text-center">
-          <DocumentTextIcon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">{stats.totalTemplates}</div>
-          <div className="text-sm text-gray-600">Templates</div>
+        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-purple-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Templates</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalTemplates}</p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
+              <DocumentTextIcon className="w-8 h-8 text-purple-600" />
+            </div>
+          </div>
         </div>
         
-        <div className="card text-center">
-          <PaperAirplaneIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">{stats.totalCampaigns}</div>
-          <div className="text-sm text-gray-600">Campaigns</div>
+        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-green-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Campaigns</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalCampaigns}</p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors">
+              <ChartBarIcon className="w-8 h-8 text-green-600" />
+            </div>
+          </div>
         </div>
         
-        <div className="card text-center">
-          <EyeIcon className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">{stats.totalSuccess}</div>
-          <div className="text-sm text-gray-600">Emails Sent</div>
+        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-emerald-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Emails Sent</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalSuccess.toLocaleString()}</p>
+            </div>
+            <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors">
+              <EyeIcon className="w-8 h-8 text-emerald-600" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Recent campaigns */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Campaigns</h2>
+      {/* Recent campaigns with enhanced design */}
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <ClockIcon className="w-6 h-6 mr-3 text-gray-600" />
+            Recent Campaigns
+          </h2>
+          <p className="text-gray-600 mt-1">Monitor your latest email campaign performance</p>
+        </div>
         
         {campaigns.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Campaign
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     List
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Results
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Date
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {campaigns.slice(0, 5).map((campaign) => (
-                  <tr key={campaign._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={campaign._id} className="hover:bg-gray-50 transition-colors duration-200">
+                    <td className="px-8 py-6 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{campaign.templateName}</div>
+                        <div className="text-lg font-semibold text-gray-900">{campaign.templateName}</div>
                         <div className="text-sm text-gray-500">{campaign.customSubject}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                       {campaign.listNames && Array.isArray(campaign.listNames) && campaign.listNames.length > 0 ? campaign.listNames.join(', ') : 'All'}
-                     </span>
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm">
+                        {campaign.listNames && Array.isArray(campaign.listNames) && campaign.listNames.length > 0 ? campaign.listNames.join(', ') : 'All'}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-8 py-6 whitespace-nowrap">
                       {getStatusBadge(campaign.status || 'draft')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-green-600">{campaign.success_count || 0}</span>
+                    <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center">
+                          <CheckCircleIcon className="w-4 h-4 text-green-500 mr-1" />
+                          <span className="text-green-600 font-semibold">{campaign.success_count || 0}</span>
+                        </div>
                         <span className="text-gray-400">/</span>
-                        <span>{campaign.total_sent || 0}</span>
+                        <span className="font-semibold">{campaign.total_sent || 0}</span>
                         {(campaign.error_count || 0) > 0 && (
                           <>
                             <span className="text-gray-400">/</span>
-                            <span className="text-red-600">{campaign.error_count || 0}</span>
+                            <span className="text-red-600 font-semibold">{campaign.error_count || 0}</span>
                           </>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-500">
                       {campaign.created_at ? new Date(campaign.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
@@ -455,37 +507,69 @@ export default function SendEmails() {
             </table>
           </div>
         ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-500">No campaigns created yet</div>
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <DocumentTextIcon className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns yet</h3>
+            <p className="text-gray-500 mb-6">Create your first email campaign to get started</p>
+            <button
+              onClick={openModal}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              <PaperAirplaneIcon className="w-5 h-5 mr-2" />
+              Create Campaign
+            </button>
           </div>
         )}
       </div>
 
-      {/* Modal for new campaign */}
+      {/* Enhanced Modal for new campaign */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">New Email Campaign</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl mx-4 max-h-[95vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-3xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">New Email Campaign</h2>
+                  <p className="text-blue-100 text-lg">Create a powerful email campaign to engage your audience</p>
+                </div>
+                <button
+                  onClick={closeModal}
+                  className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
             
-            <div className="space-y-6">
-              {/* Test mode */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="testMode"
-                  checked={testMode}
-                  onChange={(e) => setTestMode(e.target.checked)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <label htmlFor="testMode" className="text-sm font-medium text-gray-700">
-                  Test mode (maximum 5 emails)
-                </label>
+            <div className="p-8 space-y-8">
+              {/* Test mode with enhanced design */}
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-6">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="testMode"
+                    checked={testMode}
+                    onChange={(e) => setTestMode(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <label htmlFor="testMode" className="text-lg font-semibold text-amber-800">
+                    🧪 Test Mode
+                  </label>
+                </div>
+                <p className="text-amber-700 mt-2 ml-8">
+                  Send to maximum 5 contacts for testing purposes
+                </p>
               </div>
 
-              {/* Template selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Template
+              {/* Template selection with enhanced design */}
+              <div className="space-y-4">
+                <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  📋 Select Template
                 </label>
                 <select
                   value={selectedTemplate || ''}
@@ -498,21 +582,21 @@ export default function SendEmails() {
                       setSelectedTemplate(null)
                     }
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
                 >
-                  <option value="">-- No template (custom content) --</option>
+                  <option value="">🎨 No template (custom content)</option>
                   {templates.map(template => (
                     <option key={template._id} value={template._id}>
-                      {template.name}
+                      📄 {template.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* List selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contact List
+              {/* List selection with enhanced design */}
+              <div className="space-y-4">
+                <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  👥 Contact List
                 </label>
                 <select
                   value={selectedList}
@@ -520,53 +604,53 @@ export default function SendEmails() {
                     console.log('🔄 List selection changed:', { value: e.target.value, type: typeof e.target.value })
                     setSelectedList(e.target.value)
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
                 >
-                                     <option value="all">All lists ({contacts.length} contacts)</option>
-                   {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
-                     const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
+                  <option value="all">🌍 All lists ({contacts.length} contacts)</option>
+                  {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
+                    const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                     console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
-                        {list} ({count} contacts)
+                        📋 {list} ({count} contacts)
                       </option>
                     )
                   })}
                 </select>
               </div>
 
-              {/* CC and BCC Section */}
-              <div className="border-t pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Additional Recipients</h3>
+              {/* CC and BCC Section with enhanced design */}
+              <div className="border-t border-gray-200 pt-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">📧 Additional Recipients</h3>
                   <button
                     type="button"
                     onClick={() => setShowCcBcc(!showCcBcc)}
-                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
                   >
-                    {showCcBcc ? 'Hide' : 'Show'} CC/BCC
+                    {showCcBcc ? '🙈 Hide' : '👁️ Show'} CC/BCC
                   </button>
                 </div>
 
                 {showCcBcc && (
-                  <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-8 bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl border border-gray-200">
                     {/* CC Field */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        CC (Carbon Copy)
+                    <div className="space-y-4">
+                      <label className="block text-lg font-semibold text-gray-900 mb-3">
+                        📬 CC (Carbon Copy)
                       </label>
                       
                       {/* List Selection */}
-                      <div className="mb-3">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Seleccionar lista completa:
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-600 mb-2">
+                          📋 Select complete list:
                         </label>
                         <select
                           value={ccList}
                           onChange={(e) => handleCcBccListChange('cc', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                         >
-                          <option value="">-- Sin lista --</option>
+                          <option value="">-- No list --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
                             const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                             return (
@@ -580,30 +664,30 @@ export default function SendEmails() {
 
                       {/* Individual Emails */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Emails adicionales:
+                        <label className="block text-sm font-medium text-gray-600 mb-2">
+                          📧 Additional emails:
                         </label>
                         <input
                           type="text"
                           value={ccIndividual}
                           placeholder="email1@example.com, email2@example.com"
                           onChange={(e) => handleCcBccInput('cc', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Emails adicionales separados por comas. Estos destinatarios serán visibles para todos.
+                        <p className="text-sm text-gray-500 mt-2">
+                          Additional emails separated by commas. These recipients will be visible to everyone.
                         </p>
                       </div>
 
                       {/* Total CC Emails Display */}
                       {getAllCcEmails().length > 0 && (
-                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div className="text-xs font-medium text-blue-800 mb-2">
-                            Total CC: {getAllCcEmails().length} emails
+                        <div className="mt-4 p-4 bg-blue-100 border border-blue-200 rounded-xl">
+                          <div className="text-sm font-semibold text-blue-800 mb-2">
+                            📊 Total CC: {getAllCcEmails().length} emails
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {getAllCcEmails().map((email, index) => (
-                              <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                              <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-blue-200 text-blue-800 font-medium">
                                 {email}
                               </span>
                             ))}
@@ -613,22 +697,22 @@ export default function SendEmails() {
                     </div>
 
                     {/* BCC Field */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        BCC (Blind Carbon Copy)
+                    <div className="space-y-4">
+                      <label className="block text-lg font-semibold text-gray-900 mb-3">
+                        🙈 BCC (Blind Carbon Copy)
                       </label>
                       
                       {/* List Selection */}
-                      <div className="mb-3">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Seleccionar lista completa:
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-600 mb-2">
+                          📋 Select complete list:
                         </label>
                         <select
                           value={bccList}
                           onChange={(e) => handleCcBccListChange('bcc', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                         >
-                          <option value="">-- Sin lista --</option>
+                          <option value="">-- No list --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
                             const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                             return (
@@ -642,30 +726,30 @@ export default function SendEmails() {
 
                       {/* Individual Emails */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Emails adicionales:
+                        <label className="block text-sm font-medium text-gray-600 mb-2">
+                          📧 Additional emails:
                         </label>
                         <input
                           type="text"
                           value={bccIndividual}
                           placeholder="email1@example.com, email2@example.com"
                           onChange={(e) => handleCcBccInput('bcc', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Emails adicionales separados por comas. Estos destinatarios serán ocultos para otros.
+                        <p className="text-sm text-gray-500 mt-2">
+                          Additional emails separated by commas. These recipients will be hidden from others.
                         </p>
                       </div>
 
                       {/* Total BCC Emails Display */}
                       {getAllBccEmails().length > 0 && (
-                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="text-xs font-medium text-green-800 mb-2">
-                            Total BCC: {getAllBccEmails().length} emails
+                        <div className="mt-4 p-4 bg-green-100 border border-green-200 rounded-xl">
+                          <div className="text-sm font-semibold text-green-800 mb-2">
+                            📊 Total BCC: {getAllBccEmails().length} emails
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {getAllBccEmails().map((email, index) => (
-                              <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                              <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-200 text-green-800 font-medium">
                                 {email}
                               </span>
                             ))}
@@ -677,18 +761,21 @@ export default function SendEmails() {
                 )}
               </div>
 
-              {/* Template preview */}
+              {/* Template preview with enhanced design */}
               {selectedTemplate && getSelectedTemplate() && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Template preview:</h3>
-                  <div className="space-y-2">
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center">
+                    <DocumentTextIcon className="w-5 h-5 mr-2" />
+                    Template Preview
+                  </h3>
+                  <div className="space-y-3">
                     <div>
-                      <span className="text-xs text-gray-500">Subject:</span>
-                      <p className="text-sm font-medium">{getSelectedTemplate()?.subject}</p>
+                      <span className="text-sm text-purple-600 font-medium">Subject:</span>
+                      <p className="text-lg font-semibold text-purple-900">{getSelectedTemplate()?.subject}</p>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500">Content:</span>
-                      <div className="text-sm text-gray-700 line-clamp-3">
+                      <span className="text-sm text-purple-600 font-medium">Content:</span>
+                      <div className="text-sm text-purple-800 line-clamp-3 bg-white p-3 rounded-lg border border-purple-200">
                         {getSelectedTemplate()?.content.replace(/<[^>]*>/g, '')}
                       </div>
                     </div>
@@ -696,78 +783,107 @@ export default function SendEmails() {
                 </div>
               )}
 
-              {/* Custom content */}
+              {/* Custom content with enhanced design */}
               {!selectedTemplate && (
-                <>
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Subject *
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      📧 Email Subject *
                     </label>
                     <input
                       type="text"
                       required
                       value={customSubject}
                       onChange={(e) => setCustomSubject(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Your email subject..."
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
+                      placeholder="Your compelling email subject..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contenido del Email *
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      ✨ Email Content *
                     </label>
                     <RichTextEditor
                       value={customContent}
                       onChange={setCustomContent}
                       placeholder="<h1>¡Hola!</h1><p>Tu contenido del email...</p>"
-                      height="h-64"
+                      height="h-80"
                       className="w-full"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Puedes usar HTML y variables como {'{firstName}'}, {'{lastName}'}, {'{company}'}
+                    <p className="text-sm text-gray-500 mt-3">
+                      💡 You can use HTML and variables like {'{firstName}'}, {'{lastName}'}, {'{company}'}
                     </p>
                   </div>
-                </>
+                </div>
               )}
 
-              {/* Summary */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-blue-900 mb-2">Campaign summary:</h3>
-                <div className="space-y-1 text-sm text-blue-800">
-                  <div>• Contacts to send: {selectedContacts.length}</div>
-                  <div>• Mode: {testMode ? 'Test (max. 5)' : 'Production'}</div>
-                  {selectedTemplate && (
-                    <div>• Template: {getSelectedTemplate()?.name}</div>
-                  )}
-                  {!selectedTemplate && (
-                    <div>• Type: Custom content</div>
-                  )}
-                  {getAllCcEmails().length > 0 && (
-                    <div>• CC recipients: {getAllCcEmails().length}</div>
-                  )}
-                  {getAllBccEmails().length > 0 && (
-                    <div>• BCC recipients: {getAllBccEmails().length}</div>
-                  )}
+              {/* Enhanced Summary */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                  <ChartBarIcon className="w-5 h-5 mr-2" />
+                  Campaign Summary
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>📧 Contacts to send:</span>
+                      <span className="font-semibold">{selectedContacts.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>🎯 Mode:</span>
+                      <span className="font-semibold">{testMode ? 'Test (max. 5)' : 'Production'}</span>
+                    </div>
+                    {selectedTemplate && (
+                      <div className="flex justify-between">
+                        <span>📋 Template:</span>
+                        <span className="font-semibold">{getSelectedTemplate()?.name}</span>
+                      </div>
+                    )}
+                    {!selectedTemplate && (
+                      <div className="flex justify-between">
+                        <span>📝 Type:</span>
+                        <span className="font-semibold">Custom content</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {getAllCcEmails().length > 0 && (
+                      <div className="flex justify-between">
+                        <span>📬 CC recipients:</span>
+                        <span className="font-semibold">{getAllCcEmails().length}</span>
+                      </div>
+                    )}
+                    {getAllBccEmails().length > 0 && (
+                      <div className="flex justify-between">
+                        <span>🙈 BCC recipients:</span>
+                        <span className="font-semibold">{getAllBccEmails().length}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span>🚀 Max emails allowed:</span>
+                      <span className="font-semibold text-green-600">350</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div className="flex gap-3 pt-4">
+              {/* Enhanced Buttons */}
+              <div className="flex gap-4 pt-6">
                 <button
                   type="button"
                   onClick={handleSendEmails}
                   disabled={sending || (!selectedTemplate && (!customSubject || !customContent))}
-                  className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {sending ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                       Sending...
                     </>
                   ) : (
                     <>
-                      <PaperAirplaneIcon className="w-4 h-4 mr-2" />
+                      <PaperAirplaneIcon className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
                       {testMode ? 'Send Test' : 'Send Campaign'}
                     </>
                   )}
@@ -775,7 +891,7 @@ export default function SendEmails() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 btn-secondary"
+                  className="flex-1 px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-semibold text-lg hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>
