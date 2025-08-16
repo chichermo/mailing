@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb'
+import { getCollection } from '@/lib/db'
 import fs from 'fs'
 import path from 'path'
 
@@ -8,8 +8,7 @@ export async function POST(request: NextRequest) {
     const folderPath = "C:\\Users\\guill\\OneDrive\\Escritorio\\Heliopsismail\\OneDrive_2025-08-16\\email adressen"
     
     // Connect to database
-    const { db } = await connectToDatabase()
-    const contactsCollection = db.collection('contacts')
+    const contactsCollection = await getCollection('contacts')
 
     // Read all .txt files from the folder
     const files = fs.readdirSync(folderPath).filter(file => file.endsWith('.txt'))
