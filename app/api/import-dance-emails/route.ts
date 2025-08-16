@@ -33,7 +33,19 @@ export async function POST(request: NextRequest) {
           .split('\n')
           .map(line => line.trim())
           .filter(line => line && line.includes('@'))
-          .map(email => email.toLowerCase())
+          .map(line => {
+            // Split by tab character and get the email part
+            const parts = line.split('\t')
+            if (parts.length >= 2) {
+              // Get the email part (usually the second part)
+              const emailPart = parts[1].trim()
+              // Extract just the email address, removing any additional info in parentheses
+              const emailMatch = emailPart.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
+              return emailMatch ? emailMatch[0].toLowerCase() : null
+            }
+            return null
+          })
+          .filter(email => email) // Remove null values
 
         console.log(`📧 Processing ${file}: ${emails.length} emails for list "${listName}"`)
 
@@ -46,17 +58,61 @@ export async function POST(request: NextRequest) {
             if (existingContact) {
               // Update existing contact with new list
               if (!existingContact.listNames.includes(listName)) {
+                // Extract name from the line for potential update
+                const lineParts = line.split('\t')
+                let firstName = existingContact.firstName
+                let lastName = existingContact.lastName
+                
+                if (lineParts.length >= 1) {
+                  const namePart = lineParts[0].trim()
+                  const cleanName = namePart.replace(/\s*\([^)]*\)/g, '').trim()
+                  const nameParts = cleanName.split(' ')
+                  
+                  if (nameParts.length >= 2) {
+                    firstName = nameParts[0]
+                    lastName = nameParts.slice(1).join(' ')
+                  } else if (nameParts.length === 1) {
+                    firstName = nameParts[0]
+                  }
+                }
+                
                 await contactsCollection.updateOne(
                   { email },
-                  { $addToSet: { listNames: listName } }
+                  { 
+                    $addToSet: { listNames: listName },
+                    $set: { 
+                      firstName,
+                      lastName,
+                      updatedAt: new Date()
+                    }
+                  }
                 )
-                console.log(`✅ Updated contact ${email} with list ${listName}`)
+                console.log(`✅ Updated contact ${email} with list ${listName} and name ${firstName} ${lastName}`)
               }
             } else {
+              // Extract name from the line
+              const lineParts = line.split('\t')
+              let firstName = 'Imported'
+              let lastName = 'Contact'
+              
+              if (lineParts.length >= 1) {
+                const namePart = lineParts[0].trim()
+                // Remove any additional info in parentheses
+                const cleanName = namePart.replace(/\s*\([^)]*\)/g, '').trim()
+                const nameParts = cleanName.split(' ')
+                
+                if (nameParts.length >= 2) {
+                  firstName = nameParts[0]
+                  lastName = nameParts.slice(1).join(' ')
+                } else if (nameParts.length === 1) {
+                  firstName = nameParts[0]
+                }
+              }
+              
               // Create new contact
               const newContact = {
-                firstName: 'Imported',
-                lastName: 'Contact',
+                firstName,
+                lastName,
                 email,
                 company: '',
                 phone: '',
