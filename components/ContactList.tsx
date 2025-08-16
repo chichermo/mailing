@@ -425,7 +425,7 @@ export default function ContactList() {
     try {
       toast.loading('Importando listas de danza...', { id: 'dance-import' })
       
-      const response = await fetch('/api/import-dance-lists', {
+      const response = await fetch('/api/import-dance-emails', {
         method: 'POST'
       })
 
@@ -433,7 +433,7 @@ export default function ContactList() {
 
       if (result.success) {
         toast.success(`✅ ${result.message}`, { id: 'dance-import' })
-        toast.success(`📊 Resumen: ${result.summary.listsProcessed} listas procesadas, ${result.summary.contactsCreated} contactos creados, ${result.summary.contactsUpdated} actualizados`)
+        toast.success(`📊 Resumen: ${result.summary.totalFiles} archivos procesados, ${result.summary.totalImported} contactos importados, ${result.summary.totalErrors} errores`)
         loadContacts() // Recargar contactos para reflejar las nuevas listas
       } else {
         toast.error(`❌ ${result.error || 'Error importing dance lists'}`, { id: 'dance-import' })
