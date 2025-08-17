@@ -164,7 +164,15 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
   const optimizeImagesForSendGrid = () => {
     if (editorRef.current) {
       const images = editorRef.current.querySelectorAll('img')
-      images.forEach(img => {
+      
+      if (images.length === 0) {
+        alert('⚠️ No hay imágenes en el editor para optimizar.\n\nPara usar esta función:\n1. Sube una imagen con el botón "+ Image"\n2. O pega una imagen desde el portapapeles\n3. Luego haz clic en "⚡ Optimizar"')
+        return
+      }
+      
+      console.log(`🔧 Optimizando ${images.length} imagen(es) para SendGrid...`)
+      
+      images.forEach((img, index) => {
         // Agregar atributos optimizados para email
         img.setAttribute('border', '0')
         img.setAttribute('align', 'middle')
@@ -176,10 +184,20 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         if (!img.alt) {
           img.alt = 'Imagen'
         }
+        
+        console.log(`✅ Imagen ${index + 1} optimizada:`, {
+          src: img.src.substring(0, 50) + '...',
+          alt: img.alt,
+          border: img.getAttribute('border'),
+          align: img.getAttribute('align')
+        })
       })
       
       // Actualizar el contenido
       handleContentChange()
+      
+      // Mostrar confirmación
+      alert(`🎉 ¡Optimización completada!\n\nSe optimizaron ${images.length} imagen(es) para SendGrid.\n\nAtributos aplicados:\n• border="0"\n• align="middle"\n• display: block\n• outline: none\n• text-decoration: none`)
     }
   }
 
