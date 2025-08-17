@@ -86,144 +86,98 @@ export async function POST(request: NextRequest) {
 
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
-    // Prepare emails
-    const emails = contacts.map((contact: any) => {
-      let personalizedContent = content
-      let personalizedSubject = subject
+    // Prepare emails - CAMBIAR A ENVÍO MASIVO REAL
+    const allRecipients = contacts.map((contact: any) => contact.email)
+    
+    // Crear UN SOLO email con todos los destinatarios en BCC
+    const massEmail: any = {
+      to: 'heliopsis@outlook.be', // Solo tú como destinatario principal
+      from: 'heliopsis@outlook.be',
+      replyTo: 'heliopsis@outlook.be',
+      subject: subject,
+      html: content,
+      // Headers anti-spam
+      headers: {
+        'X-Mailer': 'Heliopsis Mailer',
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal'
+      }
+    }
 
-      // Replace dynamic variables
-      const variables = {
-        '{{firstName}}': contact.firstName || '',
-        '{{lastName}}': contact.lastName || '',
-        '{{email}}': contact.email || '',
-        '{{company}}': contact.company || '',
-        '{{phone}}': contact.phone || '',
-        '{{listName}}': contact.listNames ? contact.listNames.join(', ') : '' // Unir múltiples listas
+    // Add CC if specified
+    if (ccEmails && ccEmails.length > 0) {
+      massEmail.cc = ccEmails
+    }
+
+    // Add BCC with ALL recipients
+    massEmail.bcc = allRecipients
+
+    console.log('📨 Mass email prepared with:', {
+      to: massEmail.to,
+      bccCount: massEmail.bcc.length,
+      subject: massEmail.subject,
+      contentLength: massEmail.html.length
+    })
+
+    // Send SINGLE mass email
+    try {
+      console.log('📤 Sending MASS email to', allRecipients.length, 'recipients...')
+      
+      const sendResult = await sgMail.send(massEmail)
+      console.log('✅ SendGrid response:', sendResult)
+      
+      console.log('🎉 Mass email sent successfully to all recipients!')
+      
+      // Guardar datos de la campaña
+      const campaignData = {
+        templateId,
+        templateName: template?.name || 'N/A',
+        listNames: listName === 'all' ? ['all'] : [listName],
+        customSubject: customSubject || '',
+        customContent: customContent || '',
+        total_sent: allRecipients.length,
+        success_count: allRecipients.length, // Todos exitosos en envío masivo
+        error_count: 0,
+        cc_recipients: ccEmails ? ccEmails.length : 0,
+        bcc_recipients: allRecipients.length,
+        created_at: new Date(),
+        status: 'sent',
+        method: 'mass_email_bcc' // Indicar que fue envío masivo
       }
 
-      Object.entries(variables).forEach(([key, value]) => {
-        personalizedContent = personalizedContent.replace(new RegExp(key, 'g'), value)
-        personalizedSubject = personalizedSubject.replace(new RegExp(key, 'g'), value)
-      })
+      const campaignsCollection = await getCollection('campaigns')
+      await campaignsCollection.insertOne(campaignData)
 
-      const emailData: any = {
-        to: contact.email,
-        from: 'heliopsis@outlook.be',
-        replyTo: 'heliopsis@outlook.be',
-        subject: personalizedSubject,
-        html: personalizedContent,
-        // Headers anti-spam
-        headers: {
-          'X-Mailer': 'Heliopsis Mailer',
-          'X-Priority': '3',
-          'X-MSMail-Priority': 'Normal'
+      return NextResponse.json({
+        success: true,
+        data: {
+          totalSent: allRecipients.length,
+          successCount: allRecipients.length,
+          errorCount: 0,
+          method: 'mass_email_bcc',
+          message: `Mass email sent successfully to ${allRecipients.length} recipients via BCC`,
+          campaign: campaignData
         }
-      }
-
-      // Add CC if specified
-      if (ccEmails && ccEmails.length > 0) {
-        emailData.cc = ccEmails
-      }
-
-      // Add BCC if specified
-      if (bccEmails && bccEmails.length > 0) {
-        emailData.bcc = bccEmails
-      }
-
-      return emailData
-    })
-
-    console.log('📨 Prepared emails:', emails.length)
-
-    // 🔍 DEBUG: Show first email structure
-    if (emails.length > 0) {
-      console.log('🔍 First email structure:', {
-        to: emails[0].to,
-        from: emails[0].from,
-        subject: emails[0].subject,
-        hasHtml: !!emails[0].html,
-        htmlLength: emails[0].html?.length || 0,
-        cc: emails[0].cc || 'none',
-        bcc: emails[0].bcc || 'none'
       })
+
+    } catch (error: any) {
+      console.error('❌ Error sending mass email:', error)
+      console.error('❌ Error details:', {
+        message: error.message,
+        code: error.code,
+        statusCode: error.code,
+        response: {
+          body: error.response?.body || 'No response body',
+          status: error.response?.status || 'No status',
+          headers: error.response?.headers || 'No headers'
+        }
+      })
+      
+      return NextResponse.json(
+        { success: false, error: 'Error sending mass email', details: error.message },
+        { status: 500 }
+      )
     }
-
-    // Send emails
-    const results = []
-    let successCount = 0
-    let errorCount = 0
-
-    for (const email of emails) {
-      try {
-        console.log('📤 Sending email to:', email.to)
-        console.log('📤 Email data:', { 
-          to: email.to, 
-          from: email.from, 
-          subject: email.subject,
-          cc: email.cc || 'none',
-          bcc: email.bcc || 'none'
-        })
-        
-        // 🔍 DEBUG: Show exact email object being sent
-        console.log('🔍 Exact email object for SendGrid:', JSON.stringify(email, null, 2))
-        
-        const sendResult = await sgMail.send(email)
-        console.log('✅ SendGrid response:', sendResult)
-        
-        successCount++
-        results.push({ email: email.to, status: 'success' })
-        console.log('✅ Email sent successfully to:', email.to)
-      } catch (error: any) {
-        errorCount++
-        console.error('❌ Error sending email to:', email.to)
-        console.error('❌ Error details:', {
-          message: error.message,
-          code: error.code,
-          statusCode: error.code,
-          response: {
-            body: error.response?.body || 'No response body',
-            status: error.response?.status || 'No status',
-            headers: error.response?.headers || 'No headers'
-          }
-        })
-        console.error('❌ Full error object:', error)
-        results.push({ email: email.to, status: 'error', error: error.message })
-      }
-    }
-
-    console.log('📊 Send results:', { successCount, errorCount, total: emails.length })
-
-    // Guardar datos de la campaña
-    const campaignData = {
-      templateId,
-      templateName: template?.name || 'N/A',
-      listNames: listName === 'all' ? ['all'] : [listName], // Guardar como array
-      customSubject: customSubject || '',
-      customContent: customContent || '',
-      total_sent: contacts.length,
-      success_count: successCount,
-      error_count: errorCount,
-      cc_recipients: ccEmails ? ccEmails.length : 0,
-      bcc_recipients: bccEmails ? bccEmails.length : 0,
-      created_at: new Date(),
-      status: 'sent'
-    }
-
-    const campaignsCollection = await getCollection('campaigns')
-    await campaignsCollection.insertOne(campaignData)
-
-    console.log('🎉 Campaign completed successfully')
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        totalSent: emails.length,
-        successCount,
-        errorCount,
-        results,
-        campaign: campaignData
-      }
-    })
 
   } catch (error: any) {
     console.error('💥 Fatal error in email sending:', error)
