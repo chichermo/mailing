@@ -43,14 +43,40 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
     setShowImageDialog(true)
   }
 
-  // Handle file upload
+  // Handle file upload - OPTIMIZED FOR SENDGRID
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Validar tipo y tamaño de archivo
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      
+      if (!validTypes.includes(file.type)) {
+        alert('Por favor selecciona una imagen válida (JPEG, PNG, GIF, WebP)')
+        return
+      }
+      
+      if (file.size > maxSize) {
+        alert('La imagen es muy grande. Máximo 5MB permitido.')
+        return
+      }
+      
       const reader = new FileReader()
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string
-        const imgHTML = `<img src="${dataUrl}" alt="Uploaded Image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
+        
+        // HTML optimizado para SendGrid y compatibilidad de email
+        const imgHTML = `
+          <img 
+            src="${dataUrl}" 
+            alt="Imagen adjunta" 
+            style="max-width: 100%; height: auto; margin: 10px 0; display: block; border: 0; outline: none; text-decoration: none;" 
+            width="auto"
+            height="auto"
+            border="0"
+            align="middle"
+          />
+        `
         
         if (editorRef.current) {
           const currentContent = editorRef.current.innerHTML
@@ -66,10 +92,29 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
     }
   }
 
-  // Insert image from URL
+  // Insert image from URL - OPTIMIZED FOR SENDGRID
   const insertImageFromUrl = () => {
     if (imageUrl) {
-      const imgHTML = `<img src="${imageUrl}" alt="Image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
+      // Validar que sea una URL válida
+      try {
+        new URL(imageUrl)
+      } catch {
+        alert('Por favor ingresa una URL válida')
+        return
+      }
+      
+      // HTML optimizado para SendGrid y compatibilidad de email
+      const imgHTML = `
+        <img 
+          src="${imageUrl}" 
+          alt="Imagen desde URL" 
+          style="max-width: 100%; height: auto; margin: 10px 0; display: block; border: 0; outline: none; text-decoration: none;" 
+          width="auto"
+          height="auto"
+          border="0"
+          align="middle"
+        />
+      `
       
       if (editorRef.current) {
         const currentContent = editorRef.current.innerHTML
@@ -112,6 +157,29 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
   const handleContentChange = () => {
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML)
+    }
+  }
+
+  // Optimize existing images for SendGrid
+  const optimizeImagesForSendGrid = () => {
+    if (editorRef.current) {
+      const images = editorRef.current.querySelectorAll('img')
+      images.forEach(img => {
+        // Agregar atributos optimizados para email
+        img.setAttribute('border', '0')
+        img.setAttribute('align', 'middle')
+        img.style.display = 'block'
+        img.style.outline = 'none'
+        img.style.textDecoration = 'none'
+        
+        // Asegurar que tenga alt text
+        if (!img.alt) {
+          img.alt = 'Imagen'
+        }
+      })
+      
+      // Actualizar el contenido
+      handleContentChange()
     }
   }
 
@@ -170,6 +238,13 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
               className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
             >
               + Image
+            </button>
+            <button
+              onClick={optimizeImagesForSendGrid}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              title="Optimizar imágenes para SendGrid"
+            >
+              ⚡ Optimizar
             </button>
             <button
               onClick={insertTable}
