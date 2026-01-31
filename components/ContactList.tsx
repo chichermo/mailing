@@ -31,7 +31,7 @@ interface ContactFormData {
   listNames: string[] // Cambiado de listName a listNames (array)
 }
 
-type BulkParseResult = { contact: ContactFormData } | { error: string } | null
+type BulkParseResult = { contacts: ContactFormData[] } | { error: string } | null
 
 export default function ContactList() {
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -137,92 +137,73 @@ export default function ContactList() {
     }
   }
 
+  const extractName = (text: string) => {
+    const cleaned = text
+      .replace(/[<>()[\]]/g, ' ')
+      .replace(/[-–—]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    if (!cleaned) {
+      return { firstName: 'Imported', lastName: '' }
+    }
+
+    if (cleaned.includes(',')) {
+      const [last, first] = cleaned.split(',').map(part => part.trim())
+      const firstParts = (first || '').split(' ').filter(Boolean)
+      const lastParts = (last || '').split(' ').filter(Boolean)
+      return {
+        firstName: firstParts[0] || 'Imported',
+        lastName: [...firstParts.slice(1), ...lastParts].join(' ').trim()
+      }
+    }
+
+    const parts = cleaned.split(' ').filter(Boolean)
+    return {
+      firstName: parts[0] || 'Imported',
+      lastName: parts.slice(1).join(' ')
+    }
+  }
+
   const parseBulkLine = (line: string, lineNumber: number): BulkParseResult => {
     const raw = line.trim()
     if (!raw) return null
 
-    const parts = raw
-      .split(/[,\t;]/)
-      .map(part => part.trim())
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
+    const segments = raw
+      .split(/[;|]/)
+      .map(segment => segment.trim())
       .filter(Boolean)
 
-    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
-    const emailPartIndex = parts.findIndex(part => emailRegex.test(part))
-    const emailMatch = raw.match(emailRegex)
+    const contacts: ContactFormData[] = []
 
-    if (emailPartIndex === -1 && !emailMatch) {
+    segments.forEach((segment) => {
+      const emails = segment.match(emailRegex) || []
+      if (emails.length === 0) {
+        return
+      }
+
+      const nameSource = segment.replace(emailRegex, ' ').trim()
+      const { firstName, lastName } = extractName(nameSource)
+
+      emails.forEach((email) => {
+        const normalizedEmail = email.toLowerCase()
+        contacts.push({
+          firstName,
+          lastName,
+          email: normalizedEmail,
+          company: '',
+          phone: '',
+          listNames: ['General']
+        })
+      })
+    })
+
+    if (contacts.length === 0) {
       return { error: `Línea ${lineNumber}: email no encontrado` }
     }
 
-    const email = (emailPartIndex >= 0 ? parts[emailPartIndex] : emailMatch?.[0] || '').toLowerCase()
-    if (!email) {
-      return { error: `Línea ${lineNumber}: email inválido` }
-    }
-
-    let firstName = ''
-    let lastName = ''
-    let company = ''
-    let phone = ''
-    const nonEmailParts = parts.filter(part => !emailRegex.test(part))
-
-    if (parts.length >= 3) {
-      const nameParts = [parts[0], parts[1]].filter(Boolean)
-      firstName = nameParts[0] || ''
-      lastName = nameParts.slice(1).join(' ')
-      if (emailPartIndex === 2 && parts.length > 3) {
-        company = parts[3] || ''
-        phone = parts[4] || ''
-      } else if (emailPartIndex >= 0 && parts.length > emailPartIndex + 1) {
-        company = parts[emailPartIndex + 1] || ''
-        phone = parts[emailPartIndex + 2] || ''
-      }
-    } else if (parts.length === 2) {
-      if (emailPartIndex === 1) {
-        const namePart = parts[0]
-        const splitName = namePart.split(' ').filter(Boolean)
-        firstName = splitName[0] || ''
-        lastName = splitName.slice(1).join(' ')
-      } else if (emailPartIndex === 0) {
-        const namePart = parts[1]
-        const splitName = namePart.split(' ').filter(Boolean)
-        firstName = splitName[0] || ''
-        lastName = splitName.slice(1).join(' ')
-      }
-    }
-
-    if (!firstName && nonEmailParts.length > 0) {
-      const namePart = nonEmailParts.join(' ')
-      const splitName = namePart.split(' ').filter(Boolean)
-      firstName = splitName[0] || ''
-      lastName = splitName.slice(1).join(' ')
-    }
-
-    if (!firstName) {
-      const namePart = raw
-        .replace(email, '')
-        .replace(/[<>]/g, ' ')
-        .replace(/[-–—]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-      const splitName = namePart.split(' ').filter(Boolean)
-      firstName = splitName[0] || ''
-      lastName = splitName.slice(1).join(' ')
-    }
-
-    if (!firstName) {
-      firstName = 'Imported'
-    }
-
-    return {
-      contact: {
-        firstName,
-        lastName,
-        email,
-        company,
-        phone,
-        listNames: ['General']
-      }
-    }
+    return { contacts }
   }
 
   // Bulk import contacts from text
@@ -246,13 +227,15 @@ export default function ContactList() {
           parseErrors.push(parsed.error || 'Error desconocido')
           return
         }
-        const email = parsed.contact.email.toLowerCase()
-        if (seenEmails.has(email)) {
-          parseErrors.push(`Línea ${index + 1}: email duplicado en la importación`)
-          return
-        }
-        seenEmails.add(email)
-        contactsToAdd.push(parsed.contact)
+        parsed.contacts.forEach((contact) => {
+          const email = contact.email.toLowerCase()
+          if (seenEmails.has(email)) {
+            parseErrors.push(`Línea ${index + 1}: email duplicado en la importación`)
+            return
+          }
+          seenEmails.add(email)
+          contactsToAdd.push(contact)
+        })
       })
 
       if (parseErrors.length > 0) {
@@ -1035,7 +1018,7 @@ export default function ContactList() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Formatos: Nombre, Apellido, Email, Empresa, Teléfono (comas); o "Nombre - email"; o "Nombre &lt;email&gt;"
+                  Formatos: detecta nombres automáticamente con emails en cualquier orden
                 </p>
               </div>
 
