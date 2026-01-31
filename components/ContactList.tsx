@@ -163,6 +163,7 @@ export default function ContactList() {
     let lastName = ''
     let company = ''
     let phone = ''
+    const nonEmailParts = parts.filter(part => !emailRegex.test(part))
 
     if (parts.length >= 3) {
       const nameParts = [parts[0], parts[1]].filter(Boolean)
@@ -187,8 +188,22 @@ export default function ContactList() {
         firstName = splitName[0] || ''
         lastName = splitName.slice(1).join(' ')
       }
-    } else {
-      const namePart = raw.replace(email, '').replace(/[-–—]/g, ' ').trim()
+    }
+
+    if (!firstName && nonEmailParts.length > 0) {
+      const namePart = nonEmailParts.join(' ')
+      const splitName = namePart.split(' ').filter(Boolean)
+      firstName = splitName[0] || ''
+      lastName = splitName.slice(1).join(' ')
+    }
+
+    if (!firstName) {
+      const namePart = raw
+        .replace(email, '')
+        .replace(/[<>]/g, ' ')
+        .replace(/[-–—]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
       const splitName = namePart.split(' ').filter(Boolean)
       firstName = splitName[0] || ''
       lastName = splitName.slice(1).join(' ')
@@ -1020,7 +1035,7 @@ export default function ContactList() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Formatos: Nombre, Apellido, Email, Empresa, Teléfono (separado por comas) o "Nombre - email"
+                  Formatos: Nombre, Apellido, Email, Empresa, Teléfono (comas); o "Nombre - email"; o "Nombre &lt;email&gt;"
                 </p>
               </div>
 
