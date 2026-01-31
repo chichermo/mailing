@@ -31,6 +31,8 @@ interface ContactFormData {
   listNames: string[] // Cambiado de listName a listNames (array)
 }
 
+type BulkParseResult = { contact: ContactFormData } | { error: string } | null
+
 export default function ContactList() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,6 +43,7 @@ export default function ContactList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterList, setFilterList] = useState('all')
   const [bulkContacts, setBulkContacts] = useState('')
+  const [bulkImporting, setBulkImporting] = useState(false)
   
   // Estados para selección múltiple
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set())
@@ -134,6 +137,79 @@ export default function ContactList() {
     }
   }
 
+  const parseBulkLine = (line: string, lineNumber: number): BulkParseResult => {
+    const raw = line.trim()
+    if (!raw) return null
+
+    const parts = raw
+      .split(/[,\t;]/)
+      .map(part => part.trim())
+      .filter(Boolean)
+
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+    const emailPartIndex = parts.findIndex(part => emailRegex.test(part))
+    const emailMatch = raw.match(emailRegex)
+
+    if (emailPartIndex === -1 && !emailMatch) {
+      return { error: `Línea ${lineNumber}: email no encontrado` }
+    }
+
+    const email = (emailPartIndex >= 0 ? parts[emailPartIndex] : emailMatch?.[0] || '').toLowerCase()
+    if (!email) {
+      return { error: `Línea ${lineNumber}: email inválido` }
+    }
+
+    let firstName = ''
+    let lastName = ''
+    let company = ''
+    let phone = ''
+
+    if (parts.length >= 3) {
+      const nameParts = [parts[0], parts[1]].filter(Boolean)
+      firstName = nameParts[0] || ''
+      lastName = nameParts.slice(1).join(' ')
+      if (emailPartIndex === 2 && parts.length > 3) {
+        company = parts[3] || ''
+        phone = parts[4] || ''
+      } else if (emailPartIndex >= 0 && parts.length > emailPartIndex + 1) {
+        company = parts[emailPartIndex + 1] || ''
+        phone = parts[emailPartIndex + 2] || ''
+      }
+    } else if (parts.length === 2) {
+      if (emailPartIndex === 1) {
+        const namePart = parts[0]
+        const splitName = namePart.split(' ').filter(Boolean)
+        firstName = splitName[0] || ''
+        lastName = splitName.slice(1).join(' ')
+      } else if (emailPartIndex === 0) {
+        const namePart = parts[1]
+        const splitName = namePart.split(' ').filter(Boolean)
+        firstName = splitName[0] || ''
+        lastName = splitName.slice(1).join(' ')
+      }
+    } else {
+      const namePart = raw.replace(email, '').replace(/[-–—]/g, ' ').trim()
+      const splitName = namePart.split(' ').filter(Boolean)
+      firstName = splitName[0] || ''
+      lastName = splitName.slice(1).join(' ')
+    }
+
+    if (!firstName) {
+      firstName = 'Imported'
+    }
+
+    return {
+      contact: {
+        firstName,
+        lastName,
+        email,
+        company,
+        phone,
+        listNames: ['General']
+      }
+    }
+  }
+
   // Bulk import contacts from text
   const handleBulkImport = async () => {
     if (!bulkContacts.trim()) {
@@ -141,33 +217,42 @@ export default function ContactList() {
       return
     }
 
+    setBulkImporting(true)
     try {
       const lines = bulkContacts.trim().split('\n')
-      const contactsToAdd = []
-      
-      for (const line of lines) {
-        if (line.trim()) {
-          const parts = line.split(',').map(part => part.trim())
-          if (parts.length >= 2) {
-            contactsToAdd.push({
-              firstName: parts[0] || '',
-              lastName: parts[1] || '',
-              email: parts[2] || '',
-              company: parts[3] || '',
-              phone: parts[4] || '',
-              listNames: ['General'] // Default to General for bulk import
-            })
-          }
+      const contactsToAdd: ContactFormData[] = []
+      const parseErrors: string[] = []
+      const seenEmails = new Set<string>()
+
+      lines.forEach((line, index) => {
+        const parsed = parseBulkLine(line, index + 1)
+        if (!parsed) return
+        if ('error' in parsed) {
+          parseErrors.push(parsed.error || 'Error desconocido')
+          return
         }
+        const email = parsed.contact.email.toLowerCase()
+        if (seenEmails.has(email)) {
+          parseErrors.push(`Línea ${index + 1}: email duplicado en la importación`)
+          return
+        }
+        seenEmails.add(email)
+        contactsToAdd.push(parsed.contact)
+      })
+
+      if (parseErrors.length > 0) {
+        console.warn('Bulk import skipped lines:', parseErrors)
+        toast.error(`Se omitieron ${parseErrors.length} líneas con errores`)
       }
 
       if (contactsToAdd.length === 0) {
-        toast.error('No valid contacts found. Format: First Name, Last Name, Email, Company, Phone')
+        toast.error('No se encontraron contactos válidos para importar')
         return
       }
 
-      // Add contacts one by one
       let successCount = 0
+      let errorCount = 0
+
       for (const contact of contactsToAdd) {
         try {
           const response = await fetch('/api/contacts', {
@@ -175,21 +260,33 @@ export default function ContactList() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(contact)
           })
-          
+
           if (response.ok) {
             successCount++
+          } else {
+            errorCount++
+            const result = await response.json()
+            console.error('Error adding contact:', result.error || result)
           }
         } catch (error) {
+          errorCount++
           console.error('Error adding contact:', error)
         }
       }
 
-      toast.success(`Successfully added ${successCount} out of ${contactsToAdd.length} contacts`)
+      if (errorCount > 0) {
+        toast.error(`Importados ${successCount} de ${contactsToAdd.length}. ${errorCount} con error.`)
+      } else {
+        toast.success(`Importados ${successCount} contactos correctamente`)
+      }
+
       setShowBulkImport(false)
       setBulkContacts('')
       loadContacts()
     } catch (error) {
       toast.error('Error importing contacts')
+    } finally {
+      setBulkImporting(false)
     }
   }
 
@@ -919,11 +1016,11 @@ export default function ContactList() {
                   rows={10}
                   value={bulkContacts}
                   onChange={(e) => setBulkContacts(e.target.value)}
-                  placeholder="John, Doe, john@example.com, Company Inc, +1234567890&#10;Jane, Smith, jane@example.com, Another Corp, +0987654321&#10;Mike, Johnson, mike@example.com, Tech LLC, +1122334455"
+                  placeholder="John, Doe, john@example.com, Company Inc, +1234567890&#10;Jane, Smith, jane@example.com, Another Corp, +0987654321&#10;Mike Johnson - mike@example.com"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Format: First Name, Last Name, Email, Company, Phone (separated by commas)
+                  Formatos: Nombre, Apellido, Email, Empresa, Teléfono (separado por comas) o "Nombre - email"
                 </p>
               </div>
 
@@ -939,8 +1036,9 @@ export default function ContactList() {
                 <button
                   onClick={handleBulkImport}
                   className="flex-1 btn-primary"
+                  disabled={bulkImporting}
                 >
-                  Import Contacts
+                  {bulkImporting ? 'Importing...' : 'Import Contacts'}
                 </button>
                 <button
                   onClick={() => setShowBulkImport(false)}

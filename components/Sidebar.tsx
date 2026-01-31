@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   HomeIcon, 
   UsersIcon, 
@@ -8,7 +10,8 @@ import {
   ClockIcon, 
   ChartBarIcon, 
   Cog6ToothIcon,
-  SparklesIcon
+  SparklesIcon,
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { 
   HomeIcon as HomeIconSolid, 
@@ -79,6 +82,22 @@ const menuItems = [
 ]
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+  const router = useRouter()
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      router.push('/login')
+    } finally {
+      setLoggingOut(false)
+    }
+  }
+
   return (
     <div className="sidebar min-h-screen">
       {/* Header del Sidebar */}
@@ -177,7 +196,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* Footer del Sidebar */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200/50">
-        <div className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 rounded-xl p-3">
+        <div className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 rounded-xl p-3 mb-3">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-success-400 to-success-600 rounded-lg flex items-center justify-center">
               <SparklesIcon className="w-4 h-4 text-white" />
@@ -189,6 +208,14 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
           </div>
         </div>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+        >
+          <ArrowLeftOnRectangleIcon className="w-4 h-4" />
+          {loggingOut ? 'Saliendo...' : 'Cerrar sesión'}
+        </button>
       </div>
     </div>
   )
