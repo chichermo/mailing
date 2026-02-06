@@ -1,20 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // POST - Migrar contactos existentes de listName a listNames
 export async function POST() {
   try {
-    const contactsCollection = await getCollection('contacts')
-    
-    // Obtener todos los contactos que aún tienen listName
-    const contactsToMigrate = await contactsCollection.find({
-      $or: [
-        { listName: { $exists: true } },
-        { listNames: { $exists: false } }
-      ]
-    }).toArray()
+    const { data: needsMigration, error: selectError } = await supabaseAdmin
+      .from('contacts')
+      .select('id')
+      .is('list_names', null)
 
-    if (contactsToMigrate.length === 0) {
+    if (selectError) {
+      throw selectError
+    }
+
+    if (!needsMigration || needsMigration.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No contacts need migration',
@@ -22,37 +21,20 @@ export async function POST() {
       })
     }
 
-    let migratedCount = 0
+    const { data: updated, error: updateError } = await supabaseAdmin
+      .from('contacts')
+      .update({ list_names: ['General'] })
+      .is('list_names', null)
+      .select('id')
 
-    // Migrar cada contacto
-    for (const contact of contactsToMigrate) {
-      try {
-        const updateData: any = {}
-        
-        // Si tiene listName, convertirlo a listNames
-        if (contact.listName) {
-          updateData.listNames = [contact.listName]
-          updateData.$unset = { listName: "" }
-        } else {
-          // Si no tiene listName ni listNames, asignar 'General'
-          updateData.listNames = ['General']
-        }
-
-        await contactsCollection.updateOne(
-          { _id: contact._id },
-          updateData
-        )
-        
-        migratedCount++
-      } catch (error) {
-        console.error(`Error migrating contact ${contact._id}:`, error)
-      }
+    if (updateError) {
+      throw updateError
     }
 
     return NextResponse.json({
       success: true,
-      message: `Successfully migrated ${migratedCount} contacts`,
-      migratedCount
+      message: `Successfully migrated ${updated?.length || 0} contacts`,
+      migratedCount: updated?.length || 0
     })
 
   } catch (error) {

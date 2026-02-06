@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase'
 import fs from 'fs'
 import path from 'path'
 
@@ -7,9 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const folderPath = path.join(process.cwd(), 'data', 'dance-emails')
     
-    // Connect to database
-    const contactsCollection = await getCollection('contacts')
-
     // Read all .txt files from the folder
     const files = fs.readdirSync(folderPath).filter(file => file.endsWith('.txt'))
     
@@ -64,14 +61,23 @@ export async function POST(request: NextRequest) {
             const email = emailMatch[0].toLowerCase()
             
             // Check if contact already exists
-            const existingContact = await contactsCollection.findOne({ email })
+            const { data: existingContact, error: existingError } = await supabaseAdmin
+              .from('contacts')
+              .select('id,first_name,last_name,list_names')
+              .eq('email', email)
+              .maybeSingle()
+
+            if (existingError) {
+              throw existingError
+            }
             
             if (existingContact) {
               // Update existing contact with new list
-              if (!existingContact.listNames.includes(listName)) {
+              const currentLists: string[] = Array.isArray(existingContact.list_names) ? existingContact.list_names : []
+              if (!currentLists.includes(listName)) {
                 // Extract name from the line for potential update
-                let firstName = existingContact.firstName
-                let lastName = existingContact.lastName
+                let firstName = existingContact.first_name
+                let lastName = existingContact.last_name
                 
                 if (parts.length >= 1) {
                   const namePart = parts[0].trim()
@@ -86,17 +92,18 @@ export async function POST(request: NextRequest) {
                   }
                 }
                 
-                await contactsCollection.updateOne(
-                  { email },
-                  { 
-                    $addToSet: { listNames: listName },
-                    $set: { 
-                      firstName,
-                      lastName,
-                      updatedAt: new Date()
-                    }
-                  }
-                )
+                const { error: updateError } = await supabaseAdmin
+                  .from('contacts')
+                  .update({ 
+                    list_names: [...currentLists, listName],
+                    first_name: firstName,
+                    last_name: lastName
+                  })
+                  .eq('email', email)
+
+                if (updateError) {
+                  throw updateError
+                }
                 console.log(`✅ Updated contact ${email} with list ${listName} and name ${firstName} ${lastName}`)
               }
             } else {
@@ -120,18 +127,24 @@ export async function POST(request: NextRequest) {
               
               // Create new contact
               const newContact = {
-                firstName,
-                lastName,
+                first_name: firstName,
+                last_name: lastName,
                 email,
                 company: '',
                 phone: '',
-                listNames: [listName],
-                createdAt: new Date(),
+                list_names: [listName],
+                created_at: new Date().toISOString(),
                 source: `Imported from ${file}`,
-                importedAt: new Date()
+                imported_at: new Date().toISOString()
               }
               
-              await contactsCollection.insertOne(newContact)
+              const { error: insertError } = await supabaseAdmin
+                .from('contacts')
+                .insert(newContact)
+
+              if (insertError) {
+                throw insertError
+              }
               totalImported++
               emailsImported++
               console.log(`✅ Created new contact ${email} with name ${firstName} ${lastName} for list ${listName}`)
@@ -156,7 +169,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get final count
-    const finalCount = await contactsCollection.countDocuments()
+    const { count: finalCount, error: countError } = await supabaseAdmin
+      .from('contacts')
+      .select('id', { count: 'exact', head: true })
+
+    if (countError) {
+      throw countError
+    }
 
     return NextResponse.json({
       success: true,
@@ -165,7 +184,7 @@ export async function POST(request: NextRequest) {
         totalFiles: files.length,
         totalImported,
         totalErrors,
-        finalTotalContacts: finalCount
+        finalTotalContacts: finalCount || 0
       },
       results
     })

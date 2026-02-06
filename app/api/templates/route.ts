@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
+
+const mapTemplateFromDb = (row: any) => ({
+  _id: row.id,
+  name: row.name,
+  subject: row.subject,
+  content: row.content,
+  variables: row.variables,
+  createdAt: row.created_at
+})
 
 // GET - Obtener plantillas
 export async function GET() {
   try {
-    const templatesCollection = await getCollection('templates')
-    const templates = await templatesCollection.find({}).sort({ createdAt: -1 }).toArray()
+    const { data, error } = await supabaseAdmin
+      .from('templates')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-    return NextResponse.json({ success: true, data: templates })
+    if (error) {
+      throw error
+    }
+
+    return NextResponse.json({ success: true, data: (data || []).map(mapTemplateFromDb) })
   } catch (error) {
     console.error('Error getting templates:', error)
     return NextResponse.json(
@@ -30,21 +44,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const templatesCollection = await getCollection('templates')
-
     const newTemplate = {
       name,
       subject,
       content,
-      variables: variables || [],
-      createdAt: new Date()
+      variables: variables || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
 
-    const result = await templatesCollection.insertOne(newTemplate)
+    const { data, error } = await supabaseAdmin
+      .from('templates')
+      .insert(newTemplate)
+      .select('*')
+      .single()
+
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({
       success: true,
-      data: { _id: result.insertedId, ...newTemplate }
+      data: mapTemplateFromDb(data)
     })
   } catch (error) {
     console.error('Error creating template:', error)
@@ -67,19 +88,20 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const templatesCollection = await getCollection('templates')
+    const { error } = await supabaseAdmin
+      .from('templates')
+      .update({
+        name,
+        subject,
+        content,
+        variables: variables || '',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
 
-    await templatesCollection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          name,
-          subject,
-          content,
-          variables: variables || []
-        }
-      }
-    )
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -104,8 +126,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const templatesCollection = await getCollection('templates')
-    await templatesCollection.deleteOne({ _id: new ObjectId(id) })
+    const { error } = await supabaseAdmin.from('templates').delete().eq('id', id)
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

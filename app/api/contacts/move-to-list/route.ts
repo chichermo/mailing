@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // POST - Mover contactos a una lista específica
 export async function POST(request: NextRequest) {
@@ -21,31 +20,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
+    const { data: contacts, error } = await supabaseAdmin
+      .from('contacts')
+      .select('id,list_names')
+      .in('id', contactIds)
 
-    // Convertir IDs a ObjectId
-    const objectIds = contactIds.map(id => new ObjectId(id))
+    if (error) {
+      throw error
+    }
 
-    // Actualizar todos los contactos seleccionados
-    // Agregar la nueva lista a listNames si no existe
-    const result = await contactsCollection.updateMany(
-      { _id: { $in: objectIds } },
-      { 
-        $addToSet: { listNames: targetList } // $addToSet evita duplicados
-      }
-    )
-
-    if (result.matchedCount === 0) {
+    if (!contacts || contacts.length === 0) {
       return NextResponse.json(
         { success: false, error: 'No contacts found' },
         { status: 404 }
       )
     }
 
+    let modifiedCount = 0
+    for (const contact of contacts) {
+      const currentLists: string[] = Array.isArray(contact.list_names) ? contact.list_names : []
+      if (currentLists.includes(targetList)) {
+        continue
+      }
+
+      const { error: updateError } = await supabaseAdmin
+        .from('contacts')
+        .update({ list_names: [...currentLists, targetList] })
+        .eq('id', contact.id)
+
+      if (updateError) {
+        throw updateError
+      }
+
+      modifiedCount += 1
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Successfully added ${result.modifiedCount} contacts to ${targetList}`,
-      modifiedCount: result.modifiedCount
+      message: `Successfully added ${modifiedCount} contacts to ${targetList}`,
+      modifiedCount
     })
 
   } catch (error) {

@@ -20,7 +20,7 @@ Un sistema profesional y moderno para el envío de correos masivos con interfaz 
 - **Editor**: React Quill (Editor de texto enriquecido)
 - **Email**: SendGrid API
 - **Notificaciones**: Twilio
-- **Base de Datos**: SQLite
+- **Base de Datos**: Supabase (Postgres)
 - **Despliegue**: Vercel (compatible)
 
 ## 📋 Requisitos Previos
@@ -56,8 +56,14 @@ TWILIO_ACCOUNT_SID=tu_account_sid
 TWILIO_AUTH_TOKEN=tu_auth_token
 TWILIO_RECOVERY_CODE=tu_codigo_recuperacion
 
-# Database Configuration
-DATABASE_URL=./email_contacts.db
+# Database Configuration (Supabase)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Login Configuration
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=tu_password
+AUTH_TOKEN=tu_token_largo
 
 # App Configuration
 NEXT_PUBLIC_APP_NAME=Heliopsismail
@@ -172,6 +178,21 @@ git push origin main
 ### 2. Gestión de Contactos
 - Agregar contactos individuales
 - Importar listas CSV
+## 🗃️ Importación a Supabase (cuando tengas datos)
+
+Puedes importar un JSON o CSV a Supabase usando el script:
+
+```bash
+npx ts-node scripts/import-to-supabase.ts ./ruta/contacts.csv
+```
+
+Formato CSV esperado (cabecera incluida):
+
+```
+first_name,last_name,email,company,phone,list_names
+```
+
+`list_names` admite múltiples listas separadas por `;`.
 - Filtrar y buscar
 - Estados: Activo, Inactivo, Baja
 

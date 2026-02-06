@@ -1,14 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
+
+const mapContactFromDb = (row: any) => ({
+  _id: row.id,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  email: row.email,
+  company: row.company,
+  phone: row.phone,
+  listNames: row.list_names || [],
+  createdAt: row.created_at
+})
 
 // GET - Obtener lista de contactos
 export async function GET() {
   try {
-    const contactsCollection = await getCollection('contacts')
-    const contacts = await contactsCollection.find({}).sort({ createdAt: -1 }).toArray()
+    const { data, error } = await supabaseAdmin
+      .from('contacts')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-    return NextResponse.json({ success: true, data: contacts })
+    if (error) {
+      throw error
+    }
+
+    return NextResponse.json({ success: true, data: (data || []).map(mapContactFromDb) })
   } catch (error) {
     console.error('Error getting contacts:', error)
     return NextResponse.json(
@@ -30,10 +46,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('contacts')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle()
 
-    // Verificar si el email ya existe
-    const existing = await contactsCollection.findOne({ email })
+    if (existingError) {
+      throw existingError
+    }
+
     if (existing) {
       return NextResponse.json(
         { success: false, error: 'El email ya existe' },
@@ -42,20 +64,28 @@ export async function POST(request: NextRequest) {
     }
 
     const newContact = {
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName || '',
       email,
       company: company || '',
       phone: phone || '',
-      listNames: Array.isArray(listNames) ? listNames : [listNames || 'General'], // Convertir a array
-      createdAt: new Date()
+      list_names: Array.isArray(listNames) ? listNames : [listNames || 'General'],
+      created_at: new Date().toISOString()
     }
 
-    const result = await contactsCollection.insertOne(newContact)
+    const { data, error } = await supabaseAdmin
+      .from('contacts')
+      .insert(newContact)
+      .select('*')
+      .single()
+
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({
       success: true,
-      data: { _id: result.insertedId, ...newContact }
+      data: mapContactFromDb(data)
     })
   } catch (error) {
     console.error('Error creating contact:', error)
@@ -78,10 +108,17 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('contacts')
+      .select('id')
+      .eq('email', email)
+      .neq('id', id)
+      .maybeSingle()
 
-    // Verificar si el email ya existe en otro contacto
-    const existing = await contactsCollection.findOne({ email, _id: { $ne: new ObjectId(id) } })
+    if (existingError) {
+      throw existingError
+    }
+
     if (existing) {
       return NextResponse.json(
         { success: false, error: 'El email ya existe en otro contacto' },
@@ -89,19 +126,21 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    await contactsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          firstName,
-          lastName,
-          email,
-          company: company || '',
-          phone: phone || '',
-          listNames: Array.isArray(listNames) ? listNames : [listNames || 'General'] // Convertir a array
-        }
-      }
-    )
+    const { error } = await supabaseAdmin
+      .from('contacts')
+      .update({
+        first_name: firstName,
+        last_name: lastName || '',
+        email,
+        company: company || '',
+        phone: phone || '',
+        list_names: Array.isArray(listNames) ? listNames : [listNames || 'General']
+      })
+      .eq('id', id)
+
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -126,8 +165,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
-    await contactsCollection.deleteOne({ _id: new ObjectId(id) })
+    const { error } = await supabaseAdmin.from('contacts').delete().eq('id', id)
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

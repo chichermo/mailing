@@ -25,8 +25,9 @@ export interface ServicesConfig {
     recoveryCode: string
     isConfigured: boolean
   }
-  mongodb: {
-    uri: string
+  supabase: {
+    url: string
+    serviceRoleKey: string
     isConfigured: boolean
   }
 }
@@ -52,9 +53,10 @@ export function getServicesConfig(): ServicesConfig {
       recoveryCode: process.env.TWILIO_RECOVERY_CODE || '',
       isConfigured: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
     },
-    mongodb: {
-      uri: process.env.MONGODB_URI || '',
-      isConfigured: !!process.env.MONGODB_URI
+    supabase: {
+      url: process.env.SUPABASE_URL || '',
+      serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+      isConfigured: !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
     }
   }
 }
@@ -64,26 +66,25 @@ export async function checkAllServicesStatus(): Promise<ServiceStatus[]> {
   const config = getServicesConfig()
   const statuses: ServiceStatus[] = []
 
-  // MongoDB Status
-  if (config.mongodb.isConfigured) {
+  // Supabase Status
+  if (config.supabase.isConfigured) {
     try {
-      // Verificar conexión a MongoDB
-      const { MongoClient } = await import('mongodb')
-      const client = new MongoClient(config.mongodb.uri)
-      await client.connect()
-      await client.db().admin().ping()
-      await client.close()
-      
+      const { supabaseAdmin } = await import('@/lib/supabase')
+      const { error } = await supabaseAdmin.from('contacts').select('id').limit(1)
+      if (error) {
+        throw error
+      }
+
       statuses.push({
         name: 'Database',
         status: 'connected',
-        message: 'MongoDB connected successfully'
+        message: 'Supabase connected successfully'
       })
     } catch (error) {
       statuses.push({
         name: 'Database',
         status: 'error',
-        message: 'Failed to connect to MongoDB',
+        message: 'Failed to connect to Supabase',
         details: error
       })
     }
@@ -91,7 +92,7 @@ export async function checkAllServicesStatus(): Promise<ServiceStatus[]> {
     statuses.push({
       name: 'Database',
       status: 'pending',
-      message: 'MONGODB_URI not configured'
+      message: 'SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurados'
     })
   }
 

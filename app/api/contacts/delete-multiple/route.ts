@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // DELETE - Eliminar múltiples contactos
 export async function DELETE(request: NextRequest) {
@@ -14,17 +13,19 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
+    const { data, error } = await supabaseAdmin
+      .from('contacts')
+      .delete()
+      .in('id', contactIds)
+      .select('id')
 
-    // Convertir IDs a ObjectId
-    const objectIds = contactIds.map(id => new ObjectId(id))
+    if (error) {
+      throw error
+    }
 
-    // Eliminar todos los contactos seleccionados
-    const result = await contactsCollection.deleteMany({
-      _id: { $in: objectIds }
-    })
+    const deletedCount = data?.length || 0
 
-    if (result.deletedCount === 0) {
+    if (deletedCount === 0) {
       return NextResponse.json(
         { success: false, error: 'No contacts found to delete' },
         { status: 404 }
@@ -33,8 +34,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Successfully deleted ${result.deletedCount} contacts`,
-      deletedCount: result.deletedCount
+      message: `Successfully deleted ${deletedCount} contacts`,
+      deletedCount
     })
 
   } catch (error) {

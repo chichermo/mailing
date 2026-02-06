@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase'
 import fs from 'fs'
 import path from 'path'
 
@@ -7,9 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const filePath = path.join(process.cwd(), 'data', 'dance-emails', 'contactos_organizados.txt')
     
-    // Connect to database
-    const contactsCollection = await getCollection('contacts')
-
     // Read the organized contacts file
     const content = fs.readFileSync(filePath, 'utf-8')
     
@@ -89,27 +86,41 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Check if contact already exists
-          const existingContact = await contactsCollection.findOne({ email: cleanEmail })
-          
+          const { data: existingContact, error: existingError } = await supabaseAdmin
+            .from('contacts')
+            .select('id')
+            .eq('email', cleanEmail)
+            .maybeSingle()
+
+          if (existingError) {
+            throw existingError
+          }
+
           if (existingContact) {
             console.log(`     ℹ️  Contact already exists: ${cleanEmail}`)
           } else {
             // Create new contact with group information
             const newContact = {
-              firstName,
-              lastName,
+              first_name: firstName,
+              last_name: lastName,
               email: cleanEmail,
               company: '',
               phone: '',
-              listNames: [currentGroup || 'Organized Import'],
-              group: currentGroup || 'Unknown Group', // Add group field
-              createdAt: new Date(),
+              list_names: [currentGroup || 'Organized Import'],
+              group: currentGroup || 'Unknown Group',
+              created_at: new Date().toISOString(),
               source: 'Imported from contactos_organizados.txt',
-              importedAt: new Date()
+              imported_at: new Date().toISOString()
             }
             
-            await contactsCollection.insertOne(newContact)
+            const { error: insertError } = await supabaseAdmin
+              .from('contacts')
+              .insert(newContact)
+
+            if (insertError) {
+              throw insertError
+            }
+
             totalImported++
             processedEmails.add(cleanEmail)
             console.log(`     ✅ Created new contact ${cleanEmail} with name ${firstName} ${lastName} in group "${currentGroup}"`)
@@ -124,7 +135,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get final count
-    const finalCount = await contactsCollection.countDocuments()
+    const { count: finalCount, error: countError } = await supabaseAdmin
+      .from('contacts')
+      .select('id', { count: 'exact', head: true })
+
+    if (countError) {
+      throw countError
+    }
 
     console.log(`\n🎯 IMPORT SUMMARY:`)
     console.log(`   - Total sections processed: ${sections.length}`)
@@ -141,7 +158,7 @@ export async function POST(request: NextRequest) {
         totalImported,
         totalSkipped,
         totalErrors,
-        finalTotalContacts: finalCount
+        finalTotalContacts: finalCount || 0
       },
       results
     })

@@ -1,13 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // GET - Debug: Ver todas las listas y contactos
 export async function GET() {
   try {
-    const contactsCollection = await getCollection('contacts')
-    
-    // Obtener todos los contactos
-    const allContacts = await contactsCollection.find({}).toArray()
+    const { data: allContacts, error } = await supabaseAdmin
+      .from('contacts')
+      .select('id,email,list_names')
+
+    if (error) {
+      throw error
+    }
     
     // Analizar las listas
     const listAnalysis = new Map<string, {
@@ -16,9 +19,9 @@ export async function GET() {
       sampleEmails: string[]
     }>()
     
-    allContacts.forEach(contact => {
-      if (contact.listNames && Array.isArray(contact.listNames)) {
-        contact.listNames.forEach(listName => {
+    (allContacts || []).forEach(contact => {
+      if (contact.list_names && Array.isArray(contact.list_names)) {
+        contact.list_names.forEach((listName: string) => {
           if (!listAnalysis.has(listName)) {
             listAnalysis.set(listName, {
               count: 0,
@@ -45,25 +48,19 @@ export async function GET() {
       sampleEmails: data.sampleEmails
     }))
     
-    // También verificar si hay contactos con el campo antiguo listName
-    const oldFormatContacts = allContacts.filter(c => c.listName && !c.listNames)
-    
     return NextResponse.json({
       success: true,
       summary: {
-        totalContacts: allContacts.length,
+        totalContacts: (allContacts || []).length,
         totalLists: listsArray.length,
-        contactsWithOldFormat: oldFormatContacts.length
+        contactsWithOldFormat: 0
       },
       lists: listsArray,
-      oldFormatContacts: oldFormatContacts.map(c => ({
+      oldFormatContacts: [],
+      allContacts: (allContacts || []).map(c => ({
         email: c.email,
-        listName: c.listName
-      })),
-      allContacts: allContacts.map(c => ({
-        email: c.email,
-        listNames: c.listNames || [],
-        listName: c.listName || null
+        listNames: c.list_names || [],
+        listName: null
       }))
     })
 

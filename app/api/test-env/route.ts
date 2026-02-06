@@ -6,11 +6,21 @@ export async function GET() {
     
     const envVars = {
       NODE_ENV: process.env.NODE_ENV,
-      MONGODB_URI: {
-        exists: !!process.env.MONGODB_URI,
-        length: process.env.MONGODB_URI?.length || 0,
-        preview: process.env.MONGODB_URI?.substring(0, 50) + '...',
-        full: process.env.MONGODB_URI
+      SUPABASE: {
+        SUPABASE_URL: {
+          exists: !!process.env.SUPABASE_URL,
+          length: process.env.SUPABASE_URL?.length || 0,
+          preview: process.env.SUPABASE_URL?.substring(0, 40) + '...',
+          full: process.env.SUPABASE_URL
+        },
+        SUPABASE_SERVICE_ROLE_KEY: {
+          exists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          length: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0,
+          preview: process.env.SUPABASE_SERVICE_ROLE_KEY
+            ? process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 10) + '...'
+            : 'NOT SET',
+          full: process.env.SUPABASE_SERVICE_ROLE_KEY
+        }
       },
       SENDGRID: {
         SENDGRID_API_KEY: {
@@ -36,7 +46,7 @@ export async function GET() {
           value: process.env.FROM_NAME || 'NOT SET'
         }
       },
-      allMongoVars: Object.keys(process.env).filter(key => key.includes('MONGODB')),
+      allSupabaseVars: Object.keys(process.env).filter(key => key.includes('SUPABASE')),
       allSendGridVars: Object.keys(process.env).filter(key => key.includes('SENDGRID')),
       allEmailVars: Object.keys(process.env).filter(key => key.includes('EMAIL') || key.includes('FROM')),
       allEnvVars: Object.keys(process.env).sort()

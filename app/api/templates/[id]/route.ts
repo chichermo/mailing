@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
+
+const mapTemplateFromDb = (row: any) => ({
+  _id: row.id,
+  name: row.name,
+  subject: row.subject,
+  content: row.content,
+  variables: row.variables,
+  createdAt: row.created_at
+})
 
 // GET - Obtener plantilla por ID
 export async function GET(
@@ -10,24 +18,31 @@ export async function GET(
   try {
     const { id } = params
     
-    if (!ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
         { success: false, error: 'ID inválido' },
         { status: 400 }
       )
     }
 
-    const templatesCollection = await getCollection('templates')
-    const template = await templatesCollection.findOne({ _id: new ObjectId(id) })
+    const { data, error } = await supabaseAdmin
+      .from('templates')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
 
-    if (!template) {
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
       return NextResponse.json(
         { success: false, error: 'Plantilla no encontrada' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json({ success: true, data: template })
+    return NextResponse.json({ success: true, data: mapTemplateFromDb(data) })
   } catch (error) {
     console.error('Error getting template:', error)
     return NextResponse.json(
@@ -46,7 +61,7 @@ export async function PUT(
     const { id } = params
     const { name, subject, content, variables } = await request.json()
 
-    if (!ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
         { success: false, error: 'ID inválido' },
         { status: 400 }
@@ -60,22 +75,28 @@ export async function PUT(
       )
     }
 
-    const templatesCollection = await getCollection('templates')
+    const { error } = await supabaseAdmin
+      .from('templates')
+      .update({
+        name,
+        subject,
+        content,
+        variables: variables || '',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
 
-    const result = await templatesCollection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          name,
-          subject,
-          content,
-          variables: variables || [],
-          updatedAt: new Date()
-        }
-      }
-    )
+    if (error) {
+      throw error
+    }
 
-    if (result.matchedCount === 0) {
+    const { data: updated } = await supabaseAdmin
+      .from('templates')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Plantilla no encontrada' },
         { status: 404 }
@@ -85,7 +106,7 @@ export async function PUT(
     return NextResponse.json({ 
       success: true, 
       message: 'Plantilla actualizada correctamente',
-      updatedCount: result.modifiedCount
+      updatedCount: 1
     })
   } catch (error) {
     console.error('Error updating template:', error)
@@ -104,17 +125,24 @@ export async function DELETE(
   try {
     const { id } = params
     
-    if (!ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
         { success: false, error: 'ID inválido' },
         { status: 400 }
       )
     }
 
-    const templatesCollection = await getCollection('templates')
-    const result = await templatesCollection.deleteOne({ _id: new ObjectId(id) })
+    const { data, error } = await supabaseAdmin
+      .from('templates')
+      .delete()
+      .eq('id', id)
+      .select('id')
 
-    if (result.deletedCount === 0) {
+    if (error) {
+      throw error
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Plantilla no encontrada' },
         { status: 404 }
@@ -124,7 +152,7 @@ export async function DELETE(
     return NextResponse.json({ 
       success: true, 
       message: 'Plantilla eliminada correctamente',
-      deletedCount: result.deletedCount
+      deletedCount: data.length
     })
   } catch (error) {
     console.error('Error deleting template:', error)

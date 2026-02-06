@@ -17,11 +17,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Configuración para MongoDB
-  env: {
-    MONGODB_URI: process.env.MONGODB_URI,
-  },
-
   // Configuración específica para evitar la ejecución de APIs durante el build
   async rewrites() {
     return []

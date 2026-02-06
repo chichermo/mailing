@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // POST - Importar listas de danza con datos reales hardcodeados
 export async function POST() {
   try {
-    const contactsCollection = await getCollection('contacts')
-    
     // LIMPIAR BASE DE DATOS ANTES DE IMPORTAR
     console.log('🧹 Limpiando base de datos...')
-    await contactsCollection.deleteMany({})
+    const { error: deleteError } = await supabaseAdmin
+      .from('contacts')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000')
+
+    if (deleteError) {
+      throw deleteError
+    }
     console.log('✅ Base de datos limpiada')
     
     // Datos reales basados en los archivos que tienes
@@ -408,33 +413,49 @@ export async function POST() {
         for (const contactData of list.contacts) {
           try {
             // Verificar si el contacto ya existe
-            const existingContact = await contactsCollection.findOne({ 
-              email: contactData.email 
-            })
+            const { data: existingContact, error: existingError } = await supabaseAdmin
+              .from('contacts')
+              .select('id,list_names')
+              .eq('email', contactData.email)
+              .maybeSingle()
+
+            if (existingError) {
+              throw existingError
+            }
             
             if (existingContact) {
               // Actualizar el contacto existente agregando la nueva lista
-              const updatedListNames = [...(existingContact.listNames || []), list.name]
+              const updatedListNames = [...(existingContact.list_names || []), list.name]
               const uniqueListNames = Array.from(new Set(updatedListNames)) // Eliminar duplicados
               
-              await contactsCollection.updateOne(
-                { _id: existingContact._id },
-                { $set: { listNames: uniqueListNames } }
-              )
+              const { error: updateError } = await supabaseAdmin
+                .from('contacts')
+                .update({ list_names: uniqueListNames })
+                .eq('id', existingContact.id)
+
+              if (updateError) {
+                throw updateError
+              }
               console.log(`🔄 Actualizado: ${contactData.email} agregado a ${list.name}`)
             } else {
               // Crear nuevo contacto con email original
               const newContact = {
-                firstName: contactData.firstName,
-                lastName: contactData.lastName,
-                email: contactData.email, // EMAIL ORIGINAL SIN MODIFICAR
+                first_name: contactData.firstName,
+                last_name: contactData.lastName,
+                email: contactData.email,
                 company: '',
                 phone: '',
-                listNames: [list.name],
-                createdAt: new Date()
+                list_names: [list.name],
+                created_at: new Date().toISOString()
               }
           
-              await contactsCollection.insertOne(newContact)
+              const { error: insertError } = await supabaseAdmin
+                .from('contacts')
+                .insert(newContact)
+
+              if (insertError) {
+                throw insertError
+              }
               totalContactsCreated++
               console.log(`🆕 Creado: ${contactData.email} en ${list.name}`)
             }

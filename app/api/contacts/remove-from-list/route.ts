@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // POST - Remover contactos de una lista específica
 export async function POST(request: NextRequest) {
@@ -21,30 +20,46 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const contactsCollection = await getCollection('contacts')
+    const { data: contacts, error } = await supabaseAdmin
+      .from('contacts')
+      .select('id,list_names')
+      .in('id', contactIds)
 
-    // Convertir IDs a ObjectId
-    const objectIds = contactIds.map(id => new ObjectId(id))
+    if (error) {
+      throw error
+    }
 
-    // Remover la lista específica de listNames para todos los contactos seleccionados
-    const result = await contactsCollection.updateMany(
-      { _id: { $in: objectIds } },
-      { 
-        $pull: { listNames: targetList } // $pull remueve el elemento del array
-      }
-    )
-
-    if (result.matchedCount === 0) {
+    if (!contacts || contacts.length === 0) {
       return NextResponse.json(
         { success: false, error: 'No contacts found' },
         { status: 404 }
       )
     }
 
+    let modifiedCount = 0
+    for (const contact of contacts) {
+      const currentLists: string[] = Array.isArray(contact.list_names) ? contact.list_names : []
+      if (!currentLists.includes(targetList)) {
+        continue
+      }
+
+      const nextLists = currentLists.filter(list => list !== targetList)
+      const { error: updateError } = await supabaseAdmin
+        .from('contacts')
+        .update({ list_names: nextLists })
+        .eq('id', contact.id)
+
+      if (updateError) {
+        throw updateError
+      }
+
+      modifiedCount += 1
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Successfully removed ${result.modifiedCount} contacts from ${targetList}`,
-      modifiedCount: result.modifiedCount
+      message: `Successfully removed ${modifiedCount} contacts from ${targetList}`,
+      modifiedCount
     })
 
   } catch (error) {

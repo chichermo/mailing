@@ -1,23 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCollection } from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const contactsCollection = await getCollection('contacts')
-    
-    // Delete all contacts
-    const deleteResult = await contactsCollection.deleteMany({})
-    
-    console.log(`🗑️ Deleted ${deleteResult.deletedCount} contacts from database`)
-    
-    // Get final count (should be 0)
-    const finalCount = await contactsCollection.countDocuments()
+    const { data, error } = await supabaseAdmin
+      .from('contacts')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000')
+      .select('id')
+
+    if (error) {
+      throw error
+    }
+
+    const deletedCount = data?.length || 0
+    console.log(`🗑️ Deleted ${deletedCount} contacts from database`)
+
+    const { count: finalCount, error: countError } = await supabaseAdmin
+      .from('contacts')
+      .select('id', { count: 'exact', head: true })
+
+    if (countError) {
+      throw countError
+    }
     
     return NextResponse.json({
       success: true,
-      message: `Database reset successfully. Deleted ${deleteResult.deletedCount} contacts.`,
-      deletedCount: deleteResult.deletedCount,
-      finalTotalContacts: finalCount
+      message: `Database reset successfully. Deleted ${deletedCount} contacts.`,
+      deletedCount,
+      finalTotalContacts: finalCount || 0
     })
 
   } catch (error) {

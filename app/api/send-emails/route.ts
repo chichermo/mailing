@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import sgMail from '@sendgrid/mail'
-import { getCollection } from '@/lib/db'
-import { ObjectId } from 'mongodb'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // Initialize SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '')
@@ -42,8 +41,17 @@ export async function POST(request: NextRequest) {
     // Get template if specified
     let template = null
     if (templateId) {
-      const templatesCollection = await getCollection('templates')
-      template = await templatesCollection.findOne({ _id: new ObjectId(templateId) })
+      const { data, error } = await supabaseAdmin
+        .from('templates')
+        .select('*')
+        .eq('id', templateId)
+        .maybeSingle()
+
+      if (error) {
+        throw error
+      }
+
+      template = data
       console.log('📝 Template found:', template ? 'YES' : 'NO')
       if (!template) {
         return NextResponse.json(
@@ -54,14 +62,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener contactos de la lista especificada
-    const contactsCollection = await getCollection('contacts')
-    let contacts
+    let contacts: any[] = []
     if (listName === 'all') {
-      contacts = await contactsCollection.find({}).toArray()
+      const { data, error } = await supabaseAdmin
+        .from('contacts')
+        .select('*')
+      if (error) {
+        throw error
+      }
+      contacts = data || []
     } else {
-      contacts = await contactsCollection.find({ 
-        listNames: { $in: [listName] } // Buscar en el array listNames
-      }).toArray()
+      const { data, error } = await supabaseAdmin
+        .from('contacts')
+        .select('*')
+        .contains('list_names', [listName])
+      if (error) {
+        throw error
+      }
+      contacts = data || []
     }
     console.log('👥 Contacts found:', contacts.length)
 
@@ -130,23 +148,28 @@ export async function POST(request: NextRequest) {
       
       // Guardar datos de la campaña
       const campaignData = {
-        templateId,
-        templateName: template?.name || 'N/A',
-        listNames: listName === 'all' ? ['all'] : [listName],
-        customSubject: customSubject || '',
-        customContent: customContent || '',
+        template_id: templateId || null,
+        template_name: template?.name || 'N/A',
+        list_names: listName === 'all' ? ['all'] : [listName],
+        custom_subject: customSubject || subject,
+        custom_content: customContent || content,
         total_sent: allRecipients.length,
-        success_count: allRecipients.length, // Todos exitosos en envío masivo
+        success_count: allRecipients.length,
         error_count: 0,
         cc_recipients: ccEmails ? ccEmails.length : 0,
         bcc_recipients: allRecipients.length,
-        created_at: new Date(),
+        created_at: new Date().toISOString(),
         status: 'sent',
-        method: 'mass_email_bcc' // Indicar que fue envío masivo
+        method: 'mass_email_bcc'
       }
 
-      const campaignsCollection = await getCollection('campaigns')
-      await campaignsCollection.insertOne(campaignData)
+      const { error: campaignError } = await supabaseAdmin
+        .from('campaigns')
+        .insert(campaignData)
+
+      if (campaignError) {
+        throw campaignError
+      }
 
       return NextResponse.json({
         success: true,
