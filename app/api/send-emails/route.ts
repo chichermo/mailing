@@ -17,11 +17,21 @@ export async function POST(request: NextRequest) {
     console.log('🚀 Request URL:', request.url)
     console.log('🚀 Request headers:', Object.fromEntries(request.headers.entries()))
     
-    // Check API key
+    // Check SendGrid configuration
     if (!process.env.SENDGRID_API_KEY) {
       console.error('❌ SENDGRID_API_KEY is required')
       return NextResponse.json(
         { success: false, error: 'SENDGRID_API_KEY is required' },
+        { status: 400 }
+      )
+    }
+
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.FROM_EMAIL
+    const fromName = process.env.SENDGRID_FROM_NAME || process.env.FROM_NAME
+
+    if (!fromEmail) {
+      return NextResponse.json(
+        { success: false, error: 'SENDGRID_FROM_EMAIL is required' },
         { status: 400 }
       )
     }
@@ -109,9 +119,9 @@ export async function POST(request: NextRequest) {
     
     // Crear UN SOLO email con todos los destinatarios en BCC
     const massEmail: any = {
-      to: 'heliopsis@outlook.be', // Solo tú como destinatario principal
-      from: 'heliopsis@outlook.be',
-      replyTo: 'heliopsis@outlook.be',
+      to: fromEmail,
+      from: fromName ? { email: fromEmail, name: fromName } : fromEmail,
+      replyTo: fromEmail,
       subject: subject,
       html: content,
       // Headers anti-spam
@@ -196,9 +206,14 @@ export async function POST(request: NextRequest) {
         }
       })
       
+      const isUnauthorized = error?.code === 401 || error?.response?.status === 401
       return NextResponse.json(
-        { success: false, error: 'Error sending mass email', details: error.message },
-        { status: 500 }
+        {
+          success: false,
+          error: isUnauthorized ? 'SendGrid unauthorized. Check your API key.' : 'Error sending mass email',
+          details: error.message
+        },
+        { status: isUnauthorized ? 401 : 500 }
       )
     }
 
