@@ -14,7 +14,7 @@ export default function LoginPage() {
     event.preventDefault()
 
     if (!username || !password) {
-      toast.error('Completa usuario y contraseña')
+      toast.error('Enter username and password')
       return
     }
 
@@ -28,14 +28,14 @@ export default function LoginPage() {
 
       const result = await response.json()
       if (result.success) {
-        toast.success('Sesión iniciada')
+        toast.success('Signed in successfully')
         router.push('/')
       } else {
-        toast.error(result.error || 'Credenciales inválidas')
+        toast.error(result.error || 'Invalid credentials')
       }
     } catch (error) {
       console.error('Login error:', error)
-      toast.error('Error de conexión')
+      toast.error('Connection error')
     } finally {
       setLoading(false)
     }
@@ -44,12 +44,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso</h1>
-        <p className="text-sm text-gray-500 mb-6">Inicia sesión para continuar</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign In</h1>
+        <p className="text-sm text-gray-500 mb-6">Sign in to continue</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <input
               type="text"
               value={username}
@@ -59,7 +59,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
               value={password}
@@ -73,7 +73,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full btn-primary"
           >
-            {loading ? 'Verificando...' : 'Entrar'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
       </div>

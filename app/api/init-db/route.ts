@@ -9,7 +9,7 @@ export async function GET() {
       return NextResponse.json(
         {
           success: false,
-          error: 'SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurados'
+          error: 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured'
         },
         { status: 500 }
       )

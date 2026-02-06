@@ -26,7 +26,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error getting templates:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al obtener plantillas' },
+      { success: false, error: 'Failed to fetch templates' },
       { status: 500 }
     )
   }
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     if (!name || !subject || !content) {
       return NextResponse.json(
-        { success: false, error: 'Nombre, asunto y contenido son requeridos' },
+        { success: false, error: 'Name, subject, and content are required' },
         { status: 400 }
       )
     }
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al crear plantilla' },
+      { success: false, error: 'Failed to create template' },
       { status: 500 }
     )
   }
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest) {
 
     if (!id || !name || !subject || !content) {
       return NextResponse.json(
-        { success: false, error: 'ID, nombre, asunto y contenido son requeridos' },
+        { success: false, error: 'ID, name, subject, and content are required' },
         { status: 400 }
       )
     }
@@ -107,7 +107,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al actualizar plantilla' },
+      { success: false, error: 'Failed to update template' },
       { status: 500 }
     )
   }
@@ -121,7 +121,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID es requerido' },
+        { success: false, error: 'ID is required' },
         { status: 400 }
       )
     }
@@ -135,7 +135,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al eliminar plantilla' },
+      { success: false, error: 'Failed to delete template' },
       { status: 500 }
     )
   }

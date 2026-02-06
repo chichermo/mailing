@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
 
     if (!adminUsername || !adminPassword || !authToken) {
       return NextResponse.json(
-        { success: false, error: 'Auth no configurada en el servidor' },
+        { success: false, error: 'Auth is not configured on the server' },
         { status: 500 }
       )
     }
 
     if (username !== adminUsername || password !== adminPassword) {
       return NextResponse.json(
-        { success: false, error: 'Credenciales inválidas' },
+        { success: false, error: 'Invalid credentials' },
         { status: 401 }
       )
     }
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Auth login error:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al iniciar sesión' },
+      { success: false, error: 'Failed to sign in' },
       { status: 500 }
     )
   }

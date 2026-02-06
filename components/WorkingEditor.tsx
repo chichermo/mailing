@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface WorkingEditorProps {
   value: string
@@ -16,6 +16,16 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
   const [imageUrl, setImageUrl] = useState('')
   const editorRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const lastEmittedHtmlRef = useRef<string>('')
+  const isFocusedRef = useRef(false)
+
+  useEffect(() => {
+    if (!editorRef.current) return
+    if (value === lastEmittedHtmlRef.current) return
+    if (editorRef.current.innerHTML === value) return
+
+    editorRef.current.innerHTML = value || ''
+  }, [value])
 
   // Insert link function - FIXED TO RENDER PROPERLY
   const insertLink = () => {
@@ -27,7 +37,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         const currentContent = editorRef.current.innerHTML
         const newContent = currentContent + ' ' + linkHTML
         editorRef.current.innerHTML = newContent
-        
+        lastEmittedHtmlRef.current = newContent
         // Update parent component
         onChange(newContent)
       }
@@ -52,12 +62,12 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       const maxSize = 5 * 1024 * 1024 // 5MB
       
       if (!validTypes.includes(file.type)) {
-        alert('Por favor selecciona una imagen válida (JPEG, PNG, GIF, WebP)')
+        alert('Please select a valid image (JPEG, PNG, GIF, WebP)')
         return
       }
       
       if (file.size > maxSize) {
-        alert('La imagen es muy grande. Máximo 5MB permitido.')
+        alert('The image is too large. Maximum size is 5MB.')
         return
       }
       
@@ -69,7 +79,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         const imgHTML = `
           <img 
             src="${dataUrl}" 
-            alt="Imagen adjunta" 
+            alt="Attached image" 
             style="max-width: 100%; height: auto; margin: 10px 0; display: block; border: 0; outline: none; text-decoration: none;" 
             width="auto"
             height="auto"
@@ -82,6 +92,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
           const currentContent = editorRef.current.innerHTML
           const newContent = currentContent + ' ' + imgHTML
           editorRef.current.innerHTML = newContent
+          lastEmittedHtmlRef.current = newContent
           onChange(newContent)
         }
         
@@ -99,7 +110,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       try {
         new URL(imageUrl)
       } catch {
-        alert('Por favor ingresa una URL válida')
+        alert('Please enter a valid URL')
         return
       }
       
@@ -107,7 +118,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       const imgHTML = `
         <img 
           src="${imageUrl}" 
-          alt="Imagen desde URL" 
+          alt="Image from URL" 
           style="max-width: 100%; height: auto; margin: 10px 0; display: block; border: 0; outline: none; text-decoration: none;" 
           width="auto"
           height="auto"
@@ -120,6 +131,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         const currentContent = editorRef.current.innerHTML
         const newContent = currentContent + ' ' + imgHTML
         editorRef.current.innerHTML = newContent
+        lastEmittedHtmlRef.current = newContent
         onChange(newContent)
       }
       
@@ -148,6 +160,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         const currentContent = editorRef.current.innerHTML
         const newContent = currentContent + ' ' + tableHTML
         editorRef.current.innerHTML = newContent
+        lastEmittedHtmlRef.current = newContent
         onChange(newContent)
       }
     }
@@ -156,7 +169,9 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
   // Handle content changes
   const handleContentChange = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML)
+      const html = editorRef.current.innerHTML
+      lastEmittedHtmlRef.current = html
+      onChange(html)
     }
   }
 
@@ -166,11 +181,11 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       const images = editorRef.current.querySelectorAll('img')
       
       if (images.length === 0) {
-        alert('⚠️ No hay imágenes en el editor para optimizar.\n\nPara usar esta función:\n1. Sube una imagen con el botón "+ Image"\n2. O pega una imagen desde el portapapeles\n3. Luego haz clic en "⚡ Optimizar"')
+        alert('No images found in the editor.\n\nTo use this feature:\n1. Upload an image with the "+ Image" button\n2. Or paste an image from the clipboard\n3. Then click "⚡ Optimize"')
         return
       }
       
-      console.log(`🔧 Optimizando ${images.length} imagen(es) para SendGrid...`)
+      console.log(`🔧 Optimizing ${images.length} image(s) for SendGrid...`)
       
       images.forEach((img, index) => {
         // Agregar atributos optimizados para email
@@ -182,10 +197,10 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         
         // Asegurar que tenga alt text
         if (!img.alt) {
-          img.alt = 'Imagen'
+          img.alt = 'Image'
         }
         
-        console.log(`✅ Imagen ${index + 1} optimizada:`, {
+        console.log(`✅ Image ${index + 1} optimized:`, {
           src: img.src.substring(0, 50) + '...',
           alt: img.alt,
           border: img.getAttribute('border'),
@@ -197,7 +212,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       handleContentChange()
       
       // Mostrar confirmación
-      alert(`🎉 ¡Optimización completada!\n\nSe optimizaron ${images.length} imagen(es) para SendGrid.\n\nAtributos aplicados:\n• border="0"\n• align="middle"\n• display: block\n• outline: none\n• text-decoration: none`)
+      alert(`Optimization completed.\n\nOptimized ${images.length} image(s) for SendGrid.\n\nApplied attributes:\n• border="0"\n• align="middle"\n• display: block\n• outline: none\n• text-decoration: none`)
     }
   }
 
@@ -260,9 +275,9 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
             <button
               onClick={optimizeImagesForSendGrid}
               className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-              title="Optimizar imágenes para SendGrid"
+              title="Optimize images for SendGrid"
             >
-              ⚡ Optimizar
+              ⚡ Optimize
             </button>
             <button
               onClick={insertTable}
@@ -305,10 +320,18 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
         ref={editorRef}
         contentEditable={true}
         className="min-h-80 border border-gray-300 rounded-b-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        dir="ltr"
+        style={{ direction: 'ltr', textAlign: 'left', unicodeBidi: 'plaintext' }}
         onInput={handleContentChange}
-        onBlur={handleContentChange}
-        dangerouslySetInnerHTML={{ __html: value }}
+        onFocus={() => {
+          isFocusedRef.current = true
+        }}
+        onBlur={() => {
+          isFocusedRef.current = false
+          handleContentChange()
+        }}
         placeholder={placeholder}
+        suppressContentEditableWarning={true}
       />
 
       {/* Link Dialog */}

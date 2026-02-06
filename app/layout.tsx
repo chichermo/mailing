@@ -6,9 +6,9 @@ import { Toaster } from 'react-hot-toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Heliopsismail - Sistema de Correos Masivos',
-  description: 'Plataforma profesional para envío de correos masivos con interfaz moderna y funcional',
-  keywords: 'correos masivos, email marketing, sendgrid, twilio',
+  title: 'Heliopsismail - Email Marketing System',
+  description: 'Professional platform for bulk email sending with a modern, functional interface',
+  keywords: 'email marketing, bulk email, sendgrid, twilio',
   authors: [{ name: 'Heliopsis' }],
   viewport: 'width=device-width, initial-scale=1',
 }

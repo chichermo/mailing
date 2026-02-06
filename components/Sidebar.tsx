@@ -214,7 +214,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <ArrowLeftOnRectangleIcon className="w-4 h-4" />
-          {loggingOut ? 'Saliendo...' : 'Cerrar sesión'}
+          {loggingOut ? 'Signing out...' : 'Sign out'}
         </button>
       </div>
     </div>

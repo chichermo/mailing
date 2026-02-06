@@ -54,7 +54,7 @@ export default function DanceListStats() {
     
     const listMap = new Map<string, Contact[]>()
     
-    // Agrupar contactos por lista
+    // Group contacts by list
     contactsData.forEach((contact, index) => {
       console.log(`🔍 Contact ${index + 1}:`, {
         email: contact.email,
@@ -111,7 +111,7 @@ export default function DanceListStats() {
       
       if (result.success) {
         console.log('🔍 DEBUG API Response:', result)
-        alert(`Debug Info:\nTotal Contacts: ${result.summary.totalContacts}\nTotal Lists: ${result.summary.totalLists}\nCheck console for details`)
+        alert(`Debug Info:\nTotal Contacts: ${result.summary.totalContacts}\nTotal Lists: ${result.summary.totalLists}\nCheck the console for details`)
       } else {
         alert('Error getting debug info')
       }
@@ -138,7 +138,7 @@ export default function DanceListStats() {
 
   return (
     <div className="space-y-6">
-      {/* Resumen general */}
+      {/* Overall summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
@@ -146,7 +146,7 @@ export default function DanceListStats() {
               <UsersIcon className="w-6 h-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Contactos</p>
+              <p className="text-sm font-medium text-gray-600">Total Contacts</p>
               <p className="text-2xl font-bold text-gray-900">{getTotalUniqueContacts()}</p>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function DanceListStats() {
               <ListBulletIcon className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Listas</p>
+              <p className="text-sm font-medium text-gray-600">Total Lists</p>
               <p className="text-2xl font-bold text-gray-900">{getTotalLists()}</p>
             </div>
           </div>
@@ -177,12 +177,12 @@ export default function DanceListStats() {
         </div>
       </div>
 
-      {/* Estadísticas por lista */}
+      {/* Stats by list */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900 flex items-center">
             <ChartBarIcon className="w-5 h-5 mr-2" />
-            Estadísticas por Lista
+            List Statistics
           </h3>
           <button
             onClick={handleDebug}
@@ -197,16 +197,16 @@ export default function DanceListStats() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lista
+                  List
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contactos
+                  Contacts
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Porcentaje
+                  Percentage
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Detalles
+                  Details
                 </th>
               </tr>
             </thead>
@@ -241,7 +241,7 @@ export default function DanceListStats() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <details className="cursor-pointer">
-                        <summary className="hover:text-blue-600">Ver contactos</summary>
+                        <summary className="hover:text-blue-600">View contacts</summary>
                         <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
                           {list.contacts.slice(0, 5).map(contact => (
                             <div key={contact._id} className="mb-1">
@@ -250,7 +250,7 @@ export default function DanceListStats() {
                           ))}
                           {list.contacts && Array.isArray(list.contacts) && list.contacts.length > 5 && (
                             <div className="text-gray-400 italic">
-                              ... y {list.contacts.length - 5} más
+                              ... and {list.contacts.length - 5} more
                             </div>
                           )}
                         </div>

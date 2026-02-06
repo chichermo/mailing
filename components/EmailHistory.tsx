@@ -45,10 +45,10 @@ export default function EmailHistory() {
       if (result.success) {
         setCampaigns(result.data)
       } else {
-        toast.error('Error al cargar historial')
+        toast.error('Failed to load history')
       }
     } catch (error) {
-      toast.error('Error de conexión')
+      toast.error('Connection error')
     } finally {
       setLoading(false)
     }
@@ -70,13 +70,13 @@ export default function EmailHistory() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success('Campaña eliminada del historial')
+        toast.success('Campaign removed from history')
         loadHistory()
       } else {
-        toast.error('Error al eliminar campaña')
+        toast.error('Failed to delete campaign')
       }
     } catch (error) {
-      toast.error('Error de conexión')
+      toast.error('Connection error')
     }
   }
 
@@ -85,21 +85,21 @@ export default function EmailHistory() {
     const filteredCampaigns = getFilteredCampaigns()
     
     if (filteredCampaigns && Array.isArray(filteredCampaigns) && filteredCampaigns.length === 0) {
-      toast.error('No hay datos para exportar')
+      toast.error('No data to export')
       return
     }
 
     const headers = [
       'ID',
-      'Nombre',
-      'Plantilla',
-      'Lista',
-      'Asunto',
-      'Total Enviados',
-      'Exitosos',
-      'Fallidos',
-      'Tasa de Éxito',
-      'Fecha'
+      'Name',
+      'Template',
+      'List',
+      'Subject',
+      'Total Sent',
+      'Successful',
+      'Failed',
+      'Success Rate',
+      'Date'
     ]
 
     const csvContent = [
@@ -107,8 +107,8 @@ export default function EmailHistory() {
       ...filteredCampaigns.map(campaign => [
         campaign.id,
         `"${campaign.name}"`,
-        `"${campaign.template_name || 'Sin plantilla'}"`,
-        `"${campaign.list_name || 'Todas'}"`,
+        `"${campaign.template_name || 'No template'}"`,
+        `"${campaign.list_name || 'All'}"`,
         `"${campaign.subject}"`,
         campaign.total_sent,
         campaign.success_count,
@@ -128,7 +128,7 @@ export default function EmailHistory() {
     link.click()
     document.body.removeChild(link)
     
-    toast.success('CSV exportado correctamente')
+    toast.success('CSV exported successfully')
   }
 
   // Filtrar campañas
@@ -183,10 +183,10 @@ export default function EmailHistory() {
   const getStatusBadge = (campaign: EmailCampaign) => {
     const status = getCampaignStatus(campaign)
     const statusConfig = {
-      draft: { color: 'bg-gray-100 text-gray-800', text: 'Borrador', icon: CheckCircleIcon },
-      partial: { color: 'bg-warning-100 text-warning-800', text: 'Parcial', icon: ExclamationTriangleIcon },
-      sent: { color: 'bg-success-100 text-success-800', text: 'Completado', icon: CheckCircleIcon },
-      failed: { color: 'bg-danger-100 text-danger-800', text: 'Fallido', icon: XCircleIcon }
+      draft: { color: 'bg-gray-100 text-gray-800', text: 'Draft', icon: CheckCircleIcon },
+      partial: { color: 'bg-warning-100 text-warning-800', text: 'Partial', icon: ExclamationTriangleIcon },
+      sent: { color: 'bg-success-100 text-success-800', text: 'Completed', icon: CheckCircleIcon },
+      failed: { color: 'bg-danger-100 text-danger-800', text: 'Failed', icon: XCircleIcon }
     }
     
     const config = statusConfig[status as keyof typeof statusConfig]
@@ -228,15 +228,15 @@ export default function EmailHistory() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Historial de Emails</h1>
-          <p className="text-gray-600">Revisa el historial completo de tus campañas de email</p>
+          <h1 className="text-2xl font-bold text-gray-900">Email History</h1>
+          <p className="text-gray-600">Review the full history of your email campaigns</p>
         </div>
         <button
           onClick={handleExportCSV}
           className="btn-secondary"
         >
           <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
-          Exportar CSV
+          Export CSV
         </button>
       </div>
 
@@ -245,25 +245,25 @@ export default function EmailHistory() {
         <div className="card text-center">
           <DocumentTextIcon className="w-8 h-8 text-primary-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{stats.totalCampaigns}</div>
-          <div className="text-sm text-gray-600">Total Campañas</div>
+          <div className="text-sm text-gray-600">Total Campaigns</div>
         </div>
         
         <div className="card text-center">
           <PaperAirplaneIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{stats.totalSent}</div>
-          <div className="text-sm text-gray-600">Total Enviados</div>
+          <div className="text-sm text-gray-600">Total Sent</div>
         </div>
         
         <div className="card text-center">
           <CheckCircleIcon className="w-8 h-8 text-success-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{stats.totalSuccess}</div>
-          <div className="text-sm text-gray-600">Exitosos</div>
+          <div className="text-sm text-gray-600">Successful</div>
         </div>
         
         <div className="card text-center">
           <EyeIcon className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{stats.successRate}%</div>
-          <div className="text-sm text-gray-600">Tasa de Éxito</div>
+          <div className="text-sm text-gray-600">Success Rate</div>
         </div>
       </div>
 
@@ -274,7 +274,7 @@ export default function EmailHistory() {
             <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar campañas..."
+              placeholder="Search campaigns..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -288,11 +288,11 @@ export default function EmailHistory() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none bg-white"
             >
-              <option value="all">Todos los estados</option>
-              <option value="draft">Borrador</option>
-              <option value="partial">Parcial</option>
-              <option value="sent">Completado</option>
-              <option value="failed">Fallido</option>
+              <option value="all">All statuses</option>
+              <option value="draft">Draft</option>
+              <option value="partial">Partial</option>
+              <option value="sent">Completed</option>
+              <option value="failed">Failed</option>
             </select>
           </div>
           
@@ -303,11 +303,11 @@ export default function EmailHistory() {
               onChange={(e) => setDateFilter(e.target.value)}
               className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none bg-white"
             >
-              <option value="all">Todas las fechas</option>
-              <option value="today">Hoy</option>
-              <option value="yesterday">Ayer</option>
-              <option value="lastWeek">Última semana</option>
-              <option value="lastMonth">Último mes</option>
+              <option value="all">All dates</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="lastWeek">Last week</option>
+              <option value="lastMonth">Last month</option>
             </select>
           </div>
         </div>
@@ -320,25 +320,25 @@ export default function EmailHistory() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Campaña
+                  Campaign
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Plantilla
+                  Template
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lista
+                  List
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
+                  Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Resultados
+                  Results
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fecha
+                  Date
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -353,12 +353,12 @@ export default function EmailHistory() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {campaign.template_name || 'Sin plantilla'}
+                      {campaign.template_name || 'No template'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                      {campaign.list_name || 'Todas'}
+                      {campaign.list_name || 'All'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -377,7 +377,7 @@ export default function EmailHistory() {
                       )}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      {((campaign.success_count / campaign.total_sent) * 100).toFixed(1)}% éxito
+                      {((campaign.success_count / campaign.total_sent) * 100).toFixed(1)}% success
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -387,7 +387,7 @@ export default function EmailHistory() {
                     <button
                       onClick={() => handleDelete(campaign.id)}
                       className="text-red-600 hover:text-red-900"
-                      title="Eliminar del historial"
+                      title="Remove from history"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>
@@ -402,8 +402,8 @@ export default function EmailHistory() {
           <div className="text-center py-12">
             <div className="text-gray-500">
               {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
-                ? 'No se encontraron campañas con los filtros aplicados'
-                : 'No hay campañas en el historial'
+                ? 'No campaigns found with the applied filters'
+                : 'No campaigns in history'
               }
             </div>
           </div>

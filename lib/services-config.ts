@@ -92,7 +92,7 @@ export async function checkAllServicesStatus(): Promise<ServiceStatus[]> {
     statuses.push({
       name: 'Database',
       status: 'pending',
-      message: 'SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurados'
+      message: 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured'
     })
   }
 

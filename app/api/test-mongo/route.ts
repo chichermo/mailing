@@ -13,7 +13,7 @@ export async function GET() {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json({
         success: false,
-        error: 'SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurados',
+        error: 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured',
         envVars: Object.keys(process.env).filter(key => key.includes('SUPABASE'))
       }, { status: 500 })
     }

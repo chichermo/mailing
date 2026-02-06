@@ -20,7 +20,7 @@ export async function GET(
     
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID inválido' },
+        { success: false, error: 'Invalid ID' },
         { status: 400 }
       )
     }
@@ -37,7 +37,7 @@ export async function GET(
 
     if (!data) {
       return NextResponse.json(
-        { success: false, error: 'Plantilla no encontrada' },
+        { success: false, error: 'Template not found' },
         { status: 404 }
       )
     }
@@ -46,7 +46,7 @@ export async function GET(
   } catch (error) {
     console.error('Error getting template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al obtener plantilla' },
+      { success: false, error: 'Failed to fetch template' },
       { status: 500 }
     )
   }
@@ -63,14 +63,14 @@ export async function PUT(
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID inválido' },
+        { success: false, error: 'Invalid ID' },
         { status: 400 }
       )
     }
 
     if (!name || !subject || !content) {
       return NextResponse.json(
-        { success: false, error: 'Nombre, asunto y contenido son requeridos' },
+        { success: false, error: 'Name, subject, and content are required' },
         { status: 400 }
       )
     }
@@ -98,20 +98,20 @@ export async function PUT(
 
     if (!updated) {
       return NextResponse.json(
-        { success: false, error: 'Plantilla no encontrada' },
+        { success: false, error: 'Template not found' },
         { status: 404 }
       )
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Plantilla actualizada correctamente',
+      message: 'Template updated successfully',
       updatedCount: 1
     })
   } catch (error) {
     console.error('Error updating template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al actualizar plantilla' },
+      { success: false, error: 'Failed to update template' },
       { status: 500 }
     )
   }
@@ -127,7 +127,7 @@ export async function DELETE(
     
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID inválido' },
+        { success: false, error: 'Invalid ID' },
         { status: 400 }
       )
     }
@@ -144,20 +144,20 @@ export async function DELETE(
 
     if (!data || data.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Plantilla no encontrada' },
+        { success: false, error: 'Template not found' },
         { status: 404 }
       )
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Plantilla eliminada correctamente',
+      message: 'Template deleted successfully',
       deletedCount: data.length
     })
   } catch (error) {
     console.error('Error deleting template:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al eliminar plantilla' },
+      { success: false, error: 'Failed to delete template' },
       { status: 500 }
     )
   }

@@ -478,7 +478,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Importación completada exitosamente`,
+      message: 'Import completed successfully',
       summary: {
         listsProcessed: processedLists.length,
         contactsCreated: totalContactsCreated,
@@ -491,7 +491,7 @@ export async function POST() {
   } catch (error) {
     console.error('Error durante la importación:', error)
     return NextResponse.json(
-      { success: false, error: `Error durante la importación: ${error}` },
+      { success: false, error: `Import error: ${error}` },
       { status: 500 }
     )
   }

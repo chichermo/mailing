@@ -28,7 +28,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error getting contacts:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al obtener contactos' },
+      { success: false, error: 'Failed to fetch contacts' },
       { status: 500 }
     )
   }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !firstName) {
       return NextResponse.json(
-        { success: false, error: 'Email y nombre son requeridos' },
+        { success: false, error: 'Email and first name are required' },
         { status: 400 }
       )
     }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { success: false, error: 'El email ya existe' },
+        { success: false, error: 'Email already exists' },
         { status: 400 }
       )
     }
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating contact:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al crear contacto' },
+      { success: false, error: 'Failed to create contact' },
       { status: 500 }
     )
   }
@@ -103,7 +103,7 @@ export async function PUT(request: NextRequest) {
 
     if (!id || !email || !firstName) {
       return NextResponse.json(
-        { success: false, error: 'ID, email y nombre son requeridos' },
+        { success: false, error: 'ID, email, and first name are required' },
         { status: 400 }
       )
     }
@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { success: false, error: 'El email ya existe en otro contacto' },
+        { success: false, error: 'Email already exists in another contact' },
         { status: 400 }
       )
     }
@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating contact:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al actualizar contacto' },
+      { success: false, error: 'Failed to update contact' },
       { status: 500 }
     )
   }
@@ -160,7 +160,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID es requerido' },
+        { success: false, error: 'ID is required' },
         { status: 400 }
       )
     }
@@ -174,7 +174,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting contact:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al eliminar contacto' },
+      { success: false, error: 'Failed to delete contact' },
       { status: 500 }
     )
   }

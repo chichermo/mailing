@@ -26,22 +26,22 @@ export default function EditorStats({ content, className = '' }: EditorStatsProp
       }
     }
 
-    // Contar caracteres (sin espacios)
+    // Count characters (no spaces)
     const characters = content ? content.replace(/\s/g, '').length : 0
     
-    // Contar palabras
+    // Count words
     const words = content ? content.trim().split(/\s+/).filter(word => word.length > 0).length : 0
     
-    // Contar líneas
+    // Count lines
     const lines = content ? content.split('\n').filter(line => line.trim().length > 0).length : 0
     
-    // Contar imágenes
+    // Count images
     const images = content ? (content.match(/<img[^>]*>/gi) || []).length : 0
     
-    // Contar enlaces
+    // Count links
     const links = content ? (content.match(/<a[^>]*>/gi) || []).length : 0
     
-    // Contar tags HTML
+    // Count HTML tags
     const htmlTags = content ? (content.match(/<[^>]+>/g) || []).length : 0
 
     return {
@@ -62,30 +62,30 @@ export default function EditorStats({ content, className = '' }: EditorStatsProp
     <div className={`bg-gray-50 border border-gray-200 rounded-lg p-3 ${className}`}>
       <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
         <DocumentTextIcon className="w-4 h-4 mr-2" />
-        Estadísticas del contenido
+        Content statistics
       </h4>
       
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div className="text-center">
           <div className="text-lg font-bold text-gray-900">{stats.words}</div>
-          <div className="text-xs text-gray-500">Palabras</div>
+          <div className="text-xs text-gray-500">Words</div>
         </div>
         
         <div className="text-center">
           <div className="text-lg font-bold text-gray-900">{stats.characters}</div>
-          <div className="text-xs text-gray-500">Caracteres</div>
+          <div className="text-xs text-gray-500">Characters</div>
         </div>
         
         <div className="text-center">
           <div className="text-lg font-bold text-gray-900">{stats.lines}</div>
-          <div className="text-xs text-gray-500">Líneas</div>
+          <div className="text-xs text-gray-500">Lines</div>
         </div>
         
         <div className="text-center">
           <div className="text-lg font-bold text-blue-600">{stats.images}</div>
           <div className="text-xs text-gray-500 flex items-center justify-center">
             <PhotoIcon className="w-3 h-3 mr-1" />
-            Imágenes
+            Images
           </div>
         </div>
         
@@ -93,7 +93,7 @@ export default function EditorStats({ content, className = '' }: EditorStatsProp
           <div className="text-lg font-bold text-green-600">{stats.links}</div>
           <div className="text-xs text-gray-500 flex items-center justify-center">
             <LinkIcon className="w-3 h-3 mr-1" />
-            Enlaces
+            Links
           </div>
         </div>
         
@@ -101,25 +101,25 @@ export default function EditorStats({ content, className = '' }: EditorStatsProp
           <div className="text-lg font-bold text-purple-600">{stats.htmlTags}</div>
           <div className="text-xs text-gray-500 flex items-center justify-center">
             <CodeBracketIcon className="w-3 h-3 mr-1" />
-            Tags HTML
+            HTML tags
           </div>
         </div>
       </div>
 
-      {/* Consejos basados en el contenido */}
+      {/* Content-based tips */}
       <div className="mt-3 pt-3 border-t border-gray-200">
         <div className="text-xs text-gray-600">
           {stats.words < 50 && (
-            <p className="text-amber-600">💡 Considera agregar más contenido para un email más completo</p>
+            <p className="text-amber-600">💡 Consider adding more content for a fuller email</p>
           )}
           {stats.images === 0 && (
-            <p className="text-blue-600">💡 Las imágenes pueden hacer tu email más atractivo</p>
+            <p className="text-blue-600">💡 Images can make your email more engaging</p>
           )}
           {stats.links === 0 && (
-            <p className="text-green-600">💡 Incluir enlaces puede aumentar el engagement</p>
+            <p className="text-green-600">💡 Adding links can increase engagement</p>
           )}
           {stats.words > 200 && (
-            <p className="text-gray-600">✅ Contenido sustancial, ideal para newsletters</p>
+            <p className="text-gray-600">✅ Solid content, ideal for newsletters</p>
           )}
         </div>
       </div>

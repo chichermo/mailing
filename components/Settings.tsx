@@ -46,18 +46,18 @@ export default function Settings() {
     }
   })
 
-  // Cargar configuración
+  // Load settings
   useEffect(() => {
     loadSettings()
   }, [])
 
   const loadSettings = () => {
-    // Cargar desde variables de entorno o localStorage
+    // Load from environment variables or localStorage
     const savedSettings = localStorage.getItem('heliopsis-settings')
     if (savedSettings) {
       setSettings(JSON.parse(savedSettings))
     } else {
-      // Valores por defecto desde .env
+      // Default values from .env
       setSettings({
         sendgrid: {
           apiKey: process.env.NEXT_PUBLIC_SENDGRID_API_KEY || '',
@@ -76,7 +76,7 @@ export default function Settings() {
     }
   }
 
-  // Guardar configuración
+  // Save settings
   const saveSettings = async (section: keyof SettingsData) => {
     try {
       setLoading(true)
@@ -87,51 +87,51 @@ export default function Settings() {
       // Guardar en localStorage
       localStorage.setItem('heliopsis-settings', JSON.stringify(settings))
       
-      toast.success('Configuración guardada correctamente')
+      toast.success('Settings saved successfully')
     } catch (error) {
-      toast.error('Error al guardar configuración')
+      toast.error('Failed to save settings')
     } finally {
       setLoading(false)
     }
   }
 
-  // Probar conexión SendGrid
+  // Test SendGrid connection
   const testSendGridConnection = async () => {
     if (!settings.sendgrid.apiKey) {
-      toast.error('Ingresa la API Key de SendGrid primero')
+      toast.error('Please enter the SendGrid API key first')
       return
     }
 
     try {
       setLoading(true)
       
-      // Simular prueba de conexión
+      // Simulate connection test
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      toast.success('Conexión a SendGrid exitosa')
+      toast.success('SendGrid connection successful')
     } catch (error) {
-      toast.error('Error de conexión con SendGrid')
+      toast.error('SendGrid connection failed')
     } finally {
       setLoading(false)
     }
   }
 
-  // Probar envío de email
+  // Test email send
   const testEmailSend = async () => {
     if (!settings.sendgrid.apiKey || !settings.sendgrid.fromEmail) {
-      toast.error('Configura SendGrid primero')
+      toast.error('Please configure SendGrid first')
       return
     }
 
     try {
       setLoading(true)
       
-      // Simular envío de prueba
+      // Simulate test send
       await new Promise(resolve => setTimeout(resolve, 3000))
       
-      toast.success('Email de prueba enviado correctamente')
+      toast.success('Test email sent successfully')
     } catch (error) {
-      toast.error('Error al enviar email de prueba')
+      toast.error('Failed to send test email')
     } finally {
       setLoading(false)
     }
@@ -140,16 +140,16 @@ export default function Settings() {
   const tabs = [
     { id: 'sendgrid', name: 'SendGrid', icon: KeyIcon },
     { id: 'twilio', name: 'Twilio', icon: ShieldCheckIcon },
-    { id: 'email', name: 'Configuración de Email', icon: EnvelopeIcon },
-    { id: 'notifications', name: 'Notificaciones', icon: BellIcon }
+    { id: 'email', name: 'Email Settings', icon: EnvelopeIcon },
+    { id: 'notifications', name: 'Notifications', icon: BellIcon }
   ]
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-600">Gestiona la configuración del sistema</p>
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600">Manage system settings</p>
       </div>
 
       {/* Tabs */}
@@ -183,7 +183,7 @@ export default function Settings() {
         {activeTab === 'sendgrid' && (
           <div className="space-y-6">
             <div className="card">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de SendGrid</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">SendGrid Settings</h3>
               
               <div className="space-y-4">
                 <div>
@@ -201,13 +201,13 @@ export default function Settings() {
                     placeholder="SG.xxxxxxxxxxxxxxxxxxxxx"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Encuentra tu API Key en el panel de control de SendGrid
+                    Find your API key in the SendGrid dashboard
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Remitente *
+                    Sender Email *
                   </label>
                   <input
                     type="email"
@@ -217,16 +217,16 @@ export default function Settings() {
                       sendgrid: { ...settings.sendgrid, fromEmail: e.target.value }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="tu-email@dominio.com"
+                    placeholder="your-email@domain.com"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Email desde el cual se enviarán los correos
+                    Email address used to send messages
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre Remitente
+                    Sender Name
                   </label>
                   <input
                     type="text"
@@ -236,7 +236,7 @@ export default function Settings() {
                       sendgrid: { ...settings.sendgrid, fromName: e.target.value }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Tu Nombre o Empresa"
+                    placeholder="Your name or company"
                   />
                 </div>
 
@@ -246,14 +246,14 @@ export default function Settings() {
                     disabled={loading}
                     className="btn-primary"
                   >
-                    {loading ? 'Guardando...' : 'Guardar Configuración'}
+                    {loading ? 'Saving...' : 'Save Settings'}
                   </button>
                   <button
                     onClick={testSendGridConnection}
                     disabled={loading || !settings.sendgrid.apiKey}
                     className="btn-secondary"
                   >
-                    Probar Conexión
+                    Test Connection
                   </button>
                 </div>
               </div>
@@ -261,12 +261,12 @@ export default function Settings() {
 
             {/* SendGrid Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">Información de SendGrid</h4>
+              <h4 className="text-sm font-medium text-blue-900 mb-2">SendGrid Information</h4>
               <div className="text-sm text-blue-800 space-y-1">
-                <p>• SendGrid es una plataforma de entrega de emails transaccionales y de marketing</p>
-                <p>• Proporciona alta tasa de entrega y análisis detallado</p>
-                <p>• Soporta plantillas HTML y personalización dinámica</p>
-                <p>• Incluye protección contra spam y cumplimiento de regulaciones</p>
+                <p>• SendGrid is a platform for transactional and marketing email delivery</p>
+                <p>• Provides high deliverability and detailed analytics</p>
+                <p>• Supports HTML templates and dynamic personalization</p>
+                <p>• Includes anti-spam protection and compliance tools</p>
               </div>
             </div>
           </div>
@@ -276,12 +276,12 @@ export default function Settings() {
         {activeTab === 'twilio' && (
           <div className="space-y-6">
             <div className="card">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de Twilio</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Twilio Settings</h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Código de Recuperación
+                    Recovery Code
                   </label>
                   <input
                     type="text"
@@ -291,10 +291,10 @@ export default function Settings() {
                       twilio: { ...settings.twilio, recoveryCode: e.target.value }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Código de recuperación de Twilio"
+                    placeholder="Twilio recovery code"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Código de recuperación para casos de emergencia
+                    Recovery code for emergency access
                   </p>
                 </div>
 
@@ -304,7 +304,7 @@ export default function Settings() {
                     disabled={loading}
                     className="btn-primary"
                   >
-                    {loading ? 'Guardando...' : 'Guardar Configuración'}
+                    {loading ? 'Saving...' : 'Save Settings'}
                   </button>
                 </div>
               </div>
@@ -312,12 +312,12 @@ export default function Settings() {
 
             {/* Twilio Info */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-green-900 mb-2">Información de Twilio</h4>
+              <h4 className="text-sm font-medium text-green-900 mb-2">Twilio Information</h4>
               <div className="text-sm text-green-800 space-y-1">
-                <p>• Twilio proporciona servicios de comunicación en la nube</p>
-                <p>• Incluye SMS, llamadas de voz y verificación de identidad</p>
-                <p>• Útil para recuperación de cuentas y notificaciones críticas</p>
-                <p>• Cumple con estándares de seguridad internacionales</p>
+                <p>• Twilio provides cloud communications services</p>
+                <p>• Includes SMS, voice calls, and identity verification</p>
+                <p>• Useful for account recovery and critical notifications</p>
+                <p>• Compliant with international security standards</p>
               </div>
             </div>
           </div>
@@ -327,12 +327,12 @@ export default function Settings() {
         {activeTab === 'email' && (
           <div className="space-y-6">
             <div className="card">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de Email</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Email Settings</h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Límite de Emails por Campaña
+                    Email Limit per Campaign
                   </label>
                   <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value="50">50 emails</option>
@@ -341,22 +341,22 @@ export default function Settings() {
                     <option value="500">500 emails</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Número máximo de emails que se pueden enviar por campaña
+                    Maximum number of emails per campaign
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Intervalo entre Envíos
+                    Send Interval
                   </label>
                   <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                    <option value="0">Sin delay</option>
-                    <option value="1000">1 segundo</option>
-                    <option value="2000">2 segundos</option>
-                    <option value="5000">5 segundos</option>
+                    <option value="0">No delay</option>
+                    <option value="1000">1 second</option>
+                    <option value="2000">2 seconds</option>
+                    <option value="5000">5 seconds</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Tiempo de espera entre envíos para evitar ser marcado como spam
+                    Wait time between sends to avoid spam flags
                   </p>
                 </div>
 
@@ -366,14 +366,14 @@ export default function Settings() {
                     disabled={loading}
                     className="btn-primary"
                   >
-                    {loading ? 'Guardando...' : 'Guardar Configuración'}
+                    {loading ? 'Saving...' : 'Save Settings'}
                   </button>
                   <button
                     onClick={testEmailSend}
                     disabled={loading}
                     className="btn-secondary"
                   >
-                    Enviar Email de Prueba
+                    Send Test Email
                   </button>
                 </div>
               </div>
@@ -381,12 +381,12 @@ export default function Settings() {
 
             {/* Email Security Info */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-yellow-900 mb-2">Seguridad y Anti-Spam</h4>
+              <h4 className="text-sm font-medium text-yellow-900 mb-2">Security and Anti-Spam</h4>
               <div className="text-sm text-yellow-800 space-y-1">
-                <p>• Configuración automática de SPF, DKIM y DMARC</p>
-                <p>• Límites de envío para prevenir abuso</p>
-                <p>• Monitoreo de tasas de rebote y quejas</p>
-                <p>• Cumplimiento con regulaciones de email marketing</p>
+                <p>• Automatic SPF, DKIM, and DMARC configuration</p>
+                <p>• Sending limits to prevent abuse</p>
+                <p>• Bounce and complaint rate monitoring</p>
+                <p>• Compliance with email marketing regulations</p>
               </div>
             </div>
           </div>
@@ -396,15 +396,15 @@ export default function Settings() {
         {activeTab === 'notifications' && (
           <div className="space-y-6">
             <div className="card">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de Notificaciones</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Notification Settings</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Notificaciones por Email
+                      Email Notifications
                     </label>
-                    <p className="text-xs text-gray-500">Recibir notificaciones por email</p>
+                    <p className="text-xs text-gray-500">Receive notifications by email</p>
                   </div>
                   <input
                     type="checkbox"
@@ -420,9 +420,9 @@ export default function Settings() {
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Alertas de Éxito
+                      Success Alerts
                     </label>
-                    <p className="text-xs text-gray-500">Notificar cuando las campañas se completen exitosamente</p>
+                    <p className="text-xs text-gray-500">Notify when campaigns complete successfully</p>
                   </div>
                   <input
                     type="checkbox"
@@ -438,9 +438,9 @@ export default function Settings() {
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Alertas de Error
+                      Error Alerts
                     </label>
-                    <p className="text-xs text-gray-500">Notificar cuando ocurran errores en el envío</p>
+                    <p className="text-xs text-gray-500">Notify when send errors occur</p>
                   </div>
                   <input
                     type="checkbox"
@@ -459,7 +459,7 @@ export default function Settings() {
                     disabled={loading}
                     className="btn-primary"
                   >
-                    {loading ? 'Guardando...' : 'Guardar Configuración'}
+                    {loading ? 'Saving...' : 'Save Settings'}
                   </button>
                 </div>
               </div>
@@ -467,12 +467,12 @@ export default function Settings() {
 
             {/* Notifications Info */}
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-purple-900 mb-2">Sistema de Notificaciones</h4>
+              <h4 className="text-sm font-medium text-purple-900 mb-2">Notification System</h4>
               <div className="text-sm text-purple-800 space-y-1">
-                <p>• Notificaciones en tiempo real del estado de las campañas</p>
-                <p>• Alertas personalizables para diferentes eventos</p>
-                <p>• Historial de notificaciones y estado de entrega</p>
-                <p>• Integración con sistemas de monitoreo externos</p>
+                <p>• Real-time campaign status notifications</p>
+                <p>• Customizable alerts for different events</p>
+                <p>• Notification history and delivery status</p>
+                <p>• Integration with external monitoring systems</p>
               </div>
             </div>
           </div>

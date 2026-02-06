@@ -36,7 +36,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error getting email history:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al obtener historial' },
+      { success: false, error: 'Failed to fetch history' },
       { status: 500 }
     )
   }
@@ -50,7 +50,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'ID es requerido' },
+        { success: false, error: 'ID is required' },
         { status: 400 }
       )
     }
@@ -64,7 +64,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting campaign:', error)
     return NextResponse.json(
-      { success: false, error: 'Error al eliminar campaña' },
+      { success: false, error: 'Failed to delete campaign' },
       { status: 500 }
     )
   }

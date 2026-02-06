@@ -200,7 +200,7 @@ export default function ContactList() {
     })
 
     if (contacts.length === 0) {
-      return { error: `Línea ${lineNumber}: email no encontrado` }
+      return { error: `Line ${lineNumber}: email not found` }
     }
 
     return { contacts }
@@ -224,13 +224,13 @@ export default function ContactList() {
         const parsed = parseBulkLine(line, index + 1)
         if (!parsed) return
         if ('error' in parsed) {
-          parseErrors.push(parsed.error || 'Error desconocido')
+          parseErrors.push(parsed.error || 'Unknown error')
           return
         }
         parsed.contacts.forEach((contact) => {
           const email = contact.email.toLowerCase()
           if (seenEmails.has(email)) {
-            parseErrors.push(`Línea ${index + 1}: email duplicado en la importación`)
+            parseErrors.push(`Line ${index + 1}: duplicate email in import`)
             return
           }
           seenEmails.add(email)
@@ -240,11 +240,11 @@ export default function ContactList() {
 
       if (parseErrors.length > 0) {
         console.warn('Bulk import skipped lines:', parseErrors)
-        toast.error(`Se omitieron ${parseErrors.length} líneas con errores`)
+        toast.error(`Skipped ${parseErrors.length} line(s) with errors`)
       }
 
       if (contactsToAdd.length === 0) {
-        toast.error('No se encontraron contactos válidos para importar')
+        toast.error('No valid contacts found to import')
         return
       }
 
@@ -273,9 +273,9 @@ export default function ContactList() {
       }
 
       if (errorCount > 0) {
-        toast.error(`Importados ${successCount} de ${contactsToAdd.length}. ${errorCount} con error.`)
+        toast.error(`Imported ${successCount} of ${contactsToAdd.length}. ${errorCount} failed.`)
       } else {
-        toast.success(`Importados ${successCount} contactos correctamente`)
+        toast.success(`Imported ${successCount} contacts successfully`)
       }
 
       setShowBulkImport(false)
@@ -561,7 +561,7 @@ export default function ContactList() {
     }
 
     try {
-      toast.loading('Importando listas de danza...', { id: 'dance-import' })
+      toast.loading('Importing dance lists...', { id: 'dance-import' })
       
       const response = await fetch('/api/import-dance-emails', {
         method: 'POST'
@@ -570,14 +570,14 @@ export default function ContactList() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success(`✅ ${result.message}`, { id: 'dance-import' })
-        toast.success(`📊 Resumen: ${result.summary.totalFiles} archivos procesados, ${result.summary.totalImported} contactos importados, ${result.summary.totalErrors} errores`)
+        toast.success(`${result.message}`, { id: 'dance-import' })
+        toast.success(`Summary: ${result.summary.totalFiles} files, ${result.summary.totalImported} contacts, ${result.summary.totalErrors} errors`)
         loadContacts() // Recargar contactos para reflejar las nuevas listas
       } else {
-        toast.error(`❌ ${result.error || 'Error importing dance lists'}`, { id: 'dance-import' })
+        toast.error(result.error || 'Error importing dance lists', { id: 'dance-import' })
       }
     } catch (error) {
-      toast.error('❌ Error de conexión', { id: 'dance-import' })
+      toast.error('Connection error', { id: 'dance-import' })
     }
   }
 
@@ -1018,7 +1018,7 @@ export default function ContactList() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Formatos: detecta nombres automáticamente con emails en cualquier orden
+                  Formats: auto-detects names with emails in any order
                 </p>
               </div>
 
@@ -1050,7 +1050,7 @@ export default function ContactList() {
         </div>
       )}
 
-      {/* Modal para crear nueva lista */}
+      {/* Create new list modal */}
       {showListManager && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">

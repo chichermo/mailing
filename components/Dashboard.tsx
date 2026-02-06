@@ -140,7 +140,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   }
 
   const resetDatabase = async () => {
-    if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los contactos de la base de datos?\n\nEsto permitirá hacer una importación limpia desde cero.')) {
+    if (!confirm('⚠️ Are you sure you want to delete ALL contacts from the database?\n\nThis allows a clean import from scratch.')) {
       return
     }
 
@@ -157,14 +157,14 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       if (result.success) {
         console.log('✅ Dashboard: Database reset successful:', result.message)
         await loadStats()
-        alert(`✅ Base de datos reseteada exitosamente!\n\nSe eliminaron ${result.deletedCount} contactos.\n\nAhora puedes ejecutar la importación para obtener todos los contactos correctamente.`)
+        alert(`✅ Database reset completed!\n\nDeleted ${result.deletedCount} contacts.\n\nYou can now run the import to restore contacts.`)
       } else {
         console.error('❌ Dashboard: Database reset failed:', result.error)
-        alert(`❌ Error al resetear la base de datos: ${result.error}`)
+        alert(`❌ Failed to reset the database: ${result.error}`)
       }
     } catch (error) {
       console.error('❌ Dashboard: Database reset error:', error)
-      alert(`❌ Error al resetear la base de datos: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(`❌ Failed to reset the database: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setResetting(false)
     }

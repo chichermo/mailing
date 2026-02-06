@@ -807,7 +807,7 @@ export default function SendEmails() {
                     <RichTextEditor
                       value={customContent}
                       onChange={setCustomContent}
-                      placeholder="<h1>¡Hola!</h1><p>Tu contenido del email...</p>"
+                      placeholder="<h1>Hello!</h1><p>Your email content...</p>"
                       height="h-80"
                       className="w-full"
                     />
