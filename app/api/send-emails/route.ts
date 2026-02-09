@@ -224,6 +224,7 @@ export async function POST(request: NextRequest) {
         }
       })
       
+      // Treat 401/403 as authorization failures from SendGrid
       const isAuthError = statusCode === 401 || statusCode === 403
       return NextResponse.json(
         {
