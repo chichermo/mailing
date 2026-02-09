@@ -5,8 +5,25 @@ import { supabaseAdmin } from '@/lib/supabase'
 // Initialize SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '')
 
-// Configure SendGrid
 console.log('✅ SendGrid module loaded')
+
+const formatSendGridError = (error: any) => {
+  const body = error?.response?.body
+  if (body?.errors?.length) {
+    return body.errors.map((err: any) => err.message).join('; ')
+  }
+  if (typeof body === 'string') {
+    return body
+  }
+  if (body) {
+    try {
+      return JSON.stringify(body)
+    } catch {
+      return 'Unable to serialize SendGrid error response'
+    }
+  }
+  return error?.message || 'Unknown SendGrid error'
+}
 
 // POST - Send mass emails
 export async function POST(request: NextRequest) {
@@ -71,7 +88,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Obtener contactos de la lista especificada
+    // Get contacts from the selected list
     let contacts: any[] = []
     if (listName === 'all') {
       const { data, error } = await supabaseAdmin
@@ -114,10 +131,10 @@ export async function POST(request: NextRequest) {
 
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
-    // Prepare emails - CAMBIAR A ENVÍO MASIVO REAL
+    // Prepare emails - single BCC message
     const allRecipients = contacts.map((contact: any) => contact.email)
     
-    // Crear UN SOLO email con todos los destinatarios en BCC
+    // Create ONE email with all recipients in BCC
     const massEmail: any = {
       to: fromEmail,
       from: fromName ? { email: fromEmail, name: fromName } : fromEmail,
@@ -156,7 +173,7 @@ export async function POST(request: NextRequest) {
       
       console.log('🎉 Mass email sent successfully to all recipients!')
       
-      // Guardar datos de la campaña
+      // Save campaign data
       const campaignData = {
         template_id: templateId || null,
         template_name: template?.name || 'N/A',
@@ -195,10 +212,11 @@ export async function POST(request: NextRequest) {
 
     } catch (error: any) {
       console.error('❌ Error sending mass email:', error)
+      const statusCode = error?.response?.status || error?.code
       console.error('❌ Error details:', {
         message: error.message,
         code: error.code,
-        statusCode: error.code,
+        statusCode,
         response: {
           body: error.response?.body || 'No response body',
           status: error.response?.status || 'No status',
@@ -206,14 +224,16 @@ export async function POST(request: NextRequest) {
         }
       })
       
-      const isUnauthorized = error?.code === 401 || error?.response?.status === 401
+      const isAuthError = statusCode === 401 || statusCode === 403
       return NextResponse.json(
         {
           success: false,
-          error: isUnauthorized ? 'SendGrid unauthorized. Check your API key.' : 'Error sending mass email',
-          details: error.message
+          error: isAuthError
+            ? 'SendGrid authorization failed. Check your API key, permissions, and sender verification.'
+            : 'Error sending mass email',
+          details: formatSendGridError(error)
         },
-        { status: isUnauthorized ? 401 : 500 }
+        { status: isAuthError ? statusCode : 500 }
       )
     }
 
