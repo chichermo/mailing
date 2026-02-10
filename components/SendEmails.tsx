@@ -85,32 +85,14 @@ export default function SendEmails() {
       const contactsData = await contactsRes.json()
       const campaignsData = await campaignsRes.json()
 
-      console.log('📊 Data loaded:', {
-        templates: templatesData,
-        contacts: contactsData,
-        campaigns: campaignsData
-      })
-
       if (templatesData.success) {
         setTemplates(templatesData.data)
-        console.log('📋 Templates set:', templatesData.data)
-        console.log('🔍 Template details:', templatesData.data.map((t: any) => ({ id: t._id, name: t.name, idType: typeof t._id })))
       }
       if (contactsData.success) {
         setContacts(contactsData.data)
-        console.log('👥 Contacts set:', contactsData.data)
-        console.log('🔍 Contact details:', contactsData.data.map((c: any) => ({
-          id: c._id,
-          firstName: c.firstName,
-          lastName: c.lastName,
-          email: c.email,
-          listNames: c.listNames
-        })))
-        console.log('📝 Available lists:', Array.from(new Set(contactsData.data.map((c: any) => c.listNames).filter(Boolean))))
       }
       if (campaignsData.success) {
         setCampaigns(campaignsData.data)
-        console.log('📧 Campaigns set:', campaignsData.data)
       }
     } catch (error) {
       console.error('❌ Error loading data:', error)
@@ -126,13 +108,6 @@ export default function SendEmails() {
 
   // Send emails
   const handleSendEmails = async () => {
-    console.log('🚀 Starting email send process:', {
-      selectedTemplate,
-      customSubject,
-      customContent,
-      selectedList
-    })
-
     // Validate that we have either a template OR custom content
     if (!selectedTemplate && (!customSubject || !customContent)) {
       toast.error('Enter both subject and content when not using a template')
@@ -150,14 +125,6 @@ export default function SendEmails() {
 
     try {
       setSending(true)
-      console.log('Sending emails with data:', {
-        templateId: selectedTemplate,
-        listName: selectedList,
-        customSubject,
-        customContent,
-        testMode
-      })
-
       const requestBody = {
         templateId: selectedTemplate || undefined,
         listName: selectedList,
@@ -168,17 +135,13 @@ export default function SendEmails() {
         bccEmails: getAllBccEmails().length > 0 ? getAllBccEmails() : undefined
       }
 
-      console.log('📤 Sending request body:', requestBody)
-
       const response = await fetch('/api/send-emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       })
 
-      console.log('Response status:', response.status)
       const result = await response.json()
-      console.log('Response result:', result)
 
       if (result.success) {
         toast.success(`Emails sent! ${result.data.successCount} successful, ${result.data.errorCount} failed`)
@@ -229,19 +192,12 @@ export default function SendEmails() {
     return templates.find(t => t._id === selectedTemplate)
   }
 
-  // Get selected contacts
   const getSelectedContacts = () => {
-    console.log('👥 Getting selected contacts:', { selectedList, contactsCount: contacts.length })
-    
     if (selectedList === 'all') {
-      const allContacts = contacts
-      console.log('📋 All contacts selected:', allContacts.length)
-      return allContacts
+      return contacts
     }
     
-    const filteredContacts = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList))
-    console.log('📋 Filtered contacts for list:', selectedList, 'Count:', filteredContacts.length)
-    return filteredContacts
+    return contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(selectedList))
   }
 
   // Get stats
@@ -340,15 +296,6 @@ export default function SendEmails() {
       </div>
     )
   }
-
-  // Debug info
-  console.log('🔍 Component state:', {
-    templates: templates.length,
-    contacts: contacts.length,
-    campaigns: campaigns.length,
-    selectedTemplate,
-    selectedList
-  })
 
   const stats = getStats()
   const selectedContacts = getSelectedContacts()
@@ -575,7 +522,6 @@ export default function SendEmails() {
                   value={selectedTemplate || ''}
                   onChange={(e) => {
                     const value = e.target.value
-                    console.log('🔄 Template selection changed:', { value, type: typeof value })
                     if (value && value !== '') {
                       setSelectedTemplate(value)
                     } else {
@@ -601,7 +547,6 @@ export default function SendEmails() {
                 <select
                   value={selectedList}
                   onChange={(e) => {
-                    console.log('🔄 List selection changed:', { value: e.target.value, type: typeof e.target.value })
                     setSelectedList(e.target.value)
                   }}
                   className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
@@ -609,7 +554,6 @@ export default function SendEmails() {
                   <option value="all">🌍 All lists ({contacts.length} contacts)</option>
                   {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
                     const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
-                    console.log('🔍 Creating list option:', { list, count, value: list })
                     return (
                       <option key={list} value={list}>
                         📋 {list} ({count} contacts)

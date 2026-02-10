@@ -38,31 +38,21 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const [importing, setImporting] = useState(false)
   const [resetting, setResetting] = useState(false)
 
-  // Load real statistics
   const loadStats = async () => {
     try {
-      console.log('📊 Dashboard: Starting to load stats...')
       setLoading(true)
       
-      // Load contacts count
-      console.log('📊 Dashboard: Fetching contacts from API...')
       const contactsResponse = await fetch('/api/contacts')
       const contactsResult = await contactsResponse.json()
-      
-      console.log('📊 Dashboard: Contacts API response:', contactsResult)
-      
+
       if (contactsResult.success) {
         const totalContacts = contactsResult.data.length
-        console.log('📊 Dashboard: Total contacts found:', totalContacts)
-        
         setStats(prev => ({
           ...prev,
           total: totalContacts
         }))
-        
-        console.log('📊 Dashboard: Stats updated successfully')
       } else {
-        console.error('📊 Dashboard: Failed to load contacts:', contactsResult.error)
+        console.error('Failed to load contacts:', contactsResult.error)
       }
       
       // TODO: Load other stats when APIs are implemented
@@ -71,22 +61,19 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       // const emailsResponse = await fetch('/api/emails')
       
     } catch (error) {
-      console.error('📊 Dashboard: Error loading stats:', error)
+      console.error('Error loading stats:', error)
     } finally {
       setLoading(false)
-      console.log('📊 Dashboard: Stats loading completed')
     }
   }
 
   useEffect(() => {
-    console.log('📊 Dashboard: Component mounted, calling loadStats...')
     loadStats()
   }, [])
 
   const importDanceEmails = async () => {
     try {
       setImporting(true)
-      console.log('🚀 Dashboard: Starting dance emails import...')
       
       const response = await fetch('/api/import-dance-emails', {
         method: 'POST'
@@ -95,16 +82,14 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       const result = await response.json()
       
       if (result.success) {
-        console.log('✅ Dashboard: Import successful:', result.message)
         // Reload stats to show updated contact count
         await loadStats()
         alert(`Import completed successfully!\n${result.message}`)
       } else {
-        console.error('❌ Dashboard: Import failed:', result.error)
         alert(`Import failed: ${result.error}`)
       }
     } catch (error) {
-      console.error('❌ Dashboard: Import error:', error)
+      console.error('Import error:', error)
       alert(`Import error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setImporting(false)
@@ -114,7 +99,6 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const importOrganizedContacts = async () => {
     try {
       setImporting(true)
-      console.log('🚀 Dashboard: Starting organized contacts import...')
       
       const response = await fetch('/api/import-organized-contacts', {
         method: 'POST'
@@ -123,16 +107,14 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       const result = await response.json()
       
       if (result.success) {
-        console.log('✅ Dashboard: Organized import successful:', result.message)
         // Reload stats to show updated contact count
         await loadStats()
         alert(`✅ Import organized contacts completed!\n\n${result.message}\n\nThis should give you all ${result.summary.totalLines} contacts from the organized file.`)
       } else {
-        console.error('❌ Dashboard: Organized import failed:', result.error)
         alert(`Import failed: ${result.error}`)
       }
     } catch (error) {
-      console.error('❌ Dashboard: Organized import error:', error)
+      console.error('Organized import error:', error)
       alert(`Import error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setImporting(false)
@@ -146,7 +128,6 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
     try {
       setResetting(true)
-      console.log('🗑️ Dashboard: Starting database reset...')
       
       const response = await fetch('/api/reset-contacts', {
         method: 'POST'
@@ -155,15 +136,13 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       const result = await response.json()
       
       if (result.success) {
-        console.log('✅ Dashboard: Database reset successful:', result.message)
         await loadStats()
         alert(`✅ Database reset completed!\n\nDeleted ${result.deletedCount} contacts.\n\nYou can now run the import to restore contacts.`)
       } else {
-        console.error('❌ Dashboard: Database reset failed:', result.error)
         alert(`❌ Failed to reset the database: ${result.error}`)
       }
     } catch (error) {
-      console.error('❌ Dashboard: Database reset error:', error)
+      console.error('Database reset error:', error)
       alert(`❌ Failed to reset the database: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setResetting(false)
@@ -175,11 +154,6 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       onTabChange(tab)
     }
   }
-
-  // Debug: Log stats changes
-  useEffect(() => {
-    console.log('📊 Dashboard: Stats state changed:', stats)
-  }, [stats])
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -211,10 +185,6 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="text-sm text-gray-600 font-medium">Total Contacts</div>
             <div className="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
               {loading ? 'Loading...' : 'In Database'}
-            </div>
-            {/* Debug info */}
-            <div className="mt-2 text-xs text-gray-400">
-              Debug: {loading ? 'Loading' : `Loaded ${stats.total}`}
             </div>
           </div>
         </div>
@@ -261,29 +231,6 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <div className="mt-3 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
               {loading ? 'Loading...' : 'Delivered'}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Debug section */}
-      <div className="card card-hover">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center">
-              <ChartBarIcon className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900">Debug Information</h3>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div><strong>Loading State:</strong> {loading ? 'true' : 'false'}</div>
-            <div><strong>Total Contacts:</strong> {stats.total}</div>
-            <div><strong>Stats Object:</strong> {JSON.stringify(stats)}</div>
-            <button 
-              onClick={loadStats}
-              className="btn-secondary btn-sm mt-2"
-            >
-              🔄 Reload Stats
-            </button>
           </div>
         </div>
       </div>
