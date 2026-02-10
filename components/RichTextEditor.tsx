@@ -323,44 +323,44 @@ export default function RichTextEditor({
   }
 
   return (
-    <div className={`rich-text-editor ${className}`}>
+    <div className={`rich-text-editor rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white ${className}`}>
       {/* Top menu bar */}
       {showToolbar && (
-        <div className="bg-gray-800 text-white border-b border-gray-700">
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white border-b border-slate-700">
           <div className="flex items-center px-4 py-2 space-x-6 text-sm">
             <button
               onClick={() => setActiveMenu(activeMenu === 'edit' ? null : 'edit')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'edit' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'edit' ? 'bg-white/10' : ''}`}
             >
               Edit
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'format' ? null : 'format')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'format' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'format' ? 'bg-white/10' : ''}`}
             >
               Format
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'media' ? null : 'media')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'media' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'media' ? 'bg-white/10' : ''}`}
             >
               Media
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'table' ? null : 'table')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'table' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'table' ? 'bg-white/10' : ''}`}
             >
               Table
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'insert' ? null : 'insert')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'insert' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'insert' ? 'bg-white/10' : ''}`}
             >
               Insert
             </button>
             <button
               onClick={() => setActiveMenu(activeMenu === 'view' ? null : 'view')}
-              className={`px-3 py-1 rounded hover:bg-gray-700 ${activeMenu === 'view' ? 'bg-gray-700' : ''}`}
+              className={`px-3 py-1 rounded hover:bg-white/10 ${activeMenu === 'view' ? 'bg-white/10' : ''}`}
             >
               View
             </button>
@@ -368,13 +368,13 @@ export default function RichTextEditor({
 
           {/* Dropdown menus */}
           {activeMenu === 'edit' && (
-            <div className="bg-gray-700 px-4 py-2 text-sm">
+            <div className="bg-slate-800 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={() => quillRef.current?.history.undo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.history.undo()} className="hover:bg-slate-700 px-2 py-1 rounded">
                   <UndoIcon className="w-4 h-4 inline mr-2" />
                   Undo
                 </button>
-                <button onClick={() => quillRef.current?.history.redo()} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={() => quillRef.current?.history.redo()} className="hover:bg-slate-700 px-2 py-1 rounded">
                   <RedoIcon className="w-4 h-4 inline mr-2" />
                   Redo
                 </button>
@@ -383,11 +383,11 @@ export default function RichTextEditor({
           )}
 
           {activeMenu === 'format' && (
-            <div className="bg-gray-700 px-4 py-2 text-sm">
+            <div className="bg-slate-800 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
                 <select 
                   onChange={(e) => formatText('font', e.target.value)}
-                  className="bg-gray-600 text-white px-2 py-1 rounded border border-gray-500"
+                  className="bg-slate-700 text-white px-2 py-1 rounded border border-slate-600"
                 >
                   <option value="Open Sans">Open Sans</option>
                   <option value="Arial">Arial</option>
@@ -396,7 +396,7 @@ export default function RichTextEditor({
                 </select>
                 <select 
                   onChange={(e) => formatText('size', e.target.value)}
-                  className="bg-gray-600 text-white px-2 py-1 rounded border border-gray-500"
+                  className="bg-slate-700 text-white px-2 py-1 rounded border border-slate-600"
                 >
                   <option value="12px">12px</option>
                   <option value="14px">14px</option>
@@ -410,17 +410,17 @@ export default function RichTextEditor({
           )}
 
           {activeMenu === 'media' && (
-            <div className="bg-gray-700 px-4 py-2 text-sm">
+            <div className="bg-slate-800 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={insertImage} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={insertImage} className="hover:bg-slate-700 px-2 py-1 rounded">
                   <PhotoIcon className="w-4 h-4 inline mr-2" />
                   Image from file
                 </button>
-                <button onClick={insertImageFromUrl} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={insertImageFromUrl} className="hover:bg-slate-700 px-2 py-1 rounded">
                   <PhotoIcon className="w-4 h-4 inline mr-2" />
                   Image from URL
                 </button>
-                <button className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button className="hover:bg-slate-700 px-2 py-1 rounded">
                   <VideoCameraIcon className="w-4 h-4 inline mr-2" />
                   Video
                 </button>
@@ -429,9 +429,9 @@ export default function RichTextEditor({
           )}
 
           {activeMenu === 'table' && (
-            <div className="bg-gray-700 px-4 py-2 text-sm">
+            <div className="bg-slate-800 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                <button onClick={insertTable} className="hover:bg-gray-600 px-2 py-1 rounded">
+                <button onClick={insertTable} className="hover:bg-slate-700 px-2 py-1 rounded">
                   <TableCellsIcon className="w-4 h-4 inline mr-2" />
                   Insert table
                 </button>
@@ -440,13 +440,13 @@ export default function RichTextEditor({
           )}
 
           {activeMenu === 'insert' && (
-            <div className="bg-gray-700 px-4 py-2 text-sm">
+            <div className="bg-slate-800 px-4 py-2 text-sm">
               <div className="flex items-center space-x-4">
-                                 <button onClick={(e) => formatText('blockquote', undefined, e)} className="hover:bg-gray-600 px-2 py-1 rounded">
+                                 <button onClick={(e) => formatText('blockquote', undefined, e)} className="hover:bg-slate-700 px-2 py-1 rounded">
                    <QuoteIcon className="w-4 h-4 inline mr-2" />
                    Quote
                  </button>
-                 <button onClick={(e) => formatText('code-block', undefined, e)} className="hover:bg-gray-600 px-2 py-1 rounded">
+                 <button onClick={(e) => formatText('code-block', undefined, e)} className="hover:bg-slate-700 px-2 py-1 rounded">
                    <DocumentTextIcon className="w-4 h-4 inline mr-2" />
                    Code
                  </button>
@@ -458,27 +458,27 @@ export default function RichTextEditor({
 
       {/* Main toolbar */}
       {showToolbar && (
-        <div className="bg-gray-100 border-b border-gray-300 p-3">
+        <div className="bg-white border-b border-gray-200 p-3">
           <div className="flex items-center space-x-4">
             {/* Text formatting */}
             <div className="flex items-center space-x-1">
                              <button
                  onClick={(e) => formatText('bold', undefined, e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Bold"
                >
                  <BoldIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('italic', undefined, e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Italic"
                >
                  <ItalicIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('underline', undefined, e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Underline"
                >
                  <UnderlineIcon className="w-4 h-4" />
@@ -489,7 +489,7 @@ export default function RichTextEditor({
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="p-2 hover:bg-gray-200 rounded transition-colors flex items-center"
+                className="p-2 hover:bg-primary-50 rounded transition-colors flex items-center"
                 title="Text color"
               >
                 <span className="text-red-500 font-bold text-sm">A</span>
@@ -497,7 +497,7 @@ export default function RichTextEditor({
               </button>
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                className="p-2 hover:bg-primary-50 rounded transition-colors"
                 title="Background color"
               >
                 <div className="w-4 h-4 border border-gray-400 rounded-sm bg-yellow-200"></div>
@@ -509,7 +509,7 @@ export default function RichTextEditor({
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setShowLinkDialog(true)}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                className="p-2 hover:bg-primary-50 rounded transition-colors"
                 title="Insert link"
               >
                 <PlusIcon className="w-4 h-4" />
@@ -517,14 +517,14 @@ export default function RichTextEditor({
               </button>
               <button
                 onClick={editLink}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                className="p-2 hover:bg-primary-50 rounded transition-colors"
                 title="Edit link"
               >
                 <LinkIcon className="w-4 h-4" />
               </button>
               <button
                 onClick={removeLink}
-                className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-400"
+                className="p-2 hover:bg-primary-50 rounded transition-colors text-gray-400"
                 title="Remove link"
               >
                 <LinkBreakIcon className="w-4 h-4" />
@@ -532,7 +532,7 @@ export default function RichTextEditor({
             </div>
 
             {/* Emoji */}
-            <button className="p-2 hover:bg-gray-200 rounded transition-colors text-xl">
+            <button className="p-2 hover:bg-primary-50 rounded transition-colors text-xl">
               😊
             </button>
           </div>
@@ -543,28 +543,28 @@ export default function RichTextEditor({
             <div className="flex items-center space-x-1">
                              <button
                  onClick={(e) => formatText('align', 'left', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Align left"
                >
                  <AlignLeftIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('align', 'center', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Center"
                >
                  <AlignCenterIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('align', 'right', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Align right"
                >
                  <AlignRightIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('align', 'justify', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Justify"
                >
                  <AlignJustifyIcon className="w-4 h-4" />
@@ -575,28 +575,28 @@ export default function RichTextEditor({
             <div className="flex items-center space-x-1">
                              <button
                  onClick={(e) => formatText('list', 'bullet', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Bullet list"
                >
                  <ListBulletIcon className="w-4 h-4" />
                </button>
                <button
                  onClick={(e) => formatText('list', 'ordered', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Numbered list"
                >
                  <ListNumberedIcon className="w-4 h-4" />
                </button>
                <button 
                  onClick={(e) => formatText('indent', '+1', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Increase indent"
                >
                  <PlusIcon className="w-4 h-4" />
                </button>
                <button 
                  onClick={(e) => formatText('indent', '-1', e)}
-                 className="p-2 hover:bg-gray-200 rounded transition-colors"
+                 className="p-2 hover:bg-primary-50 rounded transition-colors"
                  title="Decrease indent"
                >
                  <MinusIcon className="w-4 h-4" />

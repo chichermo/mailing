@@ -100,20 +100,19 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <div className="sidebar min-h-screen">
-      {/* Header del Sidebar */}
+      {/* Header */}
       <div className="p-6 border-b border-gray-200/50">
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-slate-900 to-primary-700 rounded-xl flex items-center justify-center shadow-lg">
               <SparklesIcon className="w-6 h-6 text-white" />
             </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-success-400 to-success-600 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
           </div>
           <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-primary-700 bg-clip-text text-transparent">
               Heliopsis Mail
             </h1>
-            <p className="text-xs text-gray-500 font-medium">Email Marketing Pro</p>
+            <p className="text-xs text-gray-500 font-medium">Campaign Console</p>
           </div>
         </div>
       </div>
@@ -194,16 +193,16 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer del Sidebar */}
+      {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200/50">
-        <div className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 rounded-xl p-3 mb-3">
+        <div className="bg-white/70 backdrop-blur-sm rounded-xl p-3 mb-3 border border-gray-200/60 shadow-sm">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-success-400 to-success-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg flex items-center justify-center">
               <SparklesIcon className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900">System Active</div>
-              <div className="text-xs text-gray-500">All services running</div>
+              <div className="text-sm font-medium text-gray-900">System Status</div>
+              <div className="text-xs text-gray-500">Operational</div>
             </div>
             <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
           </div>
@@ -211,7 +210,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="btn-secondary w-full justify-center gap-2 text-sm"
         >
           <ArrowLeftOnRectangleIcon className="w-4 h-4" />
           {loggingOut ? 'Signing out...' : 'Sign out'}

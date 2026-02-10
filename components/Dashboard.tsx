@@ -157,19 +157,22 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      {/* Header mejorado */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-primary-50 to-blue-50 px-6 py-3 rounded-2xl border border-primary-200/50">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
-            <SparklesIcon className="w-5 h-5 text-white" />
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 p-8 text-white shadow-2xl">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_45%)]"></div>
+        <div className="relative z-10 flex flex-col gap-4">
+          <div className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <SparklesIcon className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Executive Dashboard
+            </h1>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 via-blue-600 to-indigo-700 bg-clip-text text-transparent">
-            Dashboard
-          </h1>
+          <p className="text-blue-100 text-lg max-w-2xl">
+            Monitor contact growth, campaigns, and delivery performance from a single, unified workspace.
+          </p>
         </div>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Welcome to your professional email marketing system. Monitor performance and manage your campaigns from one place.
-        </p>
       </div>
 
       {/* Quick Stats mejorados */}
@@ -295,10 +298,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                     Importing...
                   </>
                 ) : (
-                  <>
-                    <div className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200">📋</div>
-                    Import Organized Contacts
-                  </>
+                  <>Import Organized Contacts</>
                 )}
               </button>
               <button 
@@ -309,13 +309,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                 {resetting ? (
                   <>
                     <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Reseteando...
+                    Resetting...
                   </>
                 ) : (
-                  <>
-                    <div className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200">🗑️</div>
-                    Reset Database
-                  </>
+                  <>Reset Database</>
                 )}
               </button>
             </div>
@@ -340,12 +337,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
                 <span className="text-sm font-medium text-gray-700">SendGrid</span>
-                <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">
-                  <span className="text-sm font-medium text-gray-700">SendGrid</span>
-                  <div className="flex items-center space-x-2">
-                    <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
-                    <span className="text-sm font-medium text-warning-700">Pending</span>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <ExclamationTriangleIcon className="w-4 h-4 text-warning-600" />
+                  <span className="text-sm font-medium text-warning-700">Pending</span>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-warning-50 rounded-xl border border-warning-200">

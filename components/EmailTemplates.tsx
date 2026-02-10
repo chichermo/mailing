@@ -44,7 +44,6 @@ export default function EmailTemplates() {
       
       if (data.success) {
         setTemplates(data.data)
-        console.log('📋 Templates loaded:', data.data)
       } else {
         console.error('❌ Error loading templates:', data.error)
         toast.error('Error loading templates')
@@ -182,21 +181,21 @@ export default function EmailTemplates() {
 
   return (
     <div className="space-y-8">
-      {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-2xl p-8 text-white">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 rounded-2xl p-8 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center">
-                <SparklesIcon className="w-10 h-10 mr-3 text-yellow-300" />
+                <SparklesIcon className="w-10 h-10 mr-3 text-yellow-200" />
                 Email Templates
               </h1>
-              <p className="text-xl text-purple-100">Create and manage professional email templates</p>
+              <p className="text-xl text-blue-100">Create and manage corporate email templates</p>
             </div>
             <button
               onClick={openModal}
-              className="group relative px-8 py-4 bg-white text-purple-600 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 hover:bg-purple-50"
+              className="btn-secondary btn-lg group relative shadow-xl hover:shadow-2xl"
             >
               <PlusIcon className="w-6 h-6 mr-2 group-hover:rotate-90 transition-transform duration-300" />
               New Template
@@ -213,24 +212,24 @@ export default function EmailTemplates() {
       {templates && Array.isArray(templates) && templates.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <div key={template._id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border border-gray-100 overflow-hidden">
+            <div key={template._id} className="card card-hover group overflow-hidden">
               {/* Template Header */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
+              <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-6 border-b border-blue-100">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
                     <DocumentTextIcon className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(template)}
-                      className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                      className="p-2 bg-white/80 border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors"
                       title="Edit template"
                     >
                       <PencilIcon className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(template._id)}
-                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      className="p-2 bg-white/80 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                       title="Delete template"
                     >
                       <TrashIcon className="w-4 h-4" />
@@ -315,14 +314,14 @@ export default function EmailTemplates() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <div className="w-24 h-24 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <DocumentTextIcon className="w-12 h-12 text-purple-600" />
+          <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <DocumentTextIcon className="w-12 h-12 text-blue-700" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">No templates yet</h3>
-          <p className="text-gray-600 mb-8 text-lg">Create your first email template to get started with professional email campaigns</p>
+          <p className="text-gray-600 mb-8 text-lg">Create your first template to launch a campaign</p>
           <button
             onClick={openModal}
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            className="btn-primary btn-lg inline-flex items-center"
           >
             <PlusIcon className="w-6 h-6 mr-2" />
             Create Template
@@ -335,13 +334,13 @@ export default function EmailTemplates() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl mx-4 max-h-[95vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-8 rounded-t-3xl">
+            <div className="bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 text-white p-8 rounded-t-3xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-bold mb-2">
-                    {editingTemplate ? '✏️ Edit Template' : '✨ New Template'}
+                    {editingTemplate ? 'Edit Template' : 'New Template'}
                   </h2>
-                  <p className="text-purple-100 text-lg">
+                  <p className="text-blue-100 text-lg">
                     {editingTemplate ? 'Update your email template' : 'Create a professional email template'}
                   </p>
                 </div>
@@ -360,13 +359,13 @@ export default function EmailTemplates() {
               {/* Template Name */}
               <div className="space-y-3">
                 <label className="block text-lg font-semibold text-gray-900">
-                  📝 Template Name *
+                  Template Name *
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 text-lg transition-all duration-200"
+                  className="input text-lg"
                   placeholder="Enter template name..."
                 />
               </div>
@@ -374,13 +373,13 @@ export default function EmailTemplates() {
               {/* Email Subject */}
               <div className="space-y-3">
                 <label className="block text-lg font-semibold text-gray-900">
-                  📧 Email Subject *
+                  Email Subject *
                 </label>
                 <input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 text-lg transition-all duration-200"
+                  className="input text-lg"
                   placeholder="Enter email subject..."
                 />
               </div>
@@ -418,7 +417,7 @@ export default function EmailTemplates() {
               {/* Email Content */}
               <div className="space-y-3">
                 <label className="block text-lg font-semibold text-gray-900">
-                  ✨ Email Content *
+                  Email Content *
                 </label>
                 <WorkingEditor
                   value={formData.content}
@@ -428,24 +427,24 @@ export default function EmailTemplates() {
                   className="w-full"
                 />
                 <p className="text-sm text-gray-500">
-                  💡 Use the toolbar above to format your content. You can use HTML and insert variables from above.
+                  Use the toolbar above to format your content. You can use HTML and insert variables from above.
                 </p>
               </div>
 
               {/* Custom Variables */}
               <div className="space-y-3">
                 <label className="block text-lg font-semibold text-gray-900">
-                  🔧 Custom Variables (Optional)
+                  Custom Variables (Optional)
                 </label>
                 <input
                   type="text"
                   value={formData.variables}
                   onChange={(e) => setFormData(prev => ({ ...prev, variables: e.target.value }))}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 text-lg transition-all duration-200"
+                  className="input text-lg"
                   placeholder="variable1, variable2, variable3 (comma separated)"
                 />
                 <p className="text-sm text-gray-500">
-                  💡 Add custom variables separated by commas. These will be available as {'{variable1}'}, {'{variable2}'}, etc.
+                  Add custom variables separated by commas. These will be available as {'{variable1}'}, {'{variable2}'}, etc.
                 </p>
               </div>
 
@@ -453,7 +452,7 @@ export default function EmailTemplates() {
               <div className="flex gap-4 pt-6">
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                  className="btn-primary flex-1 text-lg"
                 >
                   {editingTemplate ? (
                     <>
@@ -469,7 +468,7 @@ export default function EmailTemplates() {
                 </button>
                 <button
                   onClick={closeModal}
-                  className="flex-1 px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-semibold text-lg hover:bg-gray-200 transition-colors"
+                  className="btn-secondary flex-1 text-lg"
                 >
                   Cancel
                 </button>

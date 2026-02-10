@@ -303,7 +303,7 @@ export default function SendEmails() {
   return (
     <div className="space-y-8">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-8 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 rounded-2xl p-8 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -312,11 +312,11 @@ export default function SendEmails() {
                 <SparklesIcon className="w-10 h-10 mr-3 text-yellow-300" />
                 Email Campaigns
               </h1>
-              <p className="text-xl text-blue-100">Create and manage powerful email campaigns</p>
+              <p className="text-xl text-blue-100">Create and manage corporate email campaigns</p>
             </div>
             <button
               onClick={openModal}
-              className="group relative px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 hover:bg-blue-50"
+              className="btn-secondary btn-lg group relative shadow-xl hover:shadow-2xl"
             >
               <PaperAirplaneIcon className="w-6 h-6 mr-2 group-hover:rotate-12 transition-transform duration-300" />
               New Campaign
@@ -343,14 +343,14 @@ export default function SendEmails() {
           </div>
         </div>
         
-        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-purple-500">
+        <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border-l-4 border-indigo-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 mb-1">Templates</p>
               <p className="text-3xl font-bold text-gray-900">{stats.totalTemplates}</p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
-              <DocumentTextIcon className="w-8 h-8 text-purple-600" />
+            <div className="p-3 bg-indigo-100 rounded-xl group-hover:bg-indigo-200 transition-colors">
+              <DocumentTextIcon className="w-8 h-8 text-indigo-600" />
             </div>
           </div>
         </div>
@@ -476,7 +476,7 @@ export default function SendEmails() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl mx-4 max-h-[95vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-3xl">
+          <div className="bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 text-white p-8 rounded-t-3xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-bold mb-2">New Email Campaign</h2>
@@ -505,7 +505,7 @@ export default function SendEmails() {
                     className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
                   />
                   <label htmlFor="testMode" className="text-lg font-semibold text-amber-800">
-                    🧪 Test Mode
+                    Test Mode
                   </label>
                 </div>
                 <p className="text-amber-700 mt-2 ml-8">
@@ -516,7 +516,7 @@ export default function SendEmails() {
               {/* Template selection with enhanced design */}
               <div className="space-y-4">
                 <label className="block text-lg font-semibold text-gray-900 mb-3">
-                  📋 Select Template
+                  Select Template
                 </label>
                 <select
                   value={selectedTemplate || ''}
@@ -528,12 +528,12 @@ export default function SendEmails() {
                       setSelectedTemplate(null)
                     }
                   }}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
+                  className="input text-lg"
                 >
-                  <option value="">🎨 No template (custom content)</option>
+                  <option value="">No template (custom content)</option>
                   {templates.map(template => (
                     <option key={template._id} value={template._id}>
-                      📄 {template.name}
+                      {template.name}
                     </option>
                   ))}
                 </select>
@@ -542,21 +542,21 @@ export default function SendEmails() {
               {/* List selection with enhanced design */}
               <div className="space-y-4">
                 <label className="block text-lg font-semibold text-gray-900 mb-3">
-                  👥 Contact List
+                  Contact List
                 </label>
                 <select
                   value={selectedList}
                   onChange={(e) => {
                     setSelectedList(e.target.value)
                   }}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
+                  className="input text-lg"
                 >
-                  <option value="all">🌍 All lists ({contacts.length} contacts)</option>
+                  <option value="all">All lists ({contacts.length} contacts)</option>
                   {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
                     const count = contacts.filter(c => c.listNames && Array.isArray(c.listNames) && c.listNames.includes(list)).length
                     return (
                       <option key={list} value={list}>
-                        📋 {list} ({count} contacts)
+                        {list} ({count} contacts)
                       </option>
                     )
                   })}
@@ -566,13 +566,13 @@ export default function SendEmails() {
               {/* CC and BCC Section with enhanced design */}
               <div className="border-t border-gray-200 pt-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">📧 Additional Recipients</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">Additional Recipients</h3>
                   <button
                     type="button"
                     onClick={() => setShowCcBcc(!showCcBcc)}
-                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                    className="btn-secondary btn-sm"
                   >
-                    {showCcBcc ? '🙈 Hide' : '👁️ Show'} CC/BCC
+                    {showCcBcc ? 'Hide' : 'Show'} CC/BCC
                   </button>
                 </div>
 
@@ -581,18 +581,18 @@ export default function SendEmails() {
                     {/* CC Field */}
                     <div className="space-y-4">
                       <label className="block text-lg font-semibold text-gray-900 mb-3">
-                        📬 CC (Carbon Copy)
+                        CC (Carbon Copy)
                       </label>
                       
                       {/* List Selection */}
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-600 mb-2">
-                          📋 Select complete list:
+                          Select list:
                         </label>
                         <select
                           value={ccList}
                           onChange={(e) => handleCcBccListChange('cc', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                          className="input"
                         >
                           <option value="">-- No list --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
@@ -609,14 +609,14 @@ export default function SendEmails() {
                       {/* Individual Emails */}
                       <div>
                         <label className="block text-sm font-medium text-gray-600 mb-2">
-                          📧 Additional emails:
+                          Additional emails:
                         </label>
                         <input
                           type="text"
                           value={ccIndividual}
                           placeholder="email1@example.com, email2@example.com"
                           onChange={(e) => handleCcBccInput('cc', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                          className="input"
                         />
                         <p className="text-sm text-gray-500 mt-2">
                           Additional emails separated by commas. These recipients will be visible to everyone.
@@ -627,7 +627,7 @@ export default function SendEmails() {
                       {getAllCcEmails().length > 0 && (
                         <div className="mt-4 p-4 bg-blue-100 border border-blue-200 rounded-xl">
                           <div className="text-sm font-semibold text-blue-800 mb-2">
-                            📊 Total CC: {getAllCcEmails().length} emails
+                            Total CC: {getAllCcEmails().length} emails
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {getAllCcEmails().map((email, index) => (
@@ -643,18 +643,18 @@ export default function SendEmails() {
                     {/* BCC Field */}
                     <div className="space-y-4">
                       <label className="block text-lg font-semibold text-gray-900 mb-3">
-                        🙈 BCC (Blind Carbon Copy)
+                        BCC (Blind Carbon Copy)
                       </label>
                       
                       {/* List Selection */}
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-600 mb-2">
-                          📋 Select complete list:
+                          Select list:
                         </label>
                         <select
                           value={bccList}
                           onChange={(e) => handleCcBccListChange('bcc', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                          className="input"
                         >
                           <option value="">-- No list --</option>
                           {Array.from(new Set(contacts.flatMap(c => c.listNames || []).filter(Boolean))).map(list => {
@@ -671,14 +671,14 @@ export default function SendEmails() {
                       {/* Individual Emails */}
                       <div>
                         <label className="block text-sm font-medium text-gray-600 mb-2">
-                          📧 Additional emails:
+                          Additional emails:
                         </label>
                         <input
                           type="text"
                           value={bccIndividual}
                           placeholder="email1@example.com, email2@example.com"
                           onChange={(e) => handleCcBccInput('bcc', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200"
+                          className="input"
                         />
                         <p className="text-sm text-gray-500 mt-2">
                           Additional emails separated by commas. These recipients will be hidden from others.
@@ -689,7 +689,7 @@ export default function SendEmails() {
                       {getAllBccEmails().length > 0 && (
                         <div className="mt-4 p-4 bg-green-100 border border-green-200 rounded-xl">
                           <div className="text-sm font-semibold text-green-800 mb-2">
-                            📊 Total BCC: {getAllBccEmails().length} emails
+                            Total BCC: {getAllBccEmails().length} emails
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {getAllBccEmails().map((email, index) => (
@@ -707,19 +707,19 @@ export default function SendEmails() {
 
               {/* Template preview with enhanced design */}
               {selectedTemplate && getSelectedTemplate() && (
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
                     <DocumentTextIcon className="w-5 h-5 mr-2" />
                     Template Preview
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-sm text-purple-600 font-medium">Subject:</span>
-                      <p className="text-lg font-semibold text-purple-900">{getSelectedTemplate()?.subject}</p>
+                      <span className="text-sm text-blue-600 font-medium">Subject:</span>
+                      <p className="text-lg font-semibold text-blue-900">{getSelectedTemplate()?.subject}</p>
                     </div>
                     <div>
-                      <span className="text-sm text-purple-600 font-medium">Content:</span>
-                      <div className="text-sm text-purple-800 line-clamp-3 bg-white p-3 rounded-lg border border-purple-200">
+                      <span className="text-sm text-blue-600 font-medium">Content:</span>
+                      <div className="text-sm text-blue-800 line-clamp-3 bg-white p-3 rounded-lg border border-blue-200">
                         {getSelectedTemplate()?.content.replace(/<[^>]*>/g, '')}
                       </div>
                     </div>
@@ -732,21 +732,21 @@ export default function SendEmails() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-lg font-semibold text-gray-900 mb-3">
-                      📧 Email Subject *
+                      Email Subject *
                     </label>
                     <input
                       type="text"
                       required
                       value={customSubject}
                       onChange={(e) => setCustomSubject(e.target.value)}
-                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg transition-all duration-200"
-                      placeholder="Your compelling email subject..."
+                      className="input text-lg"
+                      placeholder="Your email subject..."
                     />
                   </div>
 
                   <div>
                     <label className="block text-lg font-semibold text-gray-900 mb-3">
-                      ✨ Email Content *
+                      Email Content *
                     </label>
                     <RichTextEditor
                       value={customContent}
@@ -756,14 +756,14 @@ export default function SendEmails() {
                       className="w-full"
                     />
                     <p className="text-sm text-gray-500 mt-3">
-                      💡 You can use HTML and variables like {'{firstName}'}, {'{lastName}'}, {'{company}'}
+                      You can use HTML and variables like {'{firstName}'}, {'{lastName}'}, {'{company}'}
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Enhanced Summary */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+              <div className="bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-200 rounded-2xl p-6">
                 <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
                   <ChartBarIcon className="w-5 h-5 mr-2" />
                   Campaign Summary
@@ -771,22 +771,22 @@ export default function SendEmails() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>📧 Contacts to send:</span>
+                      <span>Contacts to send:</span>
                       <span className="font-semibold">{selectedContacts.length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>🎯 Mode:</span>
+                      <span>Mode:</span>
                       <span className="font-semibold">{testMode ? 'Test (max. 5)' : 'Production'}</span>
                     </div>
                     {selectedTemplate && (
                       <div className="flex justify-between">
-                        <span>📋 Template:</span>
+                        <span>Template:</span>
                         <span className="font-semibold">{getSelectedTemplate()?.name}</span>
                       </div>
                     )}
                     {!selectedTemplate && (
                       <div className="flex justify-between">
-                        <span>📝 Type:</span>
+                        <span>Type:</span>
                         <span className="font-semibold">Custom content</span>
                       </div>
                     )}
@@ -794,18 +794,18 @@ export default function SendEmails() {
                   <div className="space-y-2">
                     {getAllCcEmails().length > 0 && (
                       <div className="flex justify-between">
-                        <span>📬 CC recipients:</span>
+                        <span>CC recipients:</span>
                         <span className="font-semibold">{getAllCcEmails().length}</span>
                       </div>
                     )}
                     {getAllBccEmails().length > 0 && (
                       <div className="flex justify-between">
-                        <span>🙈 BCC recipients:</span>
+                        <span>BCC recipients:</span>
                         <span className="font-semibold">{getAllBccEmails().length}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span>🚀 Max emails allowed:</span>
+                      <span>Max emails allowed:</span>
                       <span className="font-semibold text-green-600">350</span>
                     </div>
                   </div>
@@ -818,7 +818,7 @@ export default function SendEmails() {
                   type="button"
                   onClick={handleSendEmails}
                   disabled={sending || (!selectedTemplate && (!customSubject || !customContent))}
-                  className="flex-1 group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="btn-primary flex-1 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {sending ? (
                     <>
@@ -835,7 +835,7 @@ export default function SendEmails() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-semibold text-lg hover:bg-gray-200 transition-colors"
+                  className="btn-secondary flex-1 text-lg"
                 >
                   Cancel
                 </button>

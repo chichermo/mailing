@@ -217,9 +217,9 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
   }
 
   return (
-    <div className="working-editor">
+    <div className="working-editor rounded-2xl overflow-hidden border border-gray-200/70 shadow-lg bg-white">
       {/* Simple Toolbar */}
-      <div className="bg-gray-100 border border-gray-300 p-3 rounded-t-lg">
+      <div className="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200 p-3">
         <div className="flex items-center space-x-4">
           {/* Basic formatting */}
           <div className="flex items-center space-x-2">
@@ -230,7 +230,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   handleContentChange()
                 }
               }}
-              className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              className="btn-ghost btn-sm"
             >
               <strong>B</strong>
             </button>
@@ -241,7 +241,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   handleContentChange()
                 }
               }}
-              className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              className="btn-ghost btn-sm"
             >
               <em>I</em>
             </button>
@@ -252,7 +252,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   handleContentChange()
                 }
               }}
-              className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              className="btn-ghost btn-sm"
             >
               <u>U</u>
             </button>
@@ -262,26 +262,26 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowLinkDialog(true)}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="btn-primary btn-sm"
             >
               + Link
             </button>
             <button
               onClick={insertImage}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              className="btn-secondary btn-sm"
             >
               + Image
             </button>
             <button
               onClick={optimizeImagesForSendGrid}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="btn-warning btn-sm"
               title="Optimize images for SendGrid"
             >
               ⚡ Optimize
             </button>
             <button
               onClick={insertTable}
-              className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+              className="btn-secondary btn-sm"
             >
               + Table
             </button>
@@ -296,7 +296,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   handleContentChange()
                 }
               }}
-              className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              className="btn-ghost btn-sm"
             >
               • List
             </button>
@@ -307,7 +307,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   handleContentChange()
                 }
               }}
-              className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              className="btn-ghost btn-sm"
             >
               1. List
             </button>
@@ -319,7 +319,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
       <div 
         ref={editorRef}
         contentEditable={true}
-        className="min-h-80 border border-gray-300 rounded-b-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="min-h-80 border-t-0 border border-gray-200 rounded-b-2xl p-4 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         dir="ltr"
         style={{ direction: 'ltr', textAlign: 'left', unicodeBidi: 'plaintext' }}
         onInput={handleContentChange}
@@ -336,8 +336,8 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
 
       {/* Link Dialog */}
       {showLinkDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
+        <div className="modal-overlay">
+          <div className="modal-content p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Insert Link</h3>
             <div className="space-y-4">
               <div>
@@ -346,7 +346,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   type="text"
                   value={linkText}
                   onChange={(e) => setLinkText(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="input"
                   placeholder="Text to display"
                 />
               </div>
@@ -356,20 +356,20 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   type="url"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="input"
                   placeholder="https://example.com"
                 />
               </div>
               <div className="flex space-x-3">
                 <button
                   onClick={insertLink}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+                  className="btn-primary flex-1"
                 >
                   Insert
                 </button>
                 <button
                   onClick={() => setShowLinkDialog(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
+                  className="btn-secondary flex-1"
                 >
                   Cancel
                 </button>
@@ -381,8 +381,8 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
 
       {/* Image Dialog */}
       {showImageDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
+        <div className="modal-overlay">
+          <div className="modal-content p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Insert Image</h3>
             <div className="space-y-4">
               {/* File Upload */}
@@ -393,7 +393,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="input"
                 />
                 <p className="text-xs text-gray-500 mt-1">Supported: JPG, PNG, GIF, WebP</p>
               </div>
@@ -407,7 +407,7 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
                   type="url"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="input"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -415,13 +415,13 @@ export default function WorkingEditor({ value, onChange, placeholder }: WorkingE
               <div className="flex space-x-3">
                 <button
                   onClick={insertImageFromUrl}
-                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+                  className="btn-primary flex-1"
                 >
                   Insert from URL
                 </button>
                 <button
                   onClick={() => setShowImageDialog(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
+                  className="btn-secondary flex-1"
                 >
                   Cancel
                 </button>
