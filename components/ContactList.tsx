@@ -170,6 +170,7 @@ export default function ContactList() {
     if (!raw) return null
 
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
+    const emailTest = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
     const segments = raw
       .split(/[;|]/)
       .map(segment => segment.trim())
@@ -183,8 +184,32 @@ export default function ContactList() {
         return
       }
 
-      const nameSource = segment.replace(emailRegex, ' ').trim()
-      const { firstName, lastName } = extractName(nameSource)
+      const commaParts = segment
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean)
+
+      let firstName = ''
+      let lastName = ''
+      const emailIndex = commaParts.findIndex(part => emailTest.test(part))
+      if (commaParts.length >= 3 && emailIndex >= 0) {
+        const nameParts = commaParts.slice(0, emailIndex).filter(part => !emailTest.test(part))
+        if (nameParts.length >= 2) {
+          firstName = nameParts[0]
+          lastName = nameParts.slice(1).join(' ').trim()
+        } else if (nameParts.length === 1) {
+          const parsed = extractName(nameParts[0])
+          firstName = parsed.firstName
+          lastName = parsed.lastName
+        }
+      }
+
+      if (!firstName) {
+        const nameSource = segment.replace(emailRegex, ' ').trim()
+        const parsed = extractName(nameSource)
+        firstName = parsed.firstName
+        lastName = parsed.lastName
+      }
 
       emails.forEach((email) => {
         const normalizedEmail = email.toLowerCase()

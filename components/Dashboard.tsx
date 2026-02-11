@@ -27,6 +27,17 @@ interface ContactStats {
   emailsSent: number
 }
 
+interface ReputationStats {
+  score: number | null
+  delivered: number
+  bounces: number
+  blocks: number
+  spamReports: number
+  totalEvents: number
+  startDate: string
+  endDate: string
+}
+
 export default function Dashboard({ onTabChange }: DashboardProps) {
   const [stats, setStats] = useState<ContactStats>({
     total: 0,
@@ -37,13 +48,19 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [reputation, setReputation] = useState<ReputationStats | null>(null)
+  const [reputationError, setReputationError] = useState<string | null>(null)
 
   const loadStats = async () => {
     try {
       setLoading(true)
       
-      const contactsResponse = await fetch('/api/contacts')
+      const [contactsResponse, reputationResponse] = await Promise.all([
+        fetch('/api/contacts'),
+        fetch('/api/sendgrid-reputation')
+      ])
       const contactsResult = await contactsResponse.json()
+      const reputationResult = await reputationResponse.json()
 
       if (contactsResult.success) {
         const totalContacts = contactsResult.data.length
@@ -53,6 +70,23 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         }))
       } else {
         console.error('Failed to load contacts:', contactsResult.error)
+      }
+
+      if (reputationResult.success) {
+        setReputation({
+          score: reputationResult.data.score,
+          delivered: reputationResult.data.totals.delivered,
+          bounces: reputationResult.data.totals.bounces,
+          blocks: reputationResult.data.totals.blocks,
+          spamReports: reputationResult.data.totals.spamReports,
+          totalEvents: reputationResult.data.totals.totalEvents,
+          startDate: reputationResult.data.startDate,
+          endDate: reputationResult.data.endDate
+        })
+        setReputationError(null)
+      } else {
+        setReputation(null)
+        setReputationError(reputationResult.error || 'SendGrid stats not available')
       }
       
       // TODO: Load other stats when APIs are implemented
@@ -235,6 +269,57 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               {loading ? 'Loading...' : 'Delivered'}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="card card-hover">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="text-sm font-semibold text-gray-500">Deliverability Score</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {reputation?.score !== null && reputation?.score !== undefined
+                  ? `${reputation.score}%`
+                  : 'N/A'}
+              </div>
+            </div>
+            <div className="text-xs text-gray-500">
+              {reputation ? `${reputation.startDate} → ${reputation.endDate}` : 'Last 7 days'}
+            </div>
+          </div>
+
+          {reputationError ? (
+            <div className="text-sm text-warning-700 bg-warning-50 border border-warning-200 rounded-lg p-3">
+              {reputationError}. Grant SendGrid API key access to Stats to enable this.
+            </div>
+          ) : (
+            <>
+              <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 transition-all duration-500"
+                  style={{ width: `${Math.max(0, Math.min(reputation?.score || 0, 100))}%` }}
+                />
+              </div>
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                <div>
+                  <div className="text-xs uppercase text-gray-400">Delivered</div>
+                  <div className="font-semibold text-gray-900">{reputation?.delivered ?? 0}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-gray-400">Bounces</div>
+                  <div className="font-semibold text-gray-900">{reputation?.bounces ?? 0}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-gray-400">Blocks</div>
+                  <div className="font-semibold text-gray-900">{reputation?.blocks ?? 0}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-gray-400">Spam Reports</div>
+                  <div className="font-semibold text-gray-900">{reputation?.spamReports ?? 0}</div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
