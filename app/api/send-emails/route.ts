@@ -25,7 +25,7 @@ const formatSendGridError = (error: any) => {
   return error?.message || 'Unknown SendGrid error'
 }
 
-// POST - Send mass emails
+// POST - Send emails
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 === EMAIL SEND FUNCTION STARTED ===')
@@ -131,17 +131,31 @@ export async function POST(request: NextRequest) {
 
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
-    // Prepare emails - single BCC message
-    const allRecipients = contacts.map((contact: any) => contact.email)
-    
-    // Create ONE email with all recipients in BCC
-    const massEmail: any = {
-      to: fromEmail,
+    const replaceVariables = (text: string, contact: any) => {
+      const map: Record<string, string> = {
+        firstName: contact.first_name || contact.firstName || '',
+        lastName: contact.last_name || contact.lastName || '',
+        email: contact.email || '',
+        company: contact.company || '',
+        phone: contact.phone || '',
+        listName:
+          listName === 'all'
+            ? (contact.list_names?.[0] || contact.listNames?.[0] || 'all')
+            : listName
+      }
+
+      let output = text
+      Object.keys(map).forEach((key) => {
+        const value = map[key] || ''
+        const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}|\\{\\s*${key}\\s*\\}`, 'gi')
+        output = output.replace(regex, value)
+      })
+      return output
+    }
+
+    const baseMessage = {
       from: fromName ? { email: fromEmail, name: fromName } : fromEmail,
       replyTo: fromEmail,
-      subject: subject,
-      html: content,
-      // Headers anti-spam
       headers: {
         'X-Mailer': 'Heliopsis Mailer',
         'X-Priority': '3',
@@ -149,94 +163,89 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Add CC if specified
-    if (ccEmails && ccEmails.length > 0) {
-      massEmail.cc = ccEmails
+    let successCount = 0
+    let errorCount = 0
+    let lastError: any = null
+
+    console.log('📤 Sending individual emails to', contacts.length, 'recipients...')
+
+    for (const contact of contacts) {
+      const personalizedSubject = replaceVariables(subject, contact)
+      const personalizedContent = replaceVariables(content, contact)
+      const message: any = {
+        ...baseMessage,
+        to: contact.email,
+        subject: personalizedSubject,
+        html: personalizedContent
+      }
+
+      if (ccEmails && ccEmails.length > 0) {
+        message.cc = ccEmails
+      }
+      if (bccEmails && bccEmails.length > 0) {
+        message.bcc = bccEmails
+      }
+
+      try {
+        await sgMail.send(message)
+        successCount += 1
+      } catch (error: any) {
+        errorCount += 1
+        lastError = error
+        console.error('❌ Error sending to contact:', contact.email, error?.message || error)
+      }
     }
 
-    // Add BCC with ALL recipients
-    massEmail.bcc = allRecipients
+    const campaignData = {
+      template_id: templateId || null,
+      template_name: template?.name || 'N/A',
+      list_names: listName === 'all' ? ['all'] : [listName],
+      custom_subject: customSubject || subject,
+      custom_content: customContent || content,
+      total_sent: contacts.length,
+      success_count: successCount,
+      error_count: errorCount,
+      cc_recipients: ccEmails ? ccEmails.length : 0,
+      bcc_recipients: bccEmails ? bccEmails.length : 0,
+      created_at: new Date().toISOString(),
+      status: errorCount === 0 ? 'sent' : successCount === 0 ? 'failed' : 'partial',
+      method: 'individual_emails'
+    }
 
-    console.log('📨 Mass email prepared with:', {
-      to: massEmail.to,
-      bccCount: massEmail.bcc.length,
-      subject: massEmail.subject,
-      contentLength: massEmail.html.length
-    })
+    const { error: campaignError } = await supabaseAdmin
+      .from('campaigns')
+      .insert(campaignData)
 
-    // Send SINGLE mass email
-    try {
-      console.log('📤 Sending MASS email to', allRecipients.length, 'recipients...')
-      
-      const sendResult = await sgMail.send(massEmail)
-      console.log('✅ SendGrid response:', sendResult)
-      
-      console.log('🎉 Mass email sent successfully to all recipients!')
-      
-      // Save campaign data
-      const campaignData = {
-        template_id: templateId || null,
-        template_name: template?.name || 'N/A',
-        list_names: listName === 'all' ? ['all'] : [listName],
-        custom_subject: customSubject || subject,
-        custom_content: customContent || content,
-        total_sent: allRecipients.length,
-        success_count: allRecipients.length,
-        error_count: 0,
-        cc_recipients: ccEmails ? ccEmails.length : 0,
-        bcc_recipients: allRecipients.length,
-        created_at: new Date().toISOString(),
-        status: 'sent',
-        method: 'mass_email_bcc'
-      }
+    if (campaignError) {
+      throw campaignError
+    }
 
-      const { error: campaignError } = await supabaseAdmin
-        .from('campaigns')
-        .insert(campaignData)
-
-      if (campaignError) {
-        throw campaignError
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          totalSent: allRecipients.length,
-          successCount: allRecipients.length,
-          errorCount: 0,
-          method: 'mass_email_bcc',
-          message: `Mass email sent successfully to ${allRecipients.length} recipients via BCC`,
-          campaign: campaignData
-        }
-      })
-
-    } catch (error: any) {
-      console.error('❌ Error sending mass email:', error)
-      const statusCode = error?.response?.status || error?.code
-      console.error('❌ Error details:', {
-        message: error.message,
-        code: error.code,
-        statusCode,
-        response: {
-          body: error.response?.body || 'No response body',
-          status: error.response?.status || 'No status',
-          headers: error.response?.headers || 'No headers'
-        }
-      })
-      
-      // Treat 401/403 as authorization failures from SendGrid
+    if (successCount === 0 && lastError) {
+      const statusCode = lastError?.response?.status || lastError?.code
       const isAuthError = statusCode === 401 || statusCode === 403
       return NextResponse.json(
         {
           success: false,
           error: isAuthError
             ? 'SendGrid authorization failed. Check your API key, permissions, and sender verification.'
-            : 'Error sending mass email',
-          details: formatSendGridError(error)
+            : 'Error sending emails',
+          details: formatSendGridError(lastError)
         },
         { status: isAuthError ? statusCode : 500 }
       )
     }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        totalSent: contacts.length,
+        successCount,
+        errorCount,
+        method: 'individual_emails',
+        message: `Sent ${successCount} of ${contacts.length} emails successfully`,
+        campaign: campaignData
+      }
+    })
 
   } catch (error: any) {
     console.error('💥 Fatal error in email sending:', error)
