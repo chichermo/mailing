@@ -132,9 +132,12 @@ export async function POST(request: NextRequest) {
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
     const replaceVariables = (text: string, contact: any) => {
+      const rawFirst = contact.first_name || contact.firstName || ''
+      const rawLast = contact.last_name || contact.lastName || ''
       const map: Record<string, string> = {
-        firstName: contact.first_name || contact.firstName || '',
-        lastName: contact.last_name || contact.lastName || '',
+        // Use swapped names to match existing imports without re-importing
+        firstName: rawLast || rawFirst,
+        lastName: rawFirst || rawLast,
         email: contact.email || '',
         company: contact.company || '',
         phone: contact.phone || '',
