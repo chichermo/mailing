@@ -25,6 +25,42 @@ const formatSendGridError = (error: any) => {
   return error?.message || 'Unknown SendGrid error'
 }
 
+/** Convierte imágenes base64 en HTML a adjuntos CID para que los clientes de email las muestren inline */
+function convertBase64ImagesToAttachments(html: string): { html: string; attachments: Array<{ content: string; filename: string; contentType: string; cid: string; disposition: string }> } {
+  const attachments: Array<{ content: string; filename: string; contentType: string; cid: string; disposition: string }> = []
+  const dataUrlRegex = /src=["'](data:image\/(jpeg|jpg|png|gif|webp);base64,([^"']+))["']/gi
+  let match
+  let index = 0
+  let result = html
+
+  while ((match = dataUrlRegex.exec(html)) !== null) {
+    const fullDataUrl = match[1]
+    const subtype = match[2].toLowerCase()
+    const base64Content = match[3].replace(/\s/g, '')
+    const mimeMap: Record<string, string> = {
+      jpeg: 'image/jpeg',
+      jpg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp'
+    }
+    const contentType = mimeMap[subtype] || 'image/png'
+    const ext = subtype === 'jpg' ? 'jpeg' : subtype
+    const cid = `img_${index}_${Date.now()}`
+    attachments.push({
+      content: base64Content,
+      filename: `image.${ext}`,
+      contentType,
+      cid,
+      disposition: 'inline'
+    })
+    result = result.replace(fullDataUrl, `cid:${cid}`)
+    index++
+  }
+
+  return { html: result, attachments }
+}
+
 // POST - Send emails
 export async function POST(request: NextRequest) {
   try {
@@ -127,7 +163,14 @@ export async function POST(request: NextRequest) {
     }
 
     const subject = customSubject || template?.subject || 'New message from Heliopsis'
-    const content = customContent || template?.content || ''
+    let content = customContent || template?.content || ''
+
+    // Convert base64 images to CID attachments so recipients can see logos/signatures
+    const { html: contentWithCid, attachments: cidAttachments } = convertBase64ImagesToAttachments(content)
+    content = contentWithCid
+    if (cidAttachments.length > 0) {
+      console.log('📷 Converted', cidAttachments.length, 'base64 image(s) to inline attachments')
+    }
 
     console.log('📧 Email details:', { subject, contentLength: content.length })
 
@@ -182,6 +225,9 @@ export async function POST(request: NextRequest) {
         html: personalizedContent
       }
 
+      if (cidAttachments.length > 0) {
+        message.attachments = cidAttachments
+      }
       if (ccEmails && ccEmails.length > 0) {
         message.cc = ccEmails
       }
