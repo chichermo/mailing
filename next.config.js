@@ -19,7 +19,10 @@ const nextConfig = {
   },
   // Configuración específica para evitar la ejecución de APIs durante el build
   async rewrites() {
-    return []
+    return [
+      // Evitar 404 de favicon: redirigir a icon generado
+      { source: '/favicon.ico', destination: '/icon' }
+    ]
   },
   // Deshabilitar la generación estática de APIs
   async headers() {

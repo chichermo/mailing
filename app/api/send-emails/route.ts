@@ -89,8 +89,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { templateId, listName, customSubject, customContent, testMode, ccEmails, bccEmails } = await request.json()
-    console.log('📨 Request data:', { templateId, listName, customSubject, customContent, testMode, ccEmails, bccEmails })
+    let body: any
+    try {
+      body = await request.json()
+    } catch (parseError: any) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON body', details: parseError?.message },
+        { status: 400 }
+      )
+    }
+    const { templateId, listName, customSubject, customContent, testMode, ccEmails, bccEmails } = body
+    console.log('📨 Request data:', { templateId, listName, customSubject: customSubject ? '[set]' : null, customContent: customContent ? `[${customContent.length} chars]` : null, testMode, ccEmails, bccEmails })
 
     // Validate required fields
     if (!templateId && (!customSubject || !customContent)) {
@@ -163,10 +172,10 @@ export async function POST(request: NextRequest) {
     }
 
     const subject = customSubject || template?.subject || 'New message from Heliopsis'
-    let content = customContent || template?.content || ''
+    let content = (typeof customContent === 'string' ? customContent : template?.content) || ''
 
     // Convert base64 images to CID attachments so recipients can see logos/signatures
-    const { html: contentWithCid, attachments: cidAttachments } = convertBase64ImagesToAttachments(content)
+    const { html: contentWithCid, attachments: cidAttachments } = convertBase64ImagesToAttachments(String(content))
     content = contentWithCid
     if (cidAttachments.length > 0) {
       console.log('📷 Converted', cidAttachments.length, 'base64 image(s) to inline attachments')
@@ -266,7 +275,7 @@ export async function POST(request: NextRequest) {
       .insert(campaignData)
 
     if (campaignError) {
-      throw campaignError
+      console.warn('⚠️ Campaign log not saved (non-fatal):', campaignError.message)
     }
 
     if (successCount === 0 && lastError) {
@@ -299,8 +308,9 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('💥 Fatal error in email sending:', error)
     console.error('💥 Error stack:', error.stack)
+    const details = error?.response?.body?.errors?.[0]?.message || error?.message || String(error)
     return NextResponse.json(
-      { success: false, error: 'Error sending emails', details: error.message },
+      { success: false, error: 'Error sending emails', details },
       { status: 500 }
     )
   }

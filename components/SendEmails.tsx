@@ -149,7 +149,8 @@ export default function SendEmails() {
         resetForm()
         loadData()
       } else {
-        toast.error(result.error || 'Error sending emails')
+        const msg = result.details ? `${result.error}: ${result.details}` : (result.error || 'Error sending emails')
+        toast.error(msg, { duration: 6000 })
       }
     } catch (error) {
       console.error('Error in handleSendEmails:', error)
