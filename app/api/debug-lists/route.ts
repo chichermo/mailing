@@ -1,9 +1,30 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
 
 // GET - Debug: Ver todas las listas y contactos
 export async function GET() {
   try {
+    // Evitar ejecución durante el build de Next.js (evita TypeError)
+    if (process.env.NEXT_PHASE === 'phase_production_build') {
+      return NextResponse.json({
+        success: true,
+        summary: { totalContacts: 0, totalLists: 0, contactsWithOldFormat: 0 },
+        lists: [],
+        oldFormatContacts: [],
+        allContacts: [],
+        _buildTime: true
+      })
+    }
+
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { success: false, error: 'Supabase not configured' },
+        { status: 503 }
+      )
+    }
+
+    const { supabaseAdmin } = await import('@/lib/supabase')
     const { data: allContacts, error } = await supabaseAdmin
       .from('contacts')
       .select('id,email,list_names')
